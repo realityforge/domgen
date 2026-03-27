@@ -63,6 +63,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :application_event_constants, nil, :server, :action, '#{repository.name}ApplicationEventConstants'
+
+      def defines_application_event_constants?
+        self.repository.data_modules.any? { |dm| dm.action? && dm.action.defines_application_event_constants? }
+      end
+
       def pre_pre_complete
         if self.repository.imit?
           self.repository.imit.graphs.select{|graph|!graph.filter_parameter.nil?}.each do |graph|
@@ -78,6 +84,10 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
+
+      def defines_application_event_constants?
+        self.data_module.services.any? { |s| s.action? && s.action.defines_application_event_constants? }
+      end
 
       def post_complete
         self.data_module.services.select { |service| service.action? }.each do |service|
@@ -225,6 +235,10 @@ module Domgen
 
       def incompatible_categories
         @incompatible_categories ||= []
+      end
+
+      def defines_application_event_constants?
+        self.service.methods.any? { |m| m.action? && !m.action.application_event.nil? }
       end
 
       def pre_complete

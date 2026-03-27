@@ -1,0 +1,17 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.action.qualified_application_event_constants_name) %>;
+
+@org.intellij.lang.annotations.MagicConstant( valuesFromClass = <%= repository.action.application_event_constants_name %>.class )
+public @interface <%= repository.action.application_event_constants_name %>
+{
+<% repository.data_modules.select{|data_module|data_module.action? && data_module.action.defines_application_event_constants?}.each do |data_module| -%>
+  /*
+   * <%= data_module.name %> events.
+   */
+<% data_module.services.select{|service|service.action? && service.action.defines_application_event_constants?}.each do |service| -%>
+<% service.methods.select{|method|method.action? && !method.action.application_event.nil?}.each do |method| -%>
+  String <%= Reality::Naming.uppercase_constantize(method.action.application_event) %> = "<%= method.action.application_event %>";
+<% end -%>
+<% end -%>
+<% end -%>
+}

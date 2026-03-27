@@ -16,6 +16,10 @@ Domgen::Generator.define([:action],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
   g.template_set(:action_server) do |template_set|
+    template_set.erb_template(:repository,
+                              'application_event_constants.java.erb',
+                              'main/java/#{repository.action.qualified_application_event_constants_name.gsub(".","/")}.java',
+                              :guard => 'repository.action.defines_application_event_constants?')
     template_set.erb_template(:service,
                               'service_actions.java.erb',
                               'main/java/#{service.action.qualified_service_actions_name.gsub(".","/")}.java')
