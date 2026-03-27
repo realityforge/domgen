@@ -43,9 +43,9 @@ def create_parameter_value(p, parent_context = nil)
         create_struct(p.referenced_struct, p.characteristic_container)
       end
     elsif p.datetime?
-      "new java.util.Date(77, 11, 3, 22, 32)"
+      "new java.util.Date(77, java.util.Calendar.DECEMBER, 3, 22, 32)"
     elsif p.date?
-      "new java.util.Date(77, 11, 3)"
+      "new java.util.Date(77, java.util.Calendar.DECEMBER, 3)"
     elsif p.text?
       "\"HelloWorld\""
     else
