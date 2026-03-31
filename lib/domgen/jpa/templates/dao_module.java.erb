@@ -38,7 +38,9 @@ public class <%= repository.jpa.dao_module_name %>
     }
     catch ( final java.lang.ClassNotFoundException e )
     {
-      throw new java.lang.IllegalStateException( e );
+      // Service test targets only include the repositories they exercise. Skip bindings for
+      // repositories that are absent from the narrowed classpath and let Guice fail later if the
+      // current test actually requests one of those repositories.
     }
   }
 <%
