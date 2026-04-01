@@ -44,8 +44,7 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
     template_set.erb_template('imit.graph',
                               'client/graph_subscription_util.java.erb',
-                              'main/java/#{graph.qualified_subscription_util_name.gsub(".","/")}.java',
-                              :guard => 'graph.external_visibility?')
+                              'main/java/#{graph.qualified_subscription_util_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/gwt/session_context.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_client_session_context_name.gsub(".","/")}.java')

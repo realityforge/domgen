@@ -54,7 +54,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @java.lang.Override
   public void postTest()
   {
-    if ( null != getInjector() )
+    if ( hasInjector() )
     {
       final var bindings = getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( org.realityforge.guiceyloops.server.DbCleaner.class ) );
       try
