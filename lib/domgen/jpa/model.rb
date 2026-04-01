@@ -715,7 +715,7 @@ FRAGMENT
         if include_default_unit?
           add_test_class_content(<<-JAVA)
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @java.lang.Override
   protected String getPrimaryPersistenceUnitName()
   {
