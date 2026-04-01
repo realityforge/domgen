@@ -13,6 +13,12 @@ public abstract class <%= graph.react4j_subscription_view_name %>
   abstract <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type(:default, :assume_generated => true) %> getId();
 
 <% end -%>
+<% if graph.instanced? -%>
+  @javax.annotation.Nonnull
+  @react4j.annotations.Input( immutable = true )
+  abstract java.lang.String instanceId();
+
+<% end -%>
 <% if graph.filter_parameter? -%>
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -31,6 +37,6 @@ public abstract class <%= graph.react4j_subscription_view_name %>
   @java.lang.Override
   protected replicant.ChannelAddress getAddress()
   {
-    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'getId()' : 'null' -%> );
+    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ', getId()' : graph.instanced? ? ', null' : '' -%><%= graph.instanced? ? ', instanceId()' : '' -%> );
   }
 }
