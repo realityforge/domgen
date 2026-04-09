@@ -24,7 +24,7 @@ public interface <%= repository.imit.schema_sting_fragment_name %>
       new replicant.ChannelSchema( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
                                    replicant.Replicant.areNamesEnabled() ? <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME : null,
                                    <%= graph.instance_root? ? "#{repository.entity_by_name(graph.instance_root).arez.qualified_name}.class" : 'null' %>,
-                                   replicant.ChannelSchema.FilterType.<%= !graph.filtered? ? 'NONE' : !graph.filter_parameter? ? 'INTERNAL' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
+                                   replicant.ChannelSchema.FilterType.<%= !graph.filtered? ? 'NONE' : !graph.filter_parameter? ? 'INTERNAL' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %><%= graph.instanced? ? '_INSTANCED' : '' %>,
                                    <% if graph.filter_parameter? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> <%= repository.imit.qualified_schema_filter_tools_name %>.doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
                                    <%= graph.cacheable? %>,
                                    <%= graph.external_visibility? %>,
