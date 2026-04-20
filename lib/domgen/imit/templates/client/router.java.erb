@@ -8,7 +8,7 @@ final class <%= repository.imit.client_router_name %>
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
 -%>
-  private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
+  private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nullable final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
   {
 <% if routing_key.multivalued? -%>
     ( (java.util.List<Integer>) map.computeIfAbsent( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ) ).add( value );
