@@ -15,7 +15,7 @@ class <%= repository.keycloak.auth_service_implementation_name %>
   @java.lang.Override
   public void setUsername( @javax.annotation.Nonnull final java.lang.String username )
   {
-    _username.set( java.util.Objects.requireNonNull( username ) );
+    _username.set( username );
   }
 
   @java.lang.Override

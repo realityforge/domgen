@@ -44,7 +44,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
     super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.reference? ? :transport : :default, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))} )" : Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default)) %>;
+    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default)) %>;
 <% end -%>
   }
 <% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? }.each do |attribute| -%>

@@ -270,11 +270,7 @@ JAVA
   #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{name}( #{annotated_type(attribute, :jpa, :default, :final => true)} value )
   {
 JAVA
-          if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
-            java << "    this.#{attribute.jpa.field_name} = java.util.Objects.requireNonNull( value );\n"
-          else
-            java << "    this.#{attribute.jpa.field_name} = value;\n"
-          end
+          java << "    this.#{attribute.jpa.field_name} = value;\n"
           java << <<JAVA
   }
 
