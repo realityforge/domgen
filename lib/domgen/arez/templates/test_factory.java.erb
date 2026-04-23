@@ -38,10 +38,10 @@ public final class <%= data_module.arez.test_factory_name %>
   %>)
   {
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
-    _<%= Reality::Naming.camelize(dao.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dao.name) %> );
+    _<%= Reality::Naming.camelize(dao.name) %> = <%= Reality::Naming.camelize(dao.name) %>;
 <% end -%>
 <% required_factories.each do |dm| -%>
-    _<%=Reality::Naming.camelize(dm.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dm.name) %> );
+    _<%=Reality::Naming.camelize(dm.name) %> = <%= Reality::Naming.camelize(dm.name) %>;
 <% end -%>
   }
 

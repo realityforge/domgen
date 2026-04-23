@@ -65,11 +65,11 @@ else
 <% struct.fields.each do |field|
      null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " :''
      if :sequence == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(field.name) %> ) ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= Reality::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(field.name) %> ) ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= Reality::Naming.camelize(field.name) %> ) );
   <%     else
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= field.nullable? || field.ee.primitive? ? '' : 'java.util.Objects.requireNonNull( ' %><%= Reality::Naming.camelize(field.name) %><%= field.nullable? || field.ee.primitive? ? '' : ' )' %>;
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= Reality::Naming.camelize(field.name) %>;
 <%   end
    end
 %>  }

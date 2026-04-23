@@ -10,7 +10,7 @@ public abstract class <%= repository.sql_analysis.abstract_corruption_checks_tes
 
     public CorruptionCheckerCallback( @javax.annotation.Nonnull final String corruptionCheckSQL )
     {
-      _corruptionCheckSQL = java.util.Objects.requireNonNull( corruptionCheckSQL );
+      _corruptionCheckSQL = corruptionCheckSQL;
     }
 
     public void expectNoCorruptions()

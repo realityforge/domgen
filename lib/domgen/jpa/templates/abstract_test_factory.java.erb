@@ -10,7 +10,7 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
 
   protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
-    _injector = java.util.Objects.requireNonNull( injector );
+    _injector = injector;
   }
 <% if data_module.repository.jpa.include_default_unit? -%>
 

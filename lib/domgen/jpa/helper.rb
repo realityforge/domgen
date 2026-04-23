@@ -147,7 +147,7 @@ JAVA
   #{entity.jpa.module_local_mutators? ? '' : 'public '}#{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
-        java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
+        java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{a.jpa.field_name};\n" }.join('')
         java += declared_immutable_attributes.select{|a|a.reference? && a.inverse.jpa.java_traversable?}.collect{|a| '    ' + j_add_to_inverse(a) + "\n" }.join('')
         java = java + <<JAVA
   }
