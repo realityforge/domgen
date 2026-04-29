@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_aggregate_remote_service_sting_
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @sting.Fragment( includes = {
 <%= repository.imit.remote_service_sting_fragments.collect{|dm| "  #{dm.imit.qualified_remote_service_sting_fragment_name}.class"}.sort.join(",\n") %>
-} )
+}, localOnly = false )
 public interface <%= repository.imit.aggregate_remote_service_sting_fragment_name %>
 {
 }
