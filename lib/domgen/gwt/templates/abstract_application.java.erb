@@ -358,9 +358,10 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 
 <% end -%>
-  protected final void registerReplicantConnector( @javax.annotation.Nonnull final String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
+  protected final void registerReplicantConnector( @javax.annotation.Nonnull final java.lang.String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
   {
-    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL, getKeycloak() );
+    final org.realityforge.gwt.keycloak.Keycloak keycloak = getKeycloak();
+    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL, keycloak::updateTokenAndExecute, keycloak::getToken );
     replicant.Replicant.context().registerConnector( schema, new replicant.WebSocketTransport( config ) );
   }
 
