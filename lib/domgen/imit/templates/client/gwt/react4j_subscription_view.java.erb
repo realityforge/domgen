@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(graph.qualified_react4j_subscription_view_name) %>;
 
-@react4j.annotations.View( type = react4j.annotations.View.Type.NO_RENDER )
-public abstract class <%= graph.react4j_subscription_view_name %>
+@react4j.annotations.View( exportBuilder = true, type = react4j.annotations.View.Type.NO_RENDER )
+abstract class <%= graph.react4j_subscription_view_name %>
   extends replicant.react4j.ReplicantSubscription
 {
 <% if graph.instance_root? -%>
