@@ -6,7 +6,7 @@
 <% end -%>
   <inherits name='sting.Sting'/>
 <% if repository.keycloak? -%>
-  <inherits name='org.realityforge.gwt.keycloak.cache.TokenCache'/>
+  <inherits name='org.realityforge.gwt.keycloak.Keycloak'/>
 <% end -%>
 <% if repository.arez? -%>
   <set-property name='arez.enable_references' value='true'/>

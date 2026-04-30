@@ -26,8 +26,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     _applicationURL = calculateApplicationURL();
 <% if repository.keycloak? -%>
     _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, _applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
-    org.realityforge.gwt.keycloak.cache.TokenCache.configure( _keycloak );
-    _keycloak.addKeycloakListener( new org.realityforge.gwt.keycloak.cache.TokenCachingListener() );
     _keycloak.addKeycloakListener( newKeycloakListener() );
 <% end -%>
   }
