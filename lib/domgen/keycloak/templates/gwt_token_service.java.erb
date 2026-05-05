@@ -19,22 +19,10 @@ public final class <%= repository.keycloak.gwt_token_service_name %>
     return _keycloak.getParsedToken();
   }
 
-  @javax.annotation.Nonnull
-  public <%= client.qualified_token_name %> get<%= client.qualified_type_name %>Token()
-  {
-    return java.util.Objects.requireNonNull( find<%= client.qualified_type_name %>Token() );
-  }
-
   @javax.annotation.Nullable
   public <%= client.qualified_id_token_name %> find<%= client.qualified_type_name %>IdToken()
   {
     return _keycloak.getParsedIDToken();
-  }
-
-  @javax.annotation.Nullable
-  public <%= client.qualified_id_token_name %> get<%= client.qualified_type_name %>IdToken()
-  {
-    return java.util.Objects.requireNonNull( find<%= client.qualified_type_name %>IdToken() );
   }
 <% end -%>
 }
