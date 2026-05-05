@@ -75,9 +75,6 @@ Domgen::Generator.define([:gwt],
 
   g.template_set(:gwt_client_gwt_modules) do |template_set|
     template_set.erb_template(:repository,
-                              'app_module.xml.erb',
-                              'main/java/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml')
-    template_set.erb_template(:repository,
                               'prod_module.xml.erb',
                               'main/java/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml')
   end
