@@ -23,7 +23,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :entrypoint, nil, :client, :gwt, '#{name}'
-      java_artifact :gwt_module, :modules, nil, :gwt, '#{name}EntrypointSupport'
 
       def modules_package
         entrypoint.gwt_repository.modules_package

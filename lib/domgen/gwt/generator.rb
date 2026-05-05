@@ -86,10 +86,6 @@ Domgen::Generator.define([:gwt],
     template_set.erb_template(:repository,
                               'prod_module.xml.erb',
                               'main/java/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml')
-    template_set.erb_template('gwt.entrypoint',
-                              'entrypoint_module.xml.erb',
-                              'main/java/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
-                              :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
   end
 
   g.template_set(:gwt_client_app) do |template_set|
