@@ -56,7 +56,6 @@ module Domgen
 
       java_artifact :rdate, :data_type, :client, :gwt, 'RDate', :sub_package => 'util'
 
-      java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
       java_artifact :app_module, :modules, nil, :gwt, '#{repository.name}AppSupport'
       java_artifact :model_module, :modules, nil, :gwt, '#{repository.name}ModelSupport'
