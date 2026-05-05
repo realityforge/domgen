@@ -57,7 +57,6 @@ module Domgen
 
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
       java_artifact :app_module, :modules, nil, :gwt, '#{repository.name}AppSupport'
-      java_artifact :model_module, :modules, nil, :gwt, '#{repository.name}ModelSupport'
 
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :abstract_test_sting_injector, :test, :client, :gwt, 'Abstract#{repository.name}TestInjector', :sub_package => 'util'

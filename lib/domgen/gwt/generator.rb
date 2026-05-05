@@ -73,12 +73,6 @@ Domgen::Generator.define([:gwt],
                               :guard => 'repository.gwt.enable_sting_injectors?')
   end
 
-  g.template_set(:gwt_client_gwt_model_module) do |template_set|
-    template_set.erb_template(:repository,
-                              'model_module.xml.erb',
-                              'main/java/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml')
-  end
-
   g.template_set(:gwt_client_gwt_modules) do |template_set|
     template_set.erb_template(:repository,
                               'app_module.xml.erb',
