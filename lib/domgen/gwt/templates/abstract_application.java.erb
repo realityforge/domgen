@@ -16,10 +16,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   @javax.annotation.Nullable
   private zemeckis.Cancelable _updateReplicantTokenTask;
 <% end -%>
-<% if repository.serviceworker? -%>
-  @javax.annotation.Nullable
-  private zemeckis.Cancelable _serviceWorkerUpdateTask;
-<% end -%>
 
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
@@ -30,7 +26,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
   }
 
-<% if (repository.imit? && repository.keycloak?) || repository.serviceworker? -%>
+<% if repository.imit? && repository.keycloak? -%>
 <% if repository.arez? -%>
   @arez.annotations.PreDispose
 <% end -%>
@@ -41,13 +37,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     {
       _updateReplicantTokenTask.cancel();
       _updateReplicantTokenTask = null;
-    }
-<% end -%>
-<% if repository.serviceworker? -%>
-    if ( null != _serviceWorkerUpdateTask )
-    {
-      _serviceWorkerUpdateTask.cancel();
-      _serviceWorkerUpdateTask = null;
     }
 <% end -%>
   }
@@ -96,9 +85,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void start()
   {
-<% if repository.serviceworker? -%>
-    setupServiceWorker();
-<% end -%>
 <% if repository.imit? -%>
     prepareReplicant();
 <% end -%>
@@ -226,39 +212,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     }
   }
 <% end -%>
-<% if repository.serviceworker? -%>
-
-  private void setupServiceWorker()
-  {
-    final akasha.Navigator navigator = akasha.WindowGlobal.navigator();
-    if ( navigator.isServiceWorkerSupported() && !isSuperDevMode() )
-    {
-      final akasha.ServiceWorkerContainer serviceWorker = navigator.serviceWorker();
-      serviceWorker
-        .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
-        .then( registration -> {
-          akasha.Console.log( "ServiceWorker registration successful with scope: " + registration.scope() );
-
-          // Every minute attempt to update the serviceWorker. If it does update
-          // then the "controllerchange" event will fire.
-          _serviceWorkerUpdateTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ServiceWorkerUpdateTask" : null, registration::update, 60000 );
-          return null;
-        }, error -> {
-          akasha.Console.log( "ServiceWorker registration failed: ", error );
-          return null;
-        } );
-      serviceWorker.addControllerchangeListener( e -> {
-        // This fires when the service worker controlling this page
-        // changes, eg a new worker has skipped waiting and become
-        // the new active worker.
-        akasha.Console.log( "ServiceWorker updated ", e );
-        onServiceWorkerUpdateReady();
-      } );
-    }
-  }
-
-  protected abstract void onServiceWorkerUpdateReady();
-<% end -%>
 
   protected abstract void performStart();
 
@@ -367,6 +320,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     // Make sure context and any static initializers have run to avoid
     // triggering schedulers during injector construction
+    // noinspection ResultOfMethodCallIgnored
     replicant.Replicant.context();
     replicant.WebStorageCacheService.install();
     akasha.WindowGlobal.addBeforeunloadListener( e -> replicant.Replicant.context().deactivate(), true );

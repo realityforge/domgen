@@ -137,7 +137,5 @@ require 'domgen/sql_analysis/generator'
 
 require 'domgen/react4j/model'
 
-require 'domgen/serviceworker/model'
-
 require 'domgen/action/model'
 require 'domgen/action/generator'

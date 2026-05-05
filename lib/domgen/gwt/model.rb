@@ -55,8 +55,6 @@ module Domgen
 
       java_artifact :rdate, :data_type, :client, :gwt, 'RDate', :sub_package => 'util'
 
-      java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
-
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :abstract_test_sting_injector, :test, :client, :gwt, 'Abstract#{repository.name}TestInjector', :sub_package => 'util'
       java_artifact :test_fragment, :test, :client, :gwt, '#{repository.name}TestFragment', :sub_package => 'util'
