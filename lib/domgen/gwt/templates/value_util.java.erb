@@ -1,7 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_value_util_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NonJREEmulationClassesInClientCode" } )
+import java.util.Date;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= repository.gwt.value_util_name %>
 {
   @javax.annotation.Nonnull
@@ -88,27 +90,10 @@ public final class <%= repository.gwt.value_util_name %>
     c_seed = seed;
   }
 
-  /**
-   * Current time as a calendar.
-   */
-  @javax.annotation.Nonnull
-  public static java.util.Calendar nowAsCalendar()
-  {
-    final java.util.Calendar calendar = java.util.Calendar.getInstance();
-    calendar.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    calendar.setTime( now() );
-    return calendar;
-  }
-
   @javax.annotation.Nonnull
   public static java.util.Date today()
   {
-    final java.util.Calendar calendar = nowAsCalendar();
-    calendar.set( java.util.Calendar.HOUR_OF_DAY, 0 );
-    calendar.set( java.util.Calendar.MINUTE, 0 );
-    calendar.set( java.util.Calendar.SECOND, 0 );
-    calendar.set( java.util.Calendar.MILLISECOND, 0 );
-    return calendar.getTime();
+    return getFromDate( now() ).startOfDay().toDate();
   }
 
   @javax.annotation.Nonnull
@@ -124,82 +109,138 @@ public final class <%= repository.gwt.value_util_name %>
   }
 
   @javax.annotation.Nonnull
-  public static java.util.Date addDays( @javax.annotation.Nonnull final java.util.Date time, final int dayCount )
+  public static java.util.Date addDays( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    final java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    cal.setTime( time );
-    cal.add( java.util.Calendar.DAY_OF_YEAR, dayCount );
-    return cal.getTime();
+    return getFromDate( time ).addDays( count ).toDate();
+  }
+
+  private static DateMath getFromDate( @javax.annotation.Nonnull final Date time )
+  {
+    return DateMath.fromDate( time );
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date minusDays( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    return addDays( time, -count );
+    return getFromDate( time ).addDays( -count ).toDate();
   }
 
   @javax.annotation.Nonnull
-  public static java.util.Date addMonths( @javax.annotation.Nonnull final java.util.Date time, final int monthCount )
+  public static java.util.Date addMonths( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    final java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    cal.setTime( time );
-    cal.add( java.util.Calendar.MONTH, monthCount );
-    return cal.getTime();
+    return getFromDate( time ).addMonths( count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date minusMonths( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    return addMonths( time, -count );
+    return getFromDate( time ).addMonths( -count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date addHours( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    final java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    cal.setTime( time );
-    cal.add( java.util.Calendar.HOUR, count );
-    return cal.getTime();
+    return getFromDate( time ).addHours( count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date minusHours( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    return addHours( time, -count );
+    return getFromDate( time ).addHours( -count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date addMinutes( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    final java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    cal.setTime( time );
-    cal.add( java.util.Calendar.MINUTE, count );
-    return cal.getTime();
+    return getFromDate( time ).addMinutes( count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date minusMinutes( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    return addMinutes( time, -count );
+    return getFromDate( time ).addMinutes( -count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date addSeconds( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    final java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
-    cal.setTime( time );
-    cal.add( java.util.Calendar.SECOND, count );
-    return cal.getTime();
+    return getFromDate( time ).addSeconds( count ).toDate();
   }
 
   @javax.annotation.Nonnull
   public static java.util.Date minusSeconds( @javax.annotation.Nonnull final java.util.Date time, final int count )
   {
-    return addSeconds( time, -count );
+    return getFromDate( time ).addSeconds( -count ).toDate();
+  }
+
+  private static final class DateMath
+  {
+    private static final long MILLIS_PER_SECOND = 1000L;
+    private static final long MILLIS_PER_MINUTE = 60L * MILLIS_PER_SECOND;
+    private static final long MILLIS_PER_HOUR = 60L * MILLIS_PER_MINUTE;
+    private static final long MILLIS_PER_DAY = 24L * MILLIS_PER_HOUR;
+    @javax.annotation.Nonnull
+    private final java.util.Date jvmDate;
+
+    private DateMath( @javax.annotation.Nonnull final java.util.Date jvmDate )
+    {
+      this.jvmDate = jvmDate;
+    }
+
+    @javax.annotation.Nonnull
+    static DateMath fromDate( @javax.annotation.Nonnull final java.util.Date date )
+    {
+      return new DateMath( new Date( date.getTime() ) );
+    }
+
+    @javax.annotation.Nonnull
+    DateMath addSeconds( final int amount )
+    {
+      return new DateMath( new Date( jvmDate.getTime() + amount * MILLIS_PER_SECOND ) );
+    }
+
+    @javax.annotation.Nonnull
+    DateMath addMinutes( final int amount )
+    {
+      return new DateMath( new Date( jvmDate.getTime() + amount * MILLIS_PER_MINUTE ) );
+    }
+
+    @javax.annotation.Nonnull
+    DateMath addHours( final int amount )
+    {
+      return new DateMath( new Date( jvmDate.getTime() + amount * MILLIS_PER_HOUR ) );
+    }
+
+    @javax.annotation.Nonnull
+    DateMath addDays( final int amount )
+    {
+      return new DateMath( new Date( jvmDate.getTime() + amount * MILLIS_PER_DAY ) );
+    }
+
+    @SuppressWarnings( { "deprecation", "MagicConstant" } )
+    @javax.annotation.Nonnull
+    DateMath addMonths( final int amount )
+    {
+      final Date d = new Date( jvmDate.getTime() );
+      d.setMonth( d.getMonth() + amount );
+      return new DateMath( d );
+    }
+
+    @SuppressWarnings( "deprecation" )
+    @javax.annotation.Nonnull
+    DateMath startOfDay()
+    {
+      final Date d = new Date( jvmDate.getTime() );
+      d.setHours( 0 );
+      d.setMinutes( 0 );
+      d.setSeconds( 0 );
+      return new DateMath( new Date( ( d.getTime() / 1000L ) * 1000L ) );
+    }
+
+    @javax.annotation.Nonnull
+    java.util.Date toDate()
+    {
+      return new java.util.Date( jvmDate.getTime() );
+    }
   }
 }
