@@ -19,7 +19,7 @@ Domgen::Generator.define([:jpa],
     template_set.erb_template(:repository,
                               'unit_descriptor.java.erb',
                               'main/java/#{repository.jpa.qualified_unit_descriptor_name.gsub(".","/")}.java',
-                              :guard => 'repository.jpa.include_default_unit? || repository.jpa.standalone_persistence_units?')
+                              :guard => 'repository.jpa.include_default_unit?')
     template_set.erb_template(:entity,
                               'entity.java.erb',
                               'main/java/#{entity.jpa.qualified_name.gsub(".","/")}.java')

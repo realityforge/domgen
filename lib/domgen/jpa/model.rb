@@ -539,42 +539,8 @@ module Domgen
 
       attr_accessor :default_jpql_criterion
 
-      def add_standalone_persistence_unit(short_name, options = {}, &block)
-        name = options[:unit_name] || ("#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}")
-        raise "Persistence unit with name #{name} already exists" if self.standalone_persistence_unit_map[name.to_s] || (self.include_default_unit? && self.unit_name.to_s == name.to_s)
-        self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, { :short_name => short_name, :unit_name => name }.merge(options), &block)
-      end
-
-      def standalone_persistence_unit_by_name?(short_name)
-        name = "#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}"
-        !!self.standalone_persistence_unit_map[name.to_s]
-      end
-
-      def standalone_persistence_unit_by_name(short_name)
-        name = "#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}"
-        self.standalone_persistence_unit_map[name.to_s]
-      end
-
-      def standalone_persistence_units?
-        !standalone_persistence_units.empty?
-      end
-
-      def standalone_persistence_units
-        standalone_persistence_unit_map.values
-      end
-
-      def persistence_unit_by_name?(name)
-        return true if self.include_default_unit? && self.unit_name.to_s == name.to_s
-        standalone_persistence_unit_by_name?(name)
-      end
-
-      def persistence_unit_by_name(name)
-        return self.default_persistence_unit if self.include_default_unit? && self.unit_name.to_s == name.to_s
-        standalone_persistence_unit_by_name(name)
-      end
-
       def persistence_units
-        standalone_persistence_units + (self.include_default_unit? ? [self.default_persistence_unit] : [])
+        (self.include_default_unit? ? [self.default_persistence_unit] : [])
       end
 
       def unit_name=(unit_name)
@@ -639,35 +605,6 @@ module Domgen
       end
 
       def pre_complete
-        self.standalone_persistence_units.each do |unit|
-          fragment = <<FRAGMENT
-<persistence-unit name="#{unit.unit_name}" transaction-type="JTA">
-  <jta-data-source>#{unit.data_source}</jta-data-source>
-
-FRAGMENT
-          unit.classes.each do |cls|
-            fragment << <<FRAGMENT
-      <class>#{cls}</class>
-FRAGMENT
-          end
-          fragment << <<FRAGMENT
-  <exclude-unlisted-classes>#{unit.exclude_unlisted_classes?}</exclude-unlisted-classes>
-  <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
-  <validation-mode>AUTO</validation-mode>
-
-  <properties>
-FRAGMENT
-
-          unit.properties.each_pair do |key, value|
-            fragment << "      <property name=\"#{key}\" value=\"#{value}\"/>\n"
-          end
-          fragment << <<FRAGMENT
-  </properties>
-</persistence-unit>
-FRAGMENT
-          repository.jpa.persistence_file_content_fragments << fragment
-        end
-
         if repository.redfish?
           self.persistence_units.each do |unit|
             repository.redfish.persistence_unit(unit.short_name,
@@ -699,13 +636,6 @@ FRAGMENT
         add_test_module(persistent_test_module_name, qualified_persistent_test_module_name) if repository.jpa.include_default_unit?
         add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         add_test_module(dao_module_name, qualified_dao_module_name)
-        standalone_persistence_units.select {|unit| unit.mock_test_mode?}.each do |unit|
-          add_test_module("#{unit.unit_name}PersistenceModule",
-                          "org.realityforge.guiceyloops.server.MockPersistenceTestModule( #{qualified_unit_descriptor_name }.#{Reality::Naming.uppercase_constantize(unit.short_name)}_NAME )")
-        end
-        standalone_persistence_units.select {|unit| unit.raw_test_mode?}.each do |unit|
-          add_test_module(unit.raw_test_module_name, unit.qualified_raw_test_module_name)
-        end
         repository.jpa.persistence_units.select {|persistence_unit| persistence_unit.generate_test_util?}.each do |persistence_unit|
           add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
@@ -750,10 +680,6 @@ FRAGMENT
 
       def safe_default_persistence_unit
         @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self, :test_mode => :default)
-      end
-
-      def standalone_persistence_unit_map
-        @standalone_persistence_units ||= {}
       end
     end
 
@@ -824,8 +750,6 @@ FRAGMENT
         (dao.repository? ? dao.entity.jpa.support_update? : false) && (@support_update.nil? ? false : !!@support_update)
       end
 
-      attr_accessor :persistence_unit_name
-
       def transaction_type
         @transaction_type || :mandatory
       end
@@ -848,11 +772,6 @@ FRAGMENT
       end
 
       def perform_verify
-        unless persistence_unit_name.nil?
-          unless dao.data_module.repository.jpa.standalone_persistence_unit_by_name?(persistence_unit_name)
-            Domgen.error("Defined a dao #{dao.name} that does not reference a standalone_persistence_unit but references non-existent #{persistence_unit_name}")
-          end
-        end
         self.friend_daos.each do |name|
           unless dao.data_module.dao_by_name?(name)
             Domgen.error("On dao #{dao.name} a friend #{name} was defined but this does not refer to a valid DAO")

@@ -33,12 +33,6 @@ module Domgen #nodoc
               end
             end
 
-            if r.jpa?
-              r.jpa.standalone_persistence_units.each do |p|
-                check_name(r, 'JPA Persistence Unit', p)
-              end
-            end
-
             r.data_modules.select{ |dm| !dm.application? || !dm.application.legacy_naming? }.each do |data_module|
               check_name(r, 'Data Module', data_module)
 

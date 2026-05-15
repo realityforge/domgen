@@ -18,20 +18,6 @@ public final class <%= repository.jpa.unit_descriptor_name %>
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.jpa.standalone_persistence_units.each do |unit| -%>
-  @javax.annotation.Nonnull
-  public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
-<% if repository.jpa.application_xmls? || repository.jpa.model_xmls? -%>
-  @javax.annotation.Nonnull
-  public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME = "<%= unit.resolved_data_source %>";
-  @javax.annotation.Nonnull
-  public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY = "<%= Reality::Naming.underscore(unit.short_name) %>";
-<% unit.related_database_keys.each do |key| -%>
-  @javax.annotation.Nonnull
-  public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_<%= Reality::Naming.uppercase_constantize(key) %>_DATABASE_NAME_JNDI_KEY = "<%= unit.related_database_jndi(key) %>";
-<% end -%>
-<% end -%>
-<% end -%>
 
   private <%= repository.jpa.unit_descriptor_name %>()
   {

@@ -28,7 +28,7 @@ class <%= dao.jpa.dao_name %>
 <% created_daos << entity.dao.qualified_name.to_s -%>
 <% end -%>
 <% end -%>
-  @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= dao.jpa.persistence_unit_name.nil? ? 'NAME' : "#{Reality::Naming.uppercase_constantize(dao.jpa.persistence_unit_name)}_NAME" %> )
+  @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager em;
 <% if dao.repository? && dao.entity.transaction_time? && dao.data_module.repository.jpa.use_time_service_for_now? -%>
   @javax.inject.Inject
