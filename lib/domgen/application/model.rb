@@ -80,5 +80,23 @@ module Domgen
         repository.disable_facet(:gwt_cache_filter) if repository.gwt_cache_filter?
       end
     end
+
+    facet.enhance(DataModule) do
+      # return true if the model names in this module do not conform with modern patterns
+      def legacy_naming?
+        @legacy_naming.nil? ? true : !!@legacy_naming
+      end
+
+      attr_writer :legacy_naming
+    end
+
+    facet.enhance(Entity) do
+      # return true if the model names in this module do not conform with modern patterns
+      def legacy_naming?
+        @legacy_naming.nil? ? true : !!@legacy_naming
+      end
+
+      attr_writer :legacy_naming
+    end
   end
 end

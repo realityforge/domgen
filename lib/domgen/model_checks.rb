@@ -39,7 +39,7 @@ module Domgen #nodoc
               end
             end
 
-            r.data_modules.each do |data_module|
+            r.data_modules.select{ |dm| !dm.application? || !dm.application.legacy_naming? }.each do |data_module|
               check_name(r, 'Data Module', data_module)
 
               data_module.enumerations.each do |enumeration|
@@ -56,7 +56,7 @@ module Domgen #nodoc
                 end
               end
 
-              data_module.entities.each do |entity|
+              data_module.entities.select{ |entity| !entity.application? || !entity.application.legacy_naming? }.each do |entity|
                 check_name(r, 'Entity', entity)
                 entity.attributes.each do |attribute|
                   check_name(r, 'Attribute', attribute)
