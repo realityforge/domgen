@@ -53,6 +53,8 @@ module Domgen
         @required_type_graphs = []
         @dependent_type_graphs = []
         @instance_root = nil
+        @post_subscribe_collect_hook = false
+        @subscribe_private = true
         @outward_graph_links = {}
         @inward_graph_links = {}
         @routing_keys = {}
@@ -83,6 +85,18 @@ module Domgen
       def to_s
         "ReplicationGraph[#{qualified_name}]"
       end
+
+      def post_subscribe_collect_hook?
+        !!@post_subscribe_collect_hook
+      end
+
+      attr_writer :post_subscribe_collect_hook
+
+      def subscribe_private?
+        !!@subscribe_private
+      end
+
+      attr_writer :subscribe_private
 
       def cacheable?
         !!@cacheable
