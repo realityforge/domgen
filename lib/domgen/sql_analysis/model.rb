@@ -58,6 +58,7 @@ module Domgen
         analysis_data_module.entity(:CorruptionCheck) do |t|
           t.disable_facets_not_in(Domgen::SqlAnalysis::VALID_ANALYSIS_FACETS)
           t.sql.load_from_fixture = true
+          t.jpa.module_local = true
           t.jpa.generate_metamodel = false
           t.integer(:Id, :primary_key => true)
           t.string(:Category, 50)
