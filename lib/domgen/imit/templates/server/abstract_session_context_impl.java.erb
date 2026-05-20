@@ -96,7 +96,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
 
   @java.lang.Override
-  public void preSubscribe( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
+  public void preSubscribe( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nullable final javax.json.JsonObject filter )
   {
 <%
   first = true
@@ -105,10 +105,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     <%= first ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
     {
 <% if graph.filter_parameter -%>
-      final var <%= Reality::Naming.camelize("#{graph.name}Filter") %> = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter;
-      assert null != <%= Reality::Naming.camelize("#{graph.name}Filter") %>;
+      assert null != filter;
 <% end -%>
-      ensureSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, <%= Reality::Naming.camelize("#{graph.name}Filter") %><% end -%> );
+      ensureSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, filter<% end -%> );
     }
 <%
     first = false
@@ -118,7 +117,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  public Object deriveTargetFilter( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final java.lang.Object sourceFilter, @javax.annotation.Nonnull final replicant.server.ChannelAddress target )
+  public javax.json.JsonObject deriveTargetFilter( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final javax.json.JsonObject sourceFilter, @javax.annotation.Nonnull final replicant.server.ChannelAddress target )
   {
 <% if !auto_follow_graph_links.any? -%>
     return super.deriveTargetFilter( entityMessage, source, sourceFilter, target );
@@ -133,13 +132,12 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     {
 <% first = false -%>
 <% if graph_link.target_filter_copied_from_source_filter? -%>
-      final var <%= Reality::Naming.camelize(source_graph.name) %>Filter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceFilter;
-      assert null != <%= Reality::Naming.camelize(source_graph.name) %>Filter;
-      return <%= Reality::Naming.camelize(source_graph.name) %>Filter;
+      assert null != sourceFilter;
+      return sourceFilter;
 <% else -%>
 <% if source_graph.filter_parameter? && graph_link.target_filter_requires_source_filter? -%>
       final var <%= Reality::Naming.camelize(source_graph.name) %>Filter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceFilter;
-      assert null != <%= Reality::Naming.camelize(source_graph.name) %>Filter;
+      assert null != sourceFilter;
 <% end -%>
 <% if graph_link.target_filter_requires_source_graph? -%>
       final var <%= Reality::Naming.camelize(source_graph.name) %>RootId = source.rootId();
@@ -149,7 +147,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       final var attributeValues = entityMessage.getAttributeValues();
       assert null != attributeValues;
 <% end -%>
-      return <%= graph_link.imit_attribute.attribute.entity.data_module.imit.qualified_encoder_name %>.deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( <%= graph_link.target_filter_requires_source_entity? ? 'attributeValues' : '' %><%= graph_link.target_filter_requires_source_entity? && graph_link.target_filter_requires_source_graph? ? ', ' : '' %><% if graph_link.target_filter_requires_source_graph? %><%= Reality::Naming.camelize(source_graph.name) %>RootId<% end %><% if source_graph.filter_parameter? && graph_link.target_filter_requires_source_filter? %>, <%= Reality::Naming.camelize(source_graph.name) %>Filter<% end %> );
+      return <%= target_graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.encode( <%= graph_link.imit_attribute.attribute.entity.data_module.imit.qualified_encoder_name %>.deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( <%= graph_link.target_filter_requires_source_entity? ? 'attributeValues' : '' %><%= graph_link.target_filter_requires_source_entity? && graph_link.target_filter_requires_source_graph? ? ', ' : '' %><% if graph_link.target_filter_requires_source_graph? %><%= Reality::Naming.camelize(source_graph.name) %>RootId<% end %><% if source_graph.filter_parameter? && graph_link.target_filter_requires_source_filter? %>, <%= Reality::Naming.camelize(source_graph.name) %>Filter<% end %> ) );
 <% end -%>
     }
     else<% end %>
@@ -187,10 +185,11 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       assert null != rootId;
 <% end -%>
 <% if graph.filter_parameter? -%>
-      final var filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getFilter( address );
+      final var filter = session.getFilter( address );
       assert null != filter;
+      final var decodedFilter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( filter );
 <% end -%>
-      return filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, rootId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
+      return filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, rootId<% end %><% if graph.filter_parameter? %>, decodedFilter<% end %><%= extra_interest_filter %> );
     }
     else<% end %>
     {
@@ -200,7 +199,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   }
 
   @java.lang.Override
-  public void collectChannelData( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
+  public void collectChannelData( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final javax.json.JsonObject filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
   {
     final var address = addresses.get( 0 );
     try
@@ -211,7 +210,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% if graph.filter_parameter -%>
         assert null != filter;
 <% end -%>
-        collectChannelDataFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, isExplicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, true<% end %> );
+        collectChannelDataFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, filter<% end %>, isExplicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, true<% end %> );
       }
 <% end -%>
       else
@@ -227,7 +226,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% bulk_subscription_update_graphs = repository.imit.graphs.select{|graph| graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable?} -%>
 
   @java.lang.Override
-  public void collectChannelDataForFilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
+  public void collectChannelDataForFilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final javax.json.JsonObject originalFilter, @javax.annotation.Nullable final javax.json.JsonObject filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
   {
 <% if !bulk_subscription_update_graphs.empty? -%>
     try
@@ -237,7 +236,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       {
         assert null != filter;
         assert null != originalFilter;
-        collectChannelDataFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
+        collectChannelDataFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, originalFilter, filter );
       }
 <% end -%>
       else
@@ -255,7 +254,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   }
 
   @java.lang.Override
-  public boolean shouldFollowLink( @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final java.lang.Object sourceFilter, @javax.annotation.Nonnull final replicant.server.ChannelAddress target, @javax.annotation.Nullable final java.lang.Object targetFilter )
+  public boolean shouldFollowLink( @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final javax.json.JsonObject sourceFilter, @javax.annotation.Nonnull final replicant.server.ChannelAddress target, @javax.annotation.Nullable final javax.json.JsonObject targetFilter )
   {
 <% if auto_follow_graph_links.any? -%>
     final var sourceChannelId = source.channelId();
@@ -313,7 +312,7 @@ repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_gr
 end
 -%>
 <% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
-  void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter<% end %> )
   {
     if ( !isSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, filter<% end -%> ) )
     {
@@ -321,12 +320,12 @@ end
     }
   }
 
-  abstract boolean isSubscribeTo<%= graph.name %>Permitted( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> );
+  abstract boolean isSubscribeTo<%= graph.name %>Permitted( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter<% end %> );
 
 <% end -%>
 <% repository.imit.graphs.select{|graph|graph.type_graph?}.each do |graph| -%>
   @java.lang.SuppressWarnings( "SameParameterValue" )
-  <%= graph.subscribe_private? ? 'private ' : '' %>void collectChannelDataFor<%= graph.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end %> )
+  <%= graph.subscribe_private? ? 'private ' : '' %>void collectChannelDataFor<%= graph.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter<% end %>, final boolean explicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end %> )
     throws java.sql.SQLException
   {
     final var address = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
@@ -336,11 +335,14 @@ end
     }
     else
     {
-      changeSet.mergeAction( address, replicant.server.ChannelAction.Action.ADD, <% if graph.filter_parameter -%>filter<% else %>null<% end %> );
+      changeSet.mergeAction( address, replicant.server.ChannelAction.Action.ADD<% if graph.filter_parameter? -%>, filter<% end %> );
     }
 
+<% if graph.filter_parameter? -%>
+    final var decodedFilter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( filter );
+<% end -%>
 <% graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
-    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %><%= graph.unfiltered? ? '' : 'Filtered' %>TypeGraph( changeSet<% if graph.filter_parameter -%>, filter<% end %> );
+    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %><%= graph.unfiltered? ? '' : 'Filtered' %>TypeGraph( changeSet<% if graph.filter_parameter -%>, decodedFilter<% end %> );
 <% end -%>
 <% if graph.cacheable? -%>
     if ( null == session )
@@ -572,7 +574,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
      graph.instanced? ||
      graph.filtered_outward_auto_graph_links.any?{|graph_link| repository.imit.graph_by_name(graph_link.target_graph).instanced? && graph_link.target_filter_requires_source_filter?}
 -%>
-  <%= source_and_target_both_instanced || !graph.subscribe_private? ? '' : 'private ' %>void collectChannelDataFor<%= graph.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end -%> )
+  <%= source_and_target_both_instanced || !graph.subscribe_private? ? '' : 'private ' %>void collectChannelDataFor<%= graph.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter<% end %>, final boolean explicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end -%> )
     throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
@@ -606,8 +608,11 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     }
 <% end -%>
 
+<% if graph.filter_parameter? -%>
+    final var decodedFilter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( filter );
+<% end -%>
 <% graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
-    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
+    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, decodedFilter<% end %> );
 <% end -%>
 <% if graph.post_subscribe_collect_hook? -%>
     if ( callPostHook )
@@ -628,7 +633,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
      graph.instanced? ||
      graph.filtered_outward_auto_graph_links.any?{|graph_link| repository.imit.graph_by_name(graph_link.target_graph).instanced? && graph_link.target_filter_requires_source_filter?}
 -%>
-  <%= source_and_target_both_instanced ? '' : 'private ' %>void collectChannelDataFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  <%= source_and_target_both_instanced ? '' : 'private ' %>void collectChannelDataFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter )
     throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
@@ -648,18 +653,22 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
       session.setFilter( address, filter );
     }
 
+<% if graph.filter_parameter? -%>
+    final var decodedFilter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( filter );
+    final var decodedOriginalFilter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( originalFilter );
+<% end -%>
 <%
   graph.filtered_outward_auto_graph_links.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
 -%>
 <% # Encoding of entities that come into scope are already updated by the encoding process -%>
-    propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>ToRemoveOutOfScopeEntities( session, addresses, changeSet, originalFilter, filter );
+    propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>ToRemoveOutOfScopeEntities( session, addresses, changeSet, decodedOriginalFilter, decodedFilter );
 <% if graph_link.target_filter_requires_source_filter? -%>
-    propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>ToUpdateInScopeEntities( session, addresses, changeSet, originalFilter, filter );
+    propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>ToUpdateInScopeEntities( session, addresses, changeSet, decodedOriginalFilter, decodedFilter );
 <% end -%>
 <% end -%>
 <% graph.included_entities.select{|name| graph.instance_root != name}.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
-    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
+    collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, decodedOriginalFilter, decodedFilter );
 <% end -%>
   }
 <% end -%>
@@ -683,7 +692,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
         {
           final var id = resultSet.getInt( "Id" );
           final var address = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, id );
-          changeSet.mergeAction( address, replicant.server.ChannelAction.Action.DELETE, null );
+          changeSet.mergeAction( address, replicant.server.ChannelAction.Action.DELETE );
           final var removed = addresses.remove( address );
           assert removed;
         }
@@ -740,10 +749,11 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %>, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %><%= target_graph.instanced? ? ", @java.lang.SuppressWarnings( \"SameParameterValue\" ) @javax.annotation.Nonnull final java.lang.String #{Reality::Naming.camelize("#{target_graph.name}FilterInstanceIdColumnName")}" : '' %> )
     throws java.sql.SQLException
   {
+    final var filter = <%= graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.encode( <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> );
     final var targets = getChannelAddressesFor<%= target_graph.instanced? ? 'Instanced' : '' %>TargetGraph( sql, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %><%= target_graph.instanced? ? ", #{Reality::Naming.camelize("#{target_graph.name}FilterInstanceIdColumnName")}" : '' %> );
-    for ( final var entry : this.<<%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%>>partitionGraphsByFilter( session, targets ).entrySet() )
+    for ( final var entry : partitionGraphsByFilter( session, targets ).entrySet() )
     {
-      collectChannelDataFor<%= target_graph.name %>FilterChange( session, changeSet, entry.getValue(), entry.getKey(), <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> );
+      collectChannelDataFor<%= target_graph.name %>FilterChange( session, changeSet, entry.getValue(), entry.getKey(), filter );
     }
   }
 <% end -%>
@@ -758,15 +768,13 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
 <% end -%>
 <% end -%>
 
-  @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nonnull
-  private <T> java.util.Map<T, java.util.List<replicant.server.ChannelAddress>> partitionGraphsByFilter( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.Set<replicant.server.ChannelAddress> targets )
+  private java.util.Map<javax.json.JsonObject, java.util.List<replicant.server.ChannelAddress>> partitionGraphsByFilter( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.Set<replicant.server.ChannelAddress> targets )
   {
-    final var map = new java.util.HashMap<T, java.util.List<replicant.server.ChannelAddress>>();
+    final var map = new java.util.HashMap<javax.json.JsonObject, java.util.List<replicant.server.ChannelAddress>>();
     for ( final var target : targets )
     {
-      final var filter = (T) session.getFilter( target );
-      map.computeIfAbsent( filter, e -> new java.util.ArrayList<>() ).add( target );
+      map.computeIfAbsent( session.getFilter( target ), e -> new java.util.ArrayList<>() ).add( target );
     }
     return map;
   }
