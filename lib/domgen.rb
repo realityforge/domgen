@@ -62,11 +62,6 @@ require 'domgen/mssql/generator'
 require 'domgen/pgsql/model'
 require 'domgen/pgsql/generator'
 
-# Jackson (JSon deserialization)
-require 'domgen/jackson/model'
-require 'domgen/jackson/helper'
-require 'domgen/jackson/generator'
-
 # JPA
 require 'domgen/jpa/model'
 require 'domgen/jpa/helper'

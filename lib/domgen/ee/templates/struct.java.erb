@@ -2,7 +2,6 @@
 package <%= to_package(struct.ee.qualified_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NotNullFieldNotInitialized", "RedundantSuppression" } )
-<%= jackson_class_annotations(struct) if struct.jackson? -%>
 <% unless struct.ee.module_local? %>public <% end %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
@@ -10,7 +9,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
   private static final long serialVersionUID = 1;
 
 <% struct.fields.each do |field| -%>
-<%= '  ' + jackson_field_annotation(field) if field.jackson? -%>
   <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Reality::Naming.camelize(field.name) %>;
 <% end -%>
 

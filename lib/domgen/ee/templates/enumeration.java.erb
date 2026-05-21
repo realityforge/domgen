@@ -11,34 +11,6 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
    index = index + 1
   "#{k.name}"
   end.join(",\n  ") %>;
-<% if enumeration.jackson? && enumeration.numeric_values? -%>
-
-  @com.fasterxml.jackson.annotation.JsonValue
-  public int value()
-  {
-    return super.ordinal();
-  }
-
-  // Needs to be public static as jackson was unable to instantiate if not
-  public static class Deserializer
-    extends com.fasterxml.jackson.databind.JsonDeserializer<<%= enumeration.ee.name %>>
-  {
-    @java.lang.Override
-    public <%= enumeration.ee.name %> deserialize( final com.fasterxml.jackson.core.JsonParser parser, final com.fasterxml.jackson.databind.DeserializationContext context )
-      throws java.io.IOException
-    {
-      final var typeCode = parser.getValueAsInt();
-      for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
-      {
-        if( c.ordinal() == typeCode )
-        {
-          return c;
-        }
-      }
-      throw new java.io.IOException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
-    }
-  }
-<% end -%>
 <% if enumeration.jpa? && enumeration.jpa.requires_converter? -%>
 
   @javax.persistence.Converter
