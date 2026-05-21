@@ -101,10 +101,6 @@ require 'domgen/imit/model'
 require 'domgen/imit/helper'
 require 'domgen/imit/generator'
 
-# Database level auditing
-require 'domgen/audit/model'
-require 'domgen/audit/generator'
-
 # Some caching for gwt apps
 require 'domgen/gwt_cache_filter/model'
 

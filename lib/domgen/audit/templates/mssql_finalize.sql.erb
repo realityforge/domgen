@@ -1,6 +1,0 @@
-/* DO NOT EDIT: File is auto-generated */
-ENABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("sp#{entity.name}ViewInsert") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("vw#{entity.name}") %>
-GO
-ENABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("sp#{entity.name}ViewDelete") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("vw#{entity.name}") %>
-GO
-ENABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("sp#{entity.name}ViewUpdate") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("vw#{entity.name}") %>
