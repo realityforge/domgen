@@ -22,8 +22,7 @@ Domgen::Generator.define([:gwt],
                               'main/java/#{repository.gwt.qualified_rdate_name.gsub(".","/")}.java')
     template_set.erb_template(:struct,
                               'struct.java.erb',
-                              'main/java/#{struct.gwt.qualified_name.gsub(".","/")}.java',
-                              :additional_facets => [:json])
+                              'main/java/#{struct.gwt.qualified_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|
