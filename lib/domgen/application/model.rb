@@ -14,7 +14,6 @@
 
 module Domgen
   FacetManager.facet(:application) do |facet|
-    facet.suggested_facets << :robots
 
     facet.enhance(Repository) do
 
@@ -76,7 +75,6 @@ module Domgen
       private
 
       def disable_deployment_facets
-        repository.disable_facet(:robots) if repository.robots?
         repository.disable_facet(:gwt_cache_filter) if repository.gwt_cache_filter?
       end
     end

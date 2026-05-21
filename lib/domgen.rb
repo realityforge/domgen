@@ -114,9 +114,6 @@ require 'domgen/keycloak/generator'
 
 require 'domgen/application/model'
 
-require 'domgen/robots/model'
-require 'domgen/robots/generator'
-
 require 'domgen/redfish/model'
 require 'domgen/redfish/generator'
 
