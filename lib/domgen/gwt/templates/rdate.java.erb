@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_rdate_name) %>;
 
-@java.lang.SuppressWarnings( { "checkstyle:MagicNumber", "AmbiguousMethodReference", "AnnotationPosition" } )
+@java.lang.SuppressWarnings( { "checkstyle:MagicNumber", "AmbiguousMethodReference", "AnnotationPosition", "GwtInconsistentSerializableClass" } )
 @arez.annotations.DefaultEqualityComparator( arez.ObjectsEqualsComparator.class )
 public final class <%= repository.gwt.rdate_name %>
-  implements java.lang.Comparable<<%= repository.gwt.rdate_name %>><%= repository.react4j? ? ', arez.component.Identifiable<String>' : '' %>
+  implements java.lang.Comparable<<%= repository.gwt.rdate_name %>>, java.io.Serializable<%= repository.react4j? ? ', arez.component.Identifiable<String>' : '' %>
 {
   @javax.annotation.Nonnull
   private static final String[] SHORT_MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
