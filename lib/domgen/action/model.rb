@@ -18,6 +18,7 @@ module Domgen
   module Action
 
     def self.parameter_json_schema(schema, parameter, ignore_null = false)
+      nullable = parameter.nullable? && !ignore_null
       type =
         case
         when parameter.enumeration? && parameter.enumeration.textual_values? then 'string'
@@ -43,16 +44,18 @@ module Domgen
           type: 'array',
           items: type
         }
-        if parameter.nullable? && !ignore_null
-          type = [type, 'null']
+        if nullable
+          type = { anyOf: [type, { type: 'null' }] }
         end
       else
-        if parameter.nullable? && !ignore_null
+        if parameter.struct?
+          if nullable
+            type = { anyOf: [type, { type: 'null' }] }
+          end
+        elsif nullable
           type = { type: [type, 'null'] }
         else
-          unless parameter.struct?
-            type = { type: type }
-          end
+          type = { type: type }
         end
       end
       type
