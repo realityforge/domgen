@@ -154,11 +154,11 @@ WHERE AT.Code = '<%= code %>'
     end
   end
 -%>
--- Mark as inactive any RPC actions that are currently active but have not been added in this set
+-- Deactivate any active actions that have not been included in this set
 UPDATE AT
 SET [Inactive] = 1
 FROM [Action].[tblActionType] AT
-JOIN [Action].[tblActionClassification] AC ON AC.[Code] = 'RPC' AND AT.[ClassificationId] = AC.[Id]
+JOIN [Action].[tblActionClassification] AC ON AT.[ClassificationId] = AC.[Id]
 WHERE AT.[Code] NOT IN (SELECT [Id] FROM @Ids) AND AT.[Inactive] = 0
 
 -- Patch any actions that are in flight but whose priority has changed
