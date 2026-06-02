@@ -328,7 +328,7 @@ end
   <%= graph.subscribe_private? ? 'private ' : '' %>void collectChannelDataFor<%= graph.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final javax.json.JsonObject filter<% end %>, final boolean explicitSubscribe<% if graph.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end %> )
     throws java.sql.SQLException
   {
-    final var address = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
+    final var address = replicant.server.ChannelAddress.of( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
     if ( null != session )
     {
       session.recordSubscription( changeSet, address, <%= graph.filter_parameter ? 'filter' : 'null' %>, explicitSubscribe );
@@ -596,7 +596,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
 <% graph.required_type_graphs.each do |graph| -%>
     if ( null != session )
     {
-      final var <%= Reality::Naming.camelize(graph.name) %>Graph = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
+      final var <%= Reality::Naming.camelize(graph.name) %>Graph = replicant.server.ChannelAddress.of( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
 <% end -%>
       for ( final var address : addresses )
       {
@@ -691,7 +691,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
         while ( resultSet.next() )
         {
           final var id = resultSet.getInt( "Id" );
-          final var address = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, id );
+          final var address = replicant.server.ChannelAddress.of( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, id );
           changeSet.mergeAction( address, replicant.server.ChannelAction.Action.DELETE );
           final var removed = addresses.remove( address );
           assert removed;
@@ -791,7 +791,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
       {
         while ( resultSet.next() )
         {
-          targets.add( new replicant.server.ChannelAddress( targetGraph, resultSet.getInt( targetRootIdColumnName ) ) );
+          targets.add( replicant.server.ChannelAddress.of( targetGraph, resultSet.getInt( targetRootIdColumnName ) ) );
         }
       }
     }
@@ -810,7 +810,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
       {
         while ( resultSet.next() )
         {
-          targets.add( new replicant.server.ChannelAddress( targetGraph, resultSet.getInt( targetRootIdColumnName ), resultSet.getString( targetFilterInstanceIdColumnName ) ) );
+          targets.add( replicant.server.ChannelAddress.of( targetGraph, resultSet.getInt( targetRootIdColumnName ), resultSet.getString( targetFilterInstanceIdColumnName ) ) );
         }
       }
     }
