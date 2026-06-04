@@ -13,6 +13,9 @@ auto_follow_graph_links =
       target_graph = repository.imit.graph_by_name(graph_link.target_graph)
       target_graph.filter_parameter? && target_graph.instance_root? && repository.imit.graph_by_name(graph_link.source_graph).instance_root?
     end
+
+target_filter_instance_id_graph_links =
+  auto_follow_graph_links.select{|graph_link| graph_link.target_instance_id_derived_from_target_filter?}
 -%>
 
 /**
@@ -156,6 +159,58 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     }
 <% end -%>
   }
+<% unless target_filter_instance_id_graph_links.empty? -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String deriveTargetFilterInstanceId( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final javax.json.JsonObject sourceFilter, @javax.annotation.Nonnull final replicant.server.ChannelAddress target, @javax.annotation.Nullable final javax.json.JsonObject targetFilter )
+  {
+<%
+  first = true
+  target_filter_instance_id_graph_links.each do |graph_link|
+    target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+    source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+    target_filter_type = Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)
+    target_filter_var = Reality::Naming.camelize("#{target_graph.name}Filter")
+-%>
+<% if first -%>   <% end -%> if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == source.channelId() && <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %> == target.channelId() )
+    {
+<% first = false -%>
+<% if graph_link.target_filter_copied_from_source_filter? -%>
+      final var targetFilterJson = null == targetFilter ? sourceFilter : targetFilter;
+      assert null != targetFilterJson;
+      final var <%= target_filter_var %> = <%= target_graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( targetFilterJson );
+<% else -%>
+      final <%= target_filter_type %> <%= target_filter_var %>;
+      if ( null == targetFilter )
+      {
+<% if source_graph.filter_parameter? && graph_link.target_filter_requires_source_filter? -%>
+        assert null != sourceFilter;
+        final var <%= Reality::Naming.camelize(source_graph.name) %>Filter = <%= source_graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( sourceFilter );
+<% end -%>
+<% if graph_link.target_filter_requires_source_graph? -%>
+        final var <%= Reality::Naming.camelize(source_graph.name) %>RootId = source.rootId();
+        assert null != <%= Reality::Naming.camelize(source_graph.name) %>RootId;
+<% end -%>
+<% if graph_link.target_filter_requires_source_entity? -%>
+        final var attributeValues = entityMessage.getAttributeValues();
+        assert null != attributeValues;
+<% end -%>
+        <%= target_filter_var %> = <%= graph_link.imit_attribute.attribute.entity.data_module.imit.qualified_encoder_name %>.deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( <%= graph_link.target_filter_requires_source_entity? ? 'attributeValues' : '' %><%= graph_link.target_filter_requires_source_entity? && graph_link.target_filter_requires_source_graph? ? ', ' : '' %><% if graph_link.target_filter_requires_source_graph? %><%= Reality::Naming.camelize(source_graph.name) %>RootId<% end %><% if source_graph.filter_parameter? && graph_link.target_filter_requires_source_filter? %>, <%= Reality::Naming.camelize(source_graph.name) %>Filter<% end %> );
+      }
+      else
+      {
+        <%= target_filter_var %> = <%= target_graph.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( targetFilter );
+      }
+<% end -%>
+      return <%= graph_link.imit_attribute.attribute.entity.data_module.imit.qualified_encoder_name %>.deriveFilterInstanceIdForGraphLinkFrom<%= source_graph.name %>To<%= target_graph.name %>( <%= target_filter_var %> );
+    }
+    else<% end %>
+    {
+      return super.deriveTargetFilterInstanceId( entityMessage, source, sourceFilter, target, targetFilter );
+    }
+  }
+<% end -%>
 
   @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nullable

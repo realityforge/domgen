@@ -479,6 +479,16 @@ module Domgen
         !!@target_filter_requires_source_graph
       end
 
+      attr_writer :target_instance_id_strategy
+
+      def target_instance_id_strategy
+        @target_instance_id_strategy
+      end
+
+      def target_instance_id_derived_from_target_filter?
+        :target_filter == @target_instance_id_strategy
+      end
+
       def to_s
         "GraphLink[#{source_graph} => #{target_graph}](auto=#{auto?}, exclude_target=#{@exclude_target.nil? ? self.auto? : !!@exclude_target}, path=#{path.inspect}, name=#{name})"
       end
@@ -542,6 +552,15 @@ module Domgen
         if self.target_filter_requires_source_graph?
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_requires_source_graph=true but the target graph is not filtered") unless target_graph.filter_parameter?
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_requires_source_graph=true but the source graph is not an instance graph") unless source_graph.instance_root?
+        end
+
+        unless [nil, :target_filter].include?(self.target_instance_id_strategy)
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has invalid target_instance_id_strategy=#{self.target_instance_id_strategy.inspect}. Valid values are: :target_filter")
+        end
+
+        if self.target_instance_id_derived_from_target_filter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_instance_id_strategy=:target_filter but the target graph is not instanced") unless target_graph.instanced?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_instance_id_strategy=:target_filter but the target graph is not filtered") unless target_graph.filter_parameter?
         end
 
         if target_graph.filter_parameter? && (!self.target_filter_requires_source_entity? && !self.target_filter_copied_from_source_filter? && !self.target_filter_derived_from_source_filter? && !self.target_filter_requires_source_graph?)

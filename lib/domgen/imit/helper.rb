@@ -42,6 +42,34 @@ module Domgen
         end
       end
 
+      def target_address_expression(graph_link, target_id, target_filter_variable, target_filter_typed_variable = nil)
+        target_graph = graph_link.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(graph_link.target_graph)
+        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(graph_link.target_graph)}"
+        if target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter? && target_filter_typed_variable
+          "replicant.server.ChannelAddress.of( #{channel}, #{target_id}, deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{target_filter_typed_variable} ) )"
+        elsif target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter?
+          "replicant.server.ChannelAddress.partial( #{channel}, #{target_id} )"
+        else
+          "replicant.server.ChannelAddress.of( #{channel}#{target_graph.instance_root? || target_graph.instanced? ? "#{target_graph.instance_root? ? ", #{target_id}" : ', null'}#{target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter? ? 'source' : ''}#{(graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter?) && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? 'entityId' : ''} )" : ''}" : ''} )"
+        end
+      end
+
+      def entity_target_address_expression(graph_link, target_root_expression, source_expression, entity_expression)
+        target_graph = graph_link.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(graph_link.target_graph)
+        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(graph_link.target_graph)}"
+        if target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter?
+          "replicant.server.ChannelAddress.partial( #{channel}, #{target_root_expression} )"
+        else
+          "replicant.server.ChannelAddress.of( #{channel}, #{target_root_expression}#{target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter? ? source_expression : ''}#{(graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter?) && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? "#{entity_expression}.#{getter_for(graph_link.imit_attribute.attribute.entity.primary_key)}" : ''} )" : ''} )"
+        end
+      end
+
+      def channel_link_partial?(graph_link, target_filter_typed_variable = nil)
+        graph_link.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(graph_link.target_graph).instanced? &&
+          graph_link.target_instance_id_derived_from_target_filter? &&
+          !target_filter_typed_variable
+      end
+
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)

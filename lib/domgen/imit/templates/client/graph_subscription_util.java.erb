@@ -1,62 +1,119 @@
 /* DO NOT EDIT: File is auto-generated */
+<%
+  canonical_graph_link =
+    graph.instance_root? ?
+    graph.
+        inward_graph_links.
+        find{|graph_link| graph_link.target_instance_id_derived_from_target_filter?} :
+    nil
+  explicit_filter_instance_id = graph.instanced? && graph.instance_root?
+  filter_type = canonical_graph_link ? Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) : nil
+  filter_type_name = filter_type ? filter_type.split('.').last : nil
+-%>
 package <%= to_package(graph.qualified_subscription_util_name) %>;
+<% if canonical_graph_link -%>
+
+import <%= filter_type %>;
+<% end -%>
 
 public final class <%= graph.subscription_util_name %>
 {
   private <%= graph.subscription_util_name %>()
   {
   }
+<% if canonical_graph_link -%>
 
-  @javax.annotation.Nonnull
-  public static replicant.ChannelAddress getGraphAddress(<%= graph.instance_root? ? " final int id " : "" %>)
+  interface FilterInstanceIdFactory
   {
-    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %> );
+    @javax.annotation.Nonnull
+    java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull <%= filter_type_name %> filter );
   }
 
-<% if graph.instance_root? -%>
+  @javax.annotation.Nonnull
+  private static final FilterInstanceIdFactory FILTER_INSTANCE_ID_FACTORY =
+    new <%= graph.subscription_util_name %>FilterInstanceIdFactoryImpl();
+
+  @javax.annotation.Nonnull
+  public static java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return FILTER_INSTANCE_ID_FACTORY.deriveFilterInstanceId( filter );
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.ChannelAddress getGraphAddress(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
+  {
+    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
+  }
+<% if canonical_graph_link -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.ChannelAddress getGraphAddress( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return getGraphAddress( id, deriveFilterInstanceId( filter ) );
+  }
+<% end -%>
+
+<% if graph.instance_root? && !explicit_filter_instance_id -%>
   public static boolean isGraphSubscribed( @javax.annotation.Nonnull final <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> root )
   {
     return isGraphSubscribed( root.<%= getter_for(graph.application.repository.entity_by_name(graph.instance_root).primary_key) %> );
   }
 
 <% end -%>
-  public static boolean isGraphSubscribed(<%= graph.instance_root? ? " final int id " : "" %>)
+  public static boolean isGraphSubscribed(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
   {
-    return isGraphSubscribed( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+    return isGraphSubscribed( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 
-  public static boolean isGraphSubscribed( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  public static boolean isGraphSubscribed( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
-    return null != findSubscription( context<%= graph.instance_root? ? ", id" : "" %> );
+    return null != findSubscription( context<%= graph.instance_root? ? ", id" : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 
-<% if graph.instance_root? -%>
+<% if graph.instance_root? && !explicit_filter_instance_id -%>
   @javax.annotation.Nullable
   public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> root )
   {
     return findSubscription( root.<%= getter_for(graph.application.repository.entity_by_name(graph.instance_root).primary_key) %> );
   }
 
+<% end -%>
+<% if graph.instance_root? -%>
   @javax.annotation.Nullable
-  public static replicant.Subscription findSubscription( @javax.annotation.Nullable final java.lang.Integer id )
+  public static replicant.Subscription findSubscription( @javax.annotation.Nullable final java.lang.Integer id<%= explicit_filter_instance_id ? ", @javax.annotation.Nullable final java.lang.String filterInstanceId" : "" %> )
   {
-    return null == id ? null : findSubscription( replicant.Replicant.context(), id );
+    return null == id<%= explicit_filter_instance_id ? " || null == filterInstanceId" : "" %> ? null : findSubscription( replicant.Replicant.context(), id<%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 
 <% end -%>
   @javax.annotation.Nullable
-  public static replicant.Subscription findSubscription(<%= graph.instance_root? ? " final int id " : "" %>)
+  public static replicant.Subscription findSubscription(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
   {
-    return findSubscription( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+    return findSubscription( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 
   @javax.annotation.Nullable
-  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
-    return context.findSubscription( getGraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+    return context.findSubscription( getGraphAddress(<%= graph.instance_root? ? " id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %>) );
   }
+<% if canonical_graph_link -%>
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findSubscription( id, deriveFilterInstanceId( filter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findSubscription( context, id, deriveFilterInstanceId( filter ) );
+  }
+<% end -%>
 <% if graph.external_visibility? -%>
-<% if graph.instance_root? -%>
+<% if graph.instance_root? && !explicit_filter_instance_id -%>
 
   @javax.annotation.Nullable
   public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> root )
@@ -74,55 +131,95 @@ public final class <%= graph.subscription_util_name %>
 <% end -%>
 
   @javax.annotation.Nullable
-  public static replicant.AreaOfInterest findAreaOfInterest(<%= graph.instance_root? ? " final int id " : "" %>)
+  public static replicant.AreaOfInterest findAreaOfInterest(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
   {
-    return findAreaOfInterest( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+    return findAreaOfInterest( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 <% if graph.instance_root? -%>
 
   @javax.annotation.Nonnull
-  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nullable final java.lang.Integer id )
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nullable final java.lang.Integer id<%= explicit_filter_instance_id ? ", @javax.annotation.Nullable final java.lang.String filterInstanceId" : "" %> )
   {
-    return null == id ? replicant.AreaOfInterest.Status.NOT_ASKED : findAreaOfInterestStatus( (int) id );
+    return null == id<%= explicit_filter_instance_id ? " || null == filterInstanceId" : "" %> ? replicant.AreaOfInterest.Status.NOT_ASKED : findAreaOfInterestStatus( (int) id<%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 <% end -%>
 
   @javax.annotation.Nonnull
-  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus(<%= graph.instance_root? ? " final int id " : "" %>)
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
   {
-    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest(<%= graph.instance_root? ? " id " : "" %>);
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest(<%= graph.instance_root? ? " id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %>);
     return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
   }
 
   @javax.annotation.Nullable
-  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
-    return context.findAreaOfInterestByAddress( getGraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+    return context.findAreaOfInterestByAddress( getGraphAddress(<%= graph.instance_root? ? " id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %>) );
   }
 
   @javax.annotation.Nonnull
-  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
-    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= graph.instance_root? ? ", id" : "" %> );
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= graph.instance_root? ? ", id" : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
     return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
   }
+<% if canonical_graph_link -%>
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findAreaOfInterest( id, deriveFilterInstanceId( filter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findAreaOfInterest( context, id, deriveFilterInstanceId( filter ) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findAreaOfInterestStatus( id, deriveFilterInstanceId( filter ) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findAreaOfInterestStatus( context, id, deriveFilterInstanceId( filter ) );
+  }
+<% end -%>
 <% end -%>
 <% if graph.instance_root? -%>
 
   @javax.annotation.Nullable
-  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( final int id )
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( final int id<%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
-    return findRoot( replicant.Replicant.context(), id );
+    return findRoot( replicant.Replicant.context(), id<%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 
   @javax.annotation.Nullable
-  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id )
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id<%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %> )
   {
 <% if graph.external_visibility? -%>
-    final replicant.AreaOfInterest.Status status = findAreaOfInterestStatus( context, id );
+    final replicant.AreaOfInterest.Status status = findAreaOfInterestStatus( context, id<%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
 <% end -%>
-    final replicant.Subscription subscription = findSubscription( context, id );
+    final replicant.Subscription subscription = findSubscription( context, id<%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
     return null == subscription <% if graph.external_visibility? -%>|| !status.shouldDataBePresent()<% end -%> ? null : (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) subscription.getInstanceRoot();
   }
+<% if canonical_graph_link -%>
+
+  @javax.annotation.Nullable
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findRoot( id, deriveFilterInstanceId( filter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  {
+    return findRoot( context, id, deriveFilterInstanceId( filter ) );
+  }
+<% end -%>
 <% end -%>
 }
