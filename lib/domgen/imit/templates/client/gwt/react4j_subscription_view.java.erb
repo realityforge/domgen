@@ -25,6 +25,7 @@ abstract class <%= graph.react4j_subscription_view_name %>
   @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
+<% unless graph.filter_parameter.immutable? -%>
   @react4j.annotations.OnInputChange
   @arez.annotations.Action( verifyRequired = false )
   void onFilterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
@@ -32,6 +33,33 @@ abstract class <%= graph.react4j_subscription_view_name %>
     updateAreaOfInterestOnFilterChange( filter );
   }
 
+<% else -%>
+  @java.lang.Override
+  @arez.annotations.Action
+  protected void updateAreaOfInterest()
+  {
+    final replicant.ChannelAddress address = getAddress();
+    final replicant.AreaOfInterest areaOfInterest = getAreaOfInterest();
+    if ( null == areaOfInterest )
+    {
+      final replicant.AreaOfInterest newAreaOfInterest =
+        replicant.Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
+      newAreaOfInterest.incRefCount();
+      setAreaOfInterest( newAreaOfInterest );
+    }
+<% if graph.instanced? -%>
+    else if ( !address.equals( areaOfInterest.getAddress() ) )
+    {
+      areaOfInterest.decRefCount();
+      final replicant.AreaOfInterest newAreaOfInterest =
+        replicant.Replicant.context().createOrUpdateAreaOfInterest( address, getFilter() );
+      newAreaOfInterest.incRefCount();
+      setAreaOfInterest( newAreaOfInterest );
+    }
+<% end -%>
+  }
+
+<% end -%>
 <% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override

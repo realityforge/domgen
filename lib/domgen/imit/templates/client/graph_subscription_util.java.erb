@@ -8,13 +8,8 @@
     nil
   explicit_filter_instance_id = graph.instanced? && graph.instance_root?
   filter_type = canonical_graph_link ? Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) : nil
-  filter_type_name = filter_type ? filter_type.split('.').last : nil
 -%>
 package <%= to_package(graph.qualified_subscription_util_name) %>;
-<% if canonical_graph_link -%>
-
-import <%= filter_type %>;
-<% end -%>
 
 public final class <%= graph.subscription_util_name %>
 {
@@ -26,7 +21,7 @@ public final class <%= graph.subscription_util_name %>
   interface FilterInstanceIdFactory
   {
     @javax.annotation.Nonnull
-    java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull <%= filter_type_name %> filter );
+    java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull <%= filter_type %> filter );
   }
 
   @javax.annotation.Nonnull
@@ -34,7 +29,7 @@ public final class <%= graph.subscription_util_name %>
     new <%= graph.subscription_util_name %>FilterInstanceIdFactoryImpl();
 
   @javax.annotation.Nonnull
-  public static java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static java.lang.String deriveFilterInstanceId( @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return FILTER_INSTANCE_ID_FACTORY.deriveFilterInstanceId( filter );
   }
@@ -48,7 +43,7 @@ public final class <%= graph.subscription_util_name %>
 <% if canonical_graph_link -%>
 
   @javax.annotation.Nonnull
-  public static replicant.ChannelAddress getGraphAddress( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.ChannelAddress getGraphAddress( final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return getGraphAddress( id, deriveFilterInstanceId( filter ) );
   }
@@ -101,13 +96,13 @@ public final class <%= graph.subscription_util_name %>
 <% if canonical_graph_link -%>
 
   @javax.annotation.Nullable
-  public static replicant.Subscription findSubscription( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.Subscription findSubscription( final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findSubscription( id, deriveFilterInstanceId( filter ) );
   }
 
   @javax.annotation.Nullable
-  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findSubscription( context, id, deriveFilterInstanceId( filter ) );
   }
@@ -166,25 +161,25 @@ public final class <%= graph.subscription_util_name %>
 <% if canonical_graph_link -%>
 
   @javax.annotation.Nullable
-  public static replicant.AreaOfInterest findAreaOfInterest( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.AreaOfInterest findAreaOfInterest( final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findAreaOfInterest( id, deriveFilterInstanceId( filter ) );
   }
 
   @javax.annotation.Nullable
-  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findAreaOfInterest( context, id, deriveFilterInstanceId( filter ) );
   }
 
   @javax.annotation.Nonnull
-  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findAreaOfInterestStatus( id, deriveFilterInstanceId( filter ) );
   }
 
   @javax.annotation.Nonnull
-  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findAreaOfInterestStatus( context, id, deriveFilterInstanceId( filter ) );
   }
@@ -210,13 +205,13 @@ public final class <%= graph.subscription_util_name %>
 <% if canonical_graph_link -%>
 
   @javax.annotation.Nullable
-  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findRoot( id, deriveFilterInstanceId( filter ) );
   }
 
   @javax.annotation.Nullable
-  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type_name %> filter )
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id, @javax.annotation.Nonnull final <%= filter_type %> filter )
   {
     return findRoot( context, id, deriveFilterInstanceId( filter ) );
   }
