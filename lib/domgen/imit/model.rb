@@ -869,6 +869,7 @@ module Domgen
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesTestFragment'
       java_artifact :server_net_module, :comm, :server, :imit, '#{repository.name}ImitNetModule'
+      java_artifact :server_entity_test_module, :comm, :server, :imit, '#{repository.name}ReplicantEntityModule'
       java_artifact :integration_module, :comm, :server, :imit, '#{repository.name}IntegrationModule'
 
       attr_writer :include_standard_integration_test_module
@@ -1039,6 +1040,7 @@ module Domgen
       end
 
       def post_complete
+        repository.jpa.add_test_module(repository.imit.server_entity_test_module_name, repository.imit.qualified_server_entity_test_module_name)
         index = 0
         repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
           data_module.entities.each do |entity|

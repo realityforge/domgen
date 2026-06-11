@@ -8,6 +8,7 @@ public class <%= repository.imit.server_net_module_name %>
   @java.lang.Override
   protected void configure()
   {
+    bindReplicantResources();
     bindSessionContext();
     bindSessionManger();
     bindReplicantMessageBroker();
@@ -16,6 +17,11 @@ public class <%= repository.imit.server_net_module_name %>
   protected void bindReplicantMessageBroker()
   {
     bind( replicant.server.transport.ReplicantMessageBroker.class ).to( replicant.server.transport.ReplicantMessageBrokerImpl.class ).in( javax.inject.Singleton.class );
+  }
+
+  protected void bindReplicantResources()
+  {
+    bind( replicant.server.ee.ReplicantResources.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindSessionContext()

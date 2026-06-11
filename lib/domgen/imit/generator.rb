@@ -123,6 +123,9 @@ Domgen::Generator.define([:imit, :jpa],
 
   g.template_set(:imit_server_qa) do |template_set|
     template_set.erb_template(:repository,
+                              'entity_test_module.java.erb',
+                              'test/java/#{repository.imit.qualified_server_entity_test_module_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
                               'net_module.java.erb',
                               'test/java/#{repository.imit.qualified_server_net_module_name.gsub(".","/")}.java')
   end
