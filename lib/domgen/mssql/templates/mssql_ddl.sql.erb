@@ -324,7 +324,7 @@ BEGIN
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
-      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.common_table_expression}#{validation.invariant_negative_sql}".gsub("'","''") %>')
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.invariant_common_table_expression}#{validation.invariant_negative_sql}".gsub("'","''") %>')
   END
 <%
    end
