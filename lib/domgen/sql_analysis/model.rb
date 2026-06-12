@@ -14,7 +14,8 @@
 
 module Domgen
   module SqlAnalysis
-    VALID_ANALYSIS_FACETS = [:sql, :mssql, :pgsql, :ee, :ejb, :jpa, :sql_analysis]
+    VALID_ENTITY_FACETS = [:sql, :mssql, :pgsql, :sql_analysis]
+    VALID_ANALYSIS_FACETS = VALID_ENTITY_FACETS + [:ee, :ejb]
   end
 
   FacetManager.facet(:sql_analysis => [:sql]) do |facet|
@@ -53,31 +54,23 @@ module Domgen
         end
         analysis_data_module = self.analysis_data_module
         analysis_data_module.disable_facets_not_in(Domgen::SqlAnalysis::VALID_ANALYSIS_FACETS)
-        analysis_data_module.jpa.short_test_code = 'sql_analysis'
 
         analysis_data_module.entity(:CorruptionCheck) do |t|
           t.disable_facets_not_in(Domgen::SqlAnalysis::VALID_ANALYSIS_FACETS)
           t.sql.load_from_fixture = true
-          t.jpa.module_local = true
-          t.jpa.generate_metamodel = false
           t.integer(:Id, :primary_key => true)
           t.string(:Category, 50)
           t.string(:Description, 500, :unique => true)
           t.text(:CommonTableExpression, :nullable => true)
           t.text(:Sql)
           t.text(:QueryOption, :nullable => true)
-
-          t.query(:GetByDescription)
         end
 
         analysis_data_module.entity(:DataIssue) do |t|
-          t.jpa.generate_metamodel = false
           t.integer(:Id, :primary_key => true)
           t.string(:Category, 50)
           t.string(:Description, 500, :unique => true)
           t.text(:ViewSql, :nullable => true)
-
-          t.query(:FindAll, :standard_query => true).disable_facets_not_in(:jpa)
         end
       end
     end
