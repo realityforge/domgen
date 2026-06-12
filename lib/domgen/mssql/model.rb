@@ -198,7 +198,7 @@ module Domgen
             sql += <<SQL
 ;
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-            #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
+            #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})#{validation.query_option.nil? ? '' : "\n  #{validation.query_option}"}
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     -- noinspection SqlTransactionStatementInTrigger

@@ -420,6 +420,7 @@ module Domgen
     class Validation < SequencedSqlElement
       attr_accessor :negative_sql
       attr_accessor :common_table_expression
+      attr_accessor :query_option
       attr_writer :invariant_negative_sql
       attr_accessor :invariant_common_table_expression
       attr_accessor :guard

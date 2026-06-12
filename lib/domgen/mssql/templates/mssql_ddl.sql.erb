@@ -320,11 +320,11 @@ BEGIN
    end
 -%>
 <% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| -%>
-  ;<%= validation.invariant_common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
+  ;<%= validation.invariant_common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)<%= validation.query_option.nil? ? '' : "\n  #{validation.query_option}" %>
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
-      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.invariant_common_table_expression}#{validation.invariant_negative_sql}".gsub("'","''") %>')
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.invariant_common_table_expression}#{validation.invariant_negative_sql}#{validation.query_option.nil? ? '' : "\n#{validation.query_option}"}".gsub("'","''") %>')
   END
 <%
    end

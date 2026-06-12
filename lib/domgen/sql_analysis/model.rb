@@ -65,6 +65,7 @@ module Domgen
           t.string(:Description, 500, :unique => true)
           t.text(:CommonTableExpression, :nullable => true)
           t.text(:Sql)
+          t.text(:QueryOption, :nullable => true)
 
           t.query(:GetByDescription)
         end
@@ -192,8 +193,8 @@ GO"
             entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|v| !v.invariant_negative_sql.nil? }.each do |validation|
               unless entity.sql_analysis.validation?("DeclaredValidationCheck" + validation.name.to_s)
                 sql_declared_validations_check <<
-                  "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})
-  VALUES ('EntityValidation', 'Enforce the validation #{entity.sql.qualified_table_name}.#{validation.name}: #{ (validation.description || '').gsub("'","''")}',#{cte = validation.invariant_common_table_expression; cte.nil? ? "NULL" : "'" + (cte.strip.gsub("'","''") + "\n'")},'#{validation.invariant_negative_sql.gsub("'","''").strip}')
+                  "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:QueryOption).sql.quoted_column_name})
+  VALUES ('EntityValidation', 'Enforce the validation #{entity.sql.qualified_table_name}.#{validation.name}: #{ (validation.description || '').gsub("'","''")}',#{cte = validation.invariant_common_table_expression; cte.nil? ? "NULL" : "'" + (cte.strip.gsub("'","''") + "\n'")},'#{validation.invariant_negative_sql.gsub("'","''").strip}',#{option = validation.query_option; option.nil? ? "NULL" : "'" + option.gsub("'","''") + "'"})
 GO"
               end
             end

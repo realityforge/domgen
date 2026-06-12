@@ -16,13 +16,14 @@ AS
   DECLARE @Id INT
   DECLARE @CommonTableExpression VARCHAR(MAX)
   DECLARE @Sql VARCHAR(MAX)
+  DECLARE @QueryOption VARCHAR(MAX)
   DECLARE @FullSql VARCHAR(MAX)
   DECLARE @Description VARCHAR(MAX)
 
   SELECT @IssueCount = COUNT(*) FROM <%= data_issue_entity.sql.qualified_table_name %>
 
   DECLARE checkCursor CURSOR LOCAL FORWARD_ONLY READ_ONLY FOR
-	SELECT [Id], [Description], [CommonTableExpression], [Sql] FROM <%= corruption_check_entity.sql.qualified_table_name %>
+	SELECT [Id], [Description], [CommonTableExpression], [Sql], [QueryOption] FROM <%= corruption_check_entity.sql.qualified_table_name %>
 
   IF (@@error) <> 0 GOTO cfail
 
@@ -31,7 +32,7 @@ AS
 
 cfetchLoop:
 
-  FETCH checkCursor INTO @Id, @Description, @CommonTableExpression, @Sql
+  FETCH checkCursor INTO @Id, @Description, @CommonTableExpression, @Sql, @QueryOption
   IF (@@error) <> 0 GOTO cfailTECursor
 
   IF @@FETCH_STATUS <> 0 GOTO cendCollect
@@ -45,7 +46,8 @@ cfetchLoop:
         CC.[Category], CC.[Description], CC.[Sql]
       FROM
         <%= corruption_check_entity.sql.qualified_table_name %> CC
-      WHERE CC.[Id] = ' + CONVERT(VARCHAR,@Id) + ' AND 0 != (SELECT COUNT(*) FROM (' + @Sql + ') f)'
+      WHERE CC.[Id] = ' + CONVERT(VARCHAR,@Id) + ' AND 0 != (SELECT COUNT(*) FROM (' + @Sql + ') f)' +
+      COALESCE(' ' + @QueryOption, '')
 
   EXEC( @FullSql )
 
