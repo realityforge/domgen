@@ -1,14 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "StaticImportCanBeUsed", "NonJREEmulationClassesInClientCode" } )
-<% if repository.arez? -%>
-@arez.testng.ActionWrapper( enable = true )
-<% end -%>
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode" } )
 public abstract class <%= repository.gwt.abstract_client_test_name %><T extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>>
-<% if repository.arez? -%>
-  implements arez.testng.ArezTestSupport
-<% end -%>
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
@@ -96,16 +90,14 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% end -%>
 
   @org.testng.annotations.BeforeMethod
-<% if repository.arez? -%>
-  @java.lang.Override
-<% end -%>
   public void preTest()
     throws Exception
   {
     <%= repository.gwt.qualified_value_util_name %>.reset();
     <%= repository.gwt.qualified_value_util_name %>.setNow( new java.util.Date() );
 <% if repository.arez? -%>
-    arez.testng.ArezTestSupport.super.preTest();
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
+    arez.ArezTestUtil.resetConfig( false );
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
     _replicantTransport.reset();
@@ -126,9 +118,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% if repository.arez? -%>
 
   @org.testng.annotations.AfterMethod
-<% if repository.arez? -%>
-  @java.lang.Override
-<% end -%>
   public void postTest()
   {
 <% if repository.arez? -%>
@@ -137,7 +126,8 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     _connector = null;
     replicant.ReplicantTestUtil.resetConfig( false );
 <% end -%>
-    arez.testng.ArezTestSupport.super.postTest();
+    arez.ArezTestUtil.resetConfig( true );
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
 <% end -%>
   }
 <% end -%>
@@ -228,7 +218,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     return _replicantTransport;
   }
 
-  @java.lang.SuppressWarnings( { "NonJREEmulationClassesInClientCode", "StaticImportCanBeUsed" } )
+  @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   public final class TestTransport
     extends replicant.AbstractTransport
   {
@@ -304,6 +294,47 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     {
       org.testng.Assert.assertEquals( _remoteMessages.size(), count );
     }
+  }
+<% end -%>
+<%if repository.arez? -%>
+
+  @javax.annotation.Nonnull
+  public arez.ArezContext context()
+  {
+    return arez.Arez.context();
+  }
+
+  @javax.annotation.Nonnull
+  public arez.Disposable pauseScheduler()
+  {
+    return context().pauseScheduler();
+  }
+
+  public void observer( @javax.annotation.Nonnull final arez.Procedure procedure )
+  {
+    context().observer( procedure, arez.Observer.Flags.AREZ_OR_NO_DEPENDENCIES );
+  }
+
+  public void action( @javax.annotation.Nonnull final arez.Procedure action )
+    throws Throwable
+  {
+    context().action( action );
+  }
+
+  public <X> X action( @javax.annotation.Nonnull final arez.Function<X> action )
+    throws Throwable
+  {
+    return context().action( action );
+  }
+
+  public void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  {
+    context().safeAction( action );
+  }
+
+  public <X> X safeAction( @javax.annotation.Nonnull final arez.SafeFunction<X> action )
+  {
+    return context().safeAction( action );
   }
 <% end -%>
 }
