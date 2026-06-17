@@ -33,7 +33,7 @@ class <%= repository.keycloak.auth_service_implementation_name %>
   @javax.annotation.Nonnull
   protected org.keycloak.adapters.OidcKeycloakAccount getAccount()
   {
-    final org.keycloak.adapters.OidcKeycloakAccount account = findAccount();
+    final var account = findAccount();
     if ( null == account )
     {
       throw new MissingKeycloakAccountException();
@@ -74,11 +74,10 @@ class <%= repository.keycloak.auth_service_implementation_name %>
   @javax.annotation.Nullable
   private org.keycloak.adapters.OidcKeycloakAccount findAccount()
   {
-    final org.keycloak.adapters.OidcKeycloakAccount account =
-      (org.keycloak.adapters.OidcKeycloakAccount) _httpRequest.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
+    final var account = (org.keycloak.adapters.OidcKeycloakAccount) _httpRequest.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
     if ( null == account )
     {
-      final javax.servlet.http.HttpSession session = _httpRequest.getSession( false );
+      final var session = _httpRequest.getSession( false );
       if ( null != session )
       {
         return (org.keycloak.adapters.OidcKeycloakAccount) session.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
