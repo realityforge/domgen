@@ -4,7 +4,7 @@ package <%= to_package(method.jms.qualified_mdb_name) %>;
 
 config_properties = {}
 config_properties['connectionFactoryLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.CONNECTION_FACTORY_RESOURCE_NAME"
-config_properties['destinationLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(method.jms.destination.name)}_RESOURCE_NAME"
+config_properties['destinationLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.#{Domgen::Naming.uppercase_constantize(method.jms.destination.name)}_RESOURCE_NAME"
 config_properties['destinationType'] = "\"#{method.jms.destination.destination_type}\""
 config_properties['messageSelector'] = "\"#{method.jms.message_selector}\"" if method.jms.message_selector
 config_properties['acknowledgeMode'] = "\"#{method.jms.acknowledge_mode}\""
@@ -75,7 +75,7 @@ public class <%= method.jms.mdb_name %>
         }
         final var parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
-        _service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
+        _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
       }
       else
       {
@@ -111,9 +111,9 @@ public class <%= method.jms.mdb_name %>
     super();
   }
 
-  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(', ') %> )
   {
-    super( <%= parameter.referenced_struct.fields.collect {|field| Reality::Naming.camelize(field.name) }.join(', ') %> );
+    super( <%= parameter.referenced_struct.fields.collect {|field| Domgen::Naming.camelize(field.name) }.join(', ') %> );
   }
 <% end -%>
 <% end -%>

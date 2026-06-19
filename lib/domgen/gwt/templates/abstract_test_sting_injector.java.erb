@@ -7,7 +7,7 @@ public interface <%= repository.gwt.abstract_test_sting_injector_name %>
 <% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.sort_by{|data_module| data_module.name}.each do |data_module| -%>
 
   @javax.annotation.Nonnull
-  java.util.function.Supplier<<%= data_module.arez.qualified_test_factory_name %>> <%= Reality::Naming.camelize(data_module.name) %>Factory();
+  java.util.function.Supplier<<%= data_module.arez.qualified_test_factory_name %>> <%= Domgen::Naming.camelize(data_module.name) %>Factory();
 <% end -%>
 <% end -%>
 }

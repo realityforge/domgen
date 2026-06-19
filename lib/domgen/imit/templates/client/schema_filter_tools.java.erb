@@ -58,7 +58,7 @@ final class <%= repository.imit.schema_filter_tools_name %>
   {
     for ( final replicant.Subscription subscription : replicantContext.getInstanceSubscriptions() )
     {
-      if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(routing_key.graph.name) %> == subscription.address().channelId() )
+      if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(routing_key.graph.name) %> == subscription.address().channelId() )
       {
         for ( final replicant.Entity replicantEntity : subscription.findAllEntitiesByType( <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>.class ) )
         {
@@ -91,26 +91,26 @@ final class <%= repository.imit.schema_filter_tools_name %>
   extra_interest_filter = ''
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
-    singular_root_var_name = Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
-    root_var_name = Reality::Naming.pluralize(singular_root_var_name)
+    singular_root_var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    root_var_name = Domgen::Naming.pluralize(singular_root_var_name)
     extra_interest_filter = ", #{singular_root_var_name}"
 -%>
       @javax.annotation.Nonnull
       @java.lang.SuppressWarnings( "unchecked" )
-      final java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
+      final java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_NAME );
       assert null != <%= root_var_name %>;
 <% end -%>
 <%
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      var_name = Reality::Naming.camelize(routing_key.name)
+      var_name = Domgen::Naming.camelize(routing_key.name)
       nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
       param_type = routing_key.target_attribute.imit.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
       extra_interest_filter << ", #{var_name}"
 -%>
       <%= nullability_annotation(nullable) %>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% if !nullable -%>
       assert null != <%= var_name %>;
 <% end -%>

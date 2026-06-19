@@ -16,7 +16,7 @@ class <%= service.ejb.internal_boundary_service_implementation_name %>
 {
 <% service.methods.select{|method | method.ejb.internal_boundary_service?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
-  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
 <% end -%>
 <%
   created_persistent_context = false
@@ -39,7 +39,7 @@ class <%= service.ejb.internal_boundary_service_implementation_name %>
   @<%= annotation %>
 <% end-%>
   @java.lang.Override
-  <%= annotated_type(method.return_value, :ejb, :boundary, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary, :final => true)} #{p.name}" }.join(', ') %>)<%=
+  <%= annotated_type(method.return_value, :ejb, :boundary, :public => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary, :final => true)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %><%
    return_prefix = ''
@@ -75,24 +75,24 @@ JAVA
   pk_query_name = "#{parameter.nullable? ? 'FindBy' : 'GetBy'}#{parameter.referenced_entity.primary_key.name}"
   query = parameter.referenced_entity.dao.queries.select{|q| q.jpa? && q.name.to_s == pk_query_name}[0]
 -%>
-    final var $<%= Reality::Naming.camelize(parameter.name) %>Query = em.createNamedQuery( <%= "#{query.entity.jpa.qualified_name}." %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
-    $<%= Reality::Naming.camelize(parameter.name) %>Query.setParameter( <%= "\"#{parameter.referenced_entity.primary_key.name}\"" %>, <%= parameter.name %> );
+    final var $<%= Domgen::Naming.camelize(parameter.name) %>Query = em.createNamedQuery( <%= "#{query.entity.jpa.qualified_name}." %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
+    $<%= Domgen::Naming.camelize(parameter.name) %>Query.setParameter( <%= "\"#{parameter.referenced_entity.primary_key.name}\"" %>, <%= parameter.name %> );
 <% if parameter.nullable? -%>
-    $<%= Reality::Naming.camelize(parameter.name) %>Query.setMaxResults( 1 );
-    final var $<%= Reality::Naming.camelize(parameter.name) %>ResultList = $<%= Reality::Naming.camelize(parameter.name) %>Query.getResultList();
-    final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>ResultList.isEmpty() ? null : $<%= Reality::Naming.camelize(parameter.name) %>ResultList.get( 0 );
+    $<%= Domgen::Naming.camelize(parameter.name) %>Query.setMaxResults( 1 );
+    final var $<%= Domgen::Naming.camelize(parameter.name) %>ResultList = $<%= Domgen::Naming.camelize(parameter.name) %>Query.getResultList();
+    final var $<%= Domgen::Naming.camelize(parameter.name) %> = $<%= Domgen::Naming.camelize(parameter.name) %>ResultList.isEmpty() ? null : $<%= Domgen::Naming.camelize(parameter.name) %>ResultList.get( 0 );
 <% else -%>
-    final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>Query.getSingleResult();
+    final var $<%= Domgen::Naming.camelize(parameter.name) %> = $<%= Domgen::Naming.camelize(parameter.name) %>Query.getSingleResult();
 <% end -%>
 <% end -%>
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
     final var $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:default) %>>();
     for( final var id: <%= parameter.name %> )
     {
-      $<%= parameter.name %>.add( _<%= Reality::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
+      $<%= parameter.name %>.add( _<%= Domgen::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
     }
 <% end -%>
-    <%= return_prefix  %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s ? "$#{Reality::Naming.camelize(parameter.name)}" : "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
+    <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s ? "$#{Domgen::Naming.camelize(parameter.name)}" : "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
 <%= transform -%>
   }
 <% end -%>

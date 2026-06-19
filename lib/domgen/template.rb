@@ -14,7 +14,7 @@
 
 module Domgen
   class << self
-    include Reality::Generators::TemplateSetContainer
+    include Domgen::Generators::TemplateSetContainer
 
     # A hook to control whether certain paths in model should
     # be follow when collecting generation targets
@@ -29,7 +29,7 @@ module Domgen
     end
   end
 
-  Reality::Facets.copy_targets_to_generator_target_manager(Domgen, Domgen::FacetManager)
+  Domgen::Facets.copy_targets_to_generator_target_manager(Domgen, Domgen::FacetManager)
 
   module Generator
     class << self
@@ -83,7 +83,7 @@ module Domgen
       end
     end
 
-    class TemplateSet < Reality::Generators::TemplateSet
+    class TemplateSet < Domgen::Generators::TemplateSet
       def erb_template(target, template_filename, output_filename_pattern, options = {})
         options = options.dup
         facets = get_facets(options)
@@ -95,7 +95,7 @@ module Domgen
           end
           content
         end
-        Reality::Generators::ErbTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
+        Domgen::Generators::ErbTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
       end
 
       def ruby_template(target, template_filename, output_filename_pattern, options = {})
@@ -104,7 +104,7 @@ module Domgen
         helpers = get_helpers(options)
         template_filename = get_template_filename(template_filename)
 
-        Reality::Generators::RubyTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
+        Domgen::Generators::RubyTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
       end
 
       private

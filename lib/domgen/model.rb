@@ -1125,7 +1125,7 @@ module Domgen
 
     def initialize(struct, name, field_type, options, &block)
       @component_name = name
-      @name = (options[:collection_type] && options[:collection_type] != :none) ? Reality::Naming.pluralize(name) : name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @field_type = field_type
       super(struct, options, &block)
     end
@@ -1206,7 +1206,7 @@ module Domgen
 
     def initialize(message, name, parameter_type, options, &block)
       @component_name = name
-      @name = (options[:collection_type] && options[:collection_type] != :none) ? Reality::Naming.pluralize(name) : name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @parameter_type = parameter_type
       super(message, options, &block)
     end
@@ -1276,7 +1276,7 @@ module Domgen
 
     def initialize(exception, name, parameter_type, options, &block)
       @component_name = name
-      @name = (options[:collection_type] && options[:collection_type] != :none) ? Reality::Naming.pluralize(name) : name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @parameter_type = parameter_type
       super(exception, options, &block)
     end
@@ -1364,7 +1364,7 @@ module Domgen
 
     def initialize(method, name, parameter_type, options, &block)
       @component_name = name
-      @name = (options[:collection_type] && options[:collection_type] != :none) ? Reality::Naming.pluralize(name) : name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @parameter_type = parameter_type
       super(method, options, &block)
     end
@@ -1591,7 +1591,7 @@ module Domgen
           package_methods.each do |package_method|
             scopes.each do |scope|
               if package_method =~ /#{scope}_/
-                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Reality::Naming.underscore(base_name)}")
+                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Domgen::Naming.underscore(base_name)}")
               end
             end
           end

@@ -24,14 +24,14 @@ public class <%= exception.jaxrs.exception_mapper_name %>
     g.writeStartObject( "parameters" );
 <% parameters.each do |p| -%>
 <% if p.collection? -%>
-    g.writeStartArray( "<%= Reality::Naming.camelize(p.name) %>" );
+    g.writeStartArray( "<%= Domgen::Naming.camelize(p.name) %>" );
     for ( final var v : e.<%= getter_for(p) %> )
     {
       g.write( v<%= p.enumeration? ? '.name()' : '' %> );
     }
     g.writeEnd();
 <% else -%>
-    g.write( "<%= Reality::Naming.camelize(p.name) %>", e.<%= getter_for(p) %><%= p.enumeration? ? '.name()' : '' %> );
+    g.write( "<%= Domgen::Naming.camelize(p.name) %>", e.<%= getter_for(p) %><%= p.enumeration? ? '.name()' : '' %> );
 <% end -%>
 <% end -%>
     g.writeEnd();

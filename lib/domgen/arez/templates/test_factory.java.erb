@@ -17,31 +17,31 @@ public final class <%= data_module.arez.test_factory_name %>
 {
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
   @javax.annotation.Nonnull
-  private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
+  private final <%= dao.arez.qualified_repository_name %> _<%= Domgen::Naming.camelize(dao.name) %>;
 <% end -%>
 <% required_factories.each do |dm| -%>
   @javax.annotation.Nonnull
-  private final java.util.function.Supplier<<%= dm.arez.qualified_test_factory_name %>> _<%= Reality::Naming.camelize(dm.name) %>;
+  private final java.util.function.Supplier<<%= dm.arez.qualified_test_factory_name %>> _<%= Domgen::Naming.camelize(dm.name) %>;
 <% end -%>
 <% required_factories.each do |dm| -%>
 
   @javax.annotation.Nonnull
-  <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
+  <%= dm.arez.qualified_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
   {
-    return _<%=Reality::Naming.camelize(dm.name) %>.get();
+    return _<%=Domgen::Naming.camelize(dm.name) %>.get();
   }
 <% end -%>
 
-  <%= data_module.arez.test_factory_name %>( <%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ')-%><%=
+  <%= data_module.arez.test_factory_name %>( <%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Domgen::Naming.camelize(dao.name)}" }.join(', ')-%><%=
       data_module.daos.any? && required_factories.any? ? ", " : "" -%><%=
-      required_factories.collect{|dm| "@javax.annotation.Nonnull final java.util.function.Supplier<#{dm.arez.qualified_test_factory_name}> #{Reality::Naming.camelize(dm.name)}"}.join(', ')
+      required_factories.collect{|dm| "@javax.annotation.Nonnull final java.util.function.Supplier<#{dm.arez.qualified_test_factory_name}> #{Domgen::Naming.camelize(dm.name)}"}.join(', ')
   %>)
   {
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
-    _<%= Reality::Naming.camelize(dao.name) %> = <%= Reality::Naming.camelize(dao.name) %>;
+    _<%= Domgen::Naming.camelize(dao.name) %> = <%= Domgen::Naming.camelize(dao.name) %>;
 <% end -%>
 <% required_factories.each do |dm| -%>
-    _<%=Reality::Naming.camelize(dm.name) %> = <%= Reality::Naming.camelize(dm.name) %>;
+    _<%=Domgen::Naming.camelize(dm.name) %> = <%= Domgen::Naming.camelize(dm.name) %>;
 <% end -%>
   }
 
@@ -62,27 +62,27 @@ public final class <%= data_module.arez.test_factory_name %>
 %><% if entity.concrete? -%>
   public void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_ )
   {
-    <%= Reality::Naming.camelize(entity.dao.name) %>().destroy( $_ );
+    <%= Domgen::Naming.camelize(entity.dao.name) %>().destroy( $_ );
   }
 
 <% entity.arez.test_create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return create<%= entity.name %>( <%= entity.attributes.select{|a|a.arez?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
+    return create<%= entity.name %>( <%= entity.attributes.select{|a|a.arez?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) }.join(', ') %> );
   }
 
 <% end -%>
   @javax.annotation.Nonnull
-  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% needsLink = entity.attributes.any?{|a| a.reference?} -%>
 <% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
-    <% if needsLink %>final var $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
+    <% if needsLink %>final var $_ =<% else %>return<% end %> <%= Domgen::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
-  "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
+  "#{a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : ''}#{Domgen::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
 else
-    Reality::Naming.camelize(a.name)
+    Domgen::Naming.camelize(a.name)
   end
 end.join(', ') -%> );
 <% if needsLink -%>
@@ -93,21 +93,21 @@ end.join(', ') -%> );
 <% if entity.primary_key.generated_value? && entity.primary_key.integer? -%>
 
   @javax.annotation.Nonnull
-  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "nextId()" : "#{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
+    return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "nextId()" : "#{Domgen::Naming.camelize(a.name)}"}.join(', ') %>);
   }
 <% end -%>
 
 <% end -%>
 <% entity.attributes.select{|a|a.arez? && !a.immutable?}.each do |a| -%>
-  public void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_, <%= annotated_type(a, :arez, :default, :final => true) %> <%= Reality::Naming.camelize(a.name) %> )
+  public void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_, <%= annotated_type(a, :arez, :default, :final => true) %> <%= Domgen::Naming.camelize(a.name) %> )
   {
 <% if a.reference? -%>
-    safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
+    safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
     safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
 <% else -%>
-    safeAction( () -> $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> ) );
+    safeAction( () -> $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> ) );
 <% end -%>
   }
 
@@ -116,9 +116,9 @@ end.join(', ') -%> );
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
 
   @javax.annotation.Nonnull
-  public <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  public <%= dao.arez.qualified_repository_name %> <%= Domgen::Naming.camelize(dao.name) %>()
   {
-    return _<%= Reality::Naming.camelize(dao.name) %>;
+    return _<%= Domgen::Naming.camelize(dao.name) %>;
   }
 <% end -%>
 

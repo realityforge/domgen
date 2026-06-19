@@ -15,7 +15,7 @@ package <%= to_package(method.action.qualified_serverside_action_name) %>;
 
   @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression", "DuplicatedCode" } )
   @javax.annotation.Nonnull
-  <% unless method.action.serverside_action_module_local? %>public <% end %>static String encode( <%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ')%> )
+  <% unless method.action.serverside_action_module_local? %>public <% end %>static String encode( <%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ')%> )
   {
     final var builder = javax.json.Json.createObjectBuilder();
       <%- method.parameters.each do |parameter|
@@ -35,11 +35,11 @@ when parameter.reference? then Proc.new {|value| "#{value}.getId()"}
 when parameter.collection? then Proc.new {|value| "javax.json.Json.createArrayBuilder( #{value} ).build()"}
   else Proc.new{|value| "#{value}" }
 end -%><%- if parameter.nullable?%>
-    if ( null != <%= Reality::Naming.camelize(parameter.name) %> )
+    if ( null != <%= Domgen::Naming.camelize(parameter.name) %> )
     {
-      builder.add( "<%= parameter.name %>", <%= conversion_rule.call( Reality::Naming.camelize(parameter.name), parameter.ejb.non_primitive_java_type(:boundary) ) %> );
+      builder.add( "<%= parameter.name %>", <%= conversion_rule.call( Domgen::Naming.camelize(parameter.name), parameter.ejb.non_primitive_java_type(:boundary) ) %> );
     }<%- else %>
-    builder.add( "<%= parameter.name %>", <%= conversion_rule.call( Reality::Naming.camelize(parameter.name), parameter.ejb.non_primitive_java_type(:boundary) ) %> );<%- end %><%- end -%>
+    builder.add( "<%= parameter.name %>", <%= conversion_rule.call( Domgen::Naming.camelize(parameter.name), parameter.ejb.non_primitive_java_type(:boundary) ) %> );<%- end %><%- end -%>
   return builder.build().toString();
   }
 }

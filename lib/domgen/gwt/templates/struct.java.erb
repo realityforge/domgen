@@ -16,7 +16,7 @@ public final class <%= struct.gwt.name %>
 
   @jsinterop.annotations.JsOverlay
   @javax.annotation.Nonnull
-  public static <%= struct.gwt.name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  public static <%= struct.gwt.name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Domgen::Naming.camelize(field.name)}" }.join(', ') %> )
   {
     final <%= struct.gwt.name %> $$element$$ = new <%= struct.gwt.name %>();
 <% struct.fields.each do |field| -%>
@@ -47,9 +47,9 @@ public final class <%= struct.gwt.name %>
     converted_value = singular_converted_value
   end
 
-  cv = converted_value.call(Reality::Naming.camelize(field.name))
+  cv = converted_value.call(Domgen::Naming.camelize(field.name))
 -%>
-    $$element$$.<%= field.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null : " : '' %><%= cv.nil? ? Reality::Naming.camelize(field.name) : cv %>;
+    $$element$$.<%= field.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null : " : '' %><%= cv.nil? ? Domgen::Naming.camelize(field.name) : cv %>;
 <% end -%>
     return $$element$$;
   }

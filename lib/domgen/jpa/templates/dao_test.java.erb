@@ -7,7 +7,7 @@ abstract class <%= dao.jpa.dao_test_name %>
 {
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
   @org.testng.annotations.Test
-  void <%= Reality::Naming.camelize(query.name) %>()
+  void <%= Domgen::Naming.camelize(query.name) %>()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );

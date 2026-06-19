@@ -6,7 +6,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
 <%= jpa_queries.collect do |q|
-  r = "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\""
+  r = "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\""
 unless q.jpa.actual_hints.empty?
 r = "#{r}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}}"
 end
@@ -23,7 +23,7 @@ end
   unless q.jpa.actual_hints.empty?
     result = "#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}}"
   end
-  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result} )"
+  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result} )"
   }.join(",\n") %>
 } )
 <% end -%>
@@ -76,17 +76,17 @@ end
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute| -%>
   @javax.annotation.Nonnull
-  <% unless entity.jpa.module_local? %>public <% end %>static final java.lang.String <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_COLUMN_NAME = "<%= attribute.sql.column_name -%>";
+  <% unless entity.jpa.module_local? %>public <% end %>static final java.lang.String <%= Domgen::Naming.uppercase_constantize(attribute.name) -%>_COLUMN_NAME = "<%= attribute.sql.column_name -%>";
 <% end -%>
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_default_max_length? }.each do |attribute| -%>
-  <% unless entity.jpa.module_local? %>public <% end %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
+  <% unless entity.jpa.module_local? %>public <% end %>static final int <%= Domgen::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
   @java.io.Serial
   private static final long serialVersionUID = 1;
 
 <% need_public_query_constants = to_package(entity.dao.jpa.qualified_dao_name) != to_package(entity.jpa.qualified_name) -%>
 <% entity.queries.select{|q| q.jpa?}.each do |query| %>  @javax.annotation.Nonnull
-  <% if need_public_query_constants || query.jpa.direct_query_access? %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+  <% if need_public_query_constants || query.jpa.direct_query_access? %>public <% end %>static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <% end -%>
 <% unless entity.extends -%>
 

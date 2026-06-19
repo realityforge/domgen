@@ -16,7 +16,7 @@ module Domgen
   FacetManager.facet(:redfish => [:application]) do |facet|
     facet.enhance(Repository) do
       def pre_init
-        @data = Reality::Mash.new
+        @data = Domgen::Mash.new
       end
 
       attr_writer :custom_configuration
@@ -42,9 +42,9 @@ module Domgen
           env_key = options[:env_key]
           Domgen.error("redfish.custom_resource_from_env specified :system_defined => true but did not specify :env_key.") unless env_key
         else
-          standard_prefix = "#{Reality::Naming.underscore(repository.name)}/env"
+          standard_prefix = "#{Domgen::Naming.underscore(repository.name)}/env"
           Domgen.error("redfish.custom_resource_from_env specified name '#{name}' that is prefixed with '#{standard_prefix}/' which is no longer required. Remove prefix.") if name.start_with?("#{standard_prefix}/")
-          Domgen.error("redfish.custom_resource_from_env specified name '#{name}' that is prefixed with '#{Reality::Naming.underscore(repository.name)}/' which is no longer supported. Remove prefix and update deployment to reflect standard prefix '#{standard_prefix}/'.") if name.start_with?("#{standard_prefix}/")
+          Domgen.error("redfish.custom_resource_from_env specified name '#{name}' that is prefixed with '#{Domgen::Naming.underscore(repository.name)}/' which is no longer supported. Remove prefix and update deployment to reflect standard prefix '#{standard_prefix}/'.") if name.start_with?("#{standard_prefix}/")
           self.custom_configuration = true
           qualified_name = "#{standard_prefix}/#{name}"
           components = qualified_name.split('/')
@@ -71,10 +71,10 @@ module Domgen
 
       def jdbc_connection_pool(name, connection_pool_name, options = {})
         db_type = options[:db_type] || (repository.mssql? ? :mssql : repository.pgsql? ? :pgsql : nil)
-        application = Reality::Naming.underscore(repository.name)
-        constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
+        application = Domgen::Naming.underscore(repository.name)
+        constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
 
-        cname = Reality::Naming.uppercase_constantize(name)
+        cname = Domgen::Naming.uppercase_constantize(name)
         prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
         self.data['jdbc_connection_pools'][connection_pool_name]['datasourceclassname'] =
           :mssql == db_type ? 'net.sourceforge.jtds.jdbcx.JtdsDataSource' :
@@ -113,7 +113,7 @@ module Domgen
       end
 
       def jdbc_resource(name, connection_pool_name, resource_name)
-        application = Reality::Naming.underscore(repository.name)
+        application = Domgen::Naming.underscore(repository.name)
         self.data['jdbc_connection_pools'][connection_pool_name]['resources'][resource_name]['description'] = "#{name} resource for application #{application}"
       end
 
@@ -127,7 +127,7 @@ module Domgen
       end
 
       def pre_complete
-        key = Reality::Naming.uppercase_constantize(repository.name)
+        key = Domgen::Naming.uppercase_constantize(repository.name)
 
         # We magically create environment variables for any of the required settings
         # if they are used in custom_resources

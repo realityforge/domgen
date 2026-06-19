@@ -28,14 +28,14 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
     return null != _account;
   }
 
-  public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
+  public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Domgen::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
   {
     _account = new Account();
 <% repository.keycloak.default_client.claims.each do |claim| -%>
 <% if claim.standard_claim? -%>
-    _token.set<%= claim.token_accessor_key %>( <%= Reality::Naming.camelize(claim.java_accessor_key) %> );
+    _token.set<%= claim.token_accessor_key %>( <%= Domgen::Naming.camelize(claim.java_accessor_key) %> );
 <% else -%>
-    _token.setOtherClaims( "<%= Reality::Naming.camelize(claim.token_accessor_key) %>", <%= Reality::Naming.camelize(claim.java_accessor_key) %> );
+    _token.setOtherClaims( "<%= Domgen::Naming.camelize(claim.token_accessor_key) %>", <%= Domgen::Naming.camelize(claim.java_accessor_key) %> );
 <% end -%>
 <% end -%>
   }

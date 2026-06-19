@@ -113,7 +113,7 @@ module Domgen #nodoc
       yield self if block_given?
       define
       @templates = Domgen.generator.load_templates_from_template_sets(generator_keys)
-      Reality::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir, mark_as_generated_in_ide?, clean_generated_files?)
+      Domgen::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir, mark_as_generated_in_ide?, clean_generated_files?)
     end
 
     private
@@ -158,14 +158,12 @@ module Domgen #nodoc
               end
             end
 
-            Reality::Logging.set_levels(verbose? ? ::Logger::DEBUG : ::Logger::WARN,
-                                        Domgen::Logger,
-                                        Reality::Generators::Logger,
-                                        Reality::Facets::Logger) do
+            Domgen::Logging.set_levels(verbose? ? ::Logger::DEBUG : ::Logger::WARN,
+                                        Domgen::Logger) do
               Domgen.info "Generator started: Generating #{self.generator_keys.inspect}"
               Domgen.generator.generate(:repository, repository, self.target_dir, @templates, self.filter, self.keep_filter)
             end
-          rescue Reality::Generators::GeneratorError => e
+          rescue Domgen::Generators::GeneratorError => e
             puts e.message
             if e.cause
               puts e.cause.class.name.to_s
@@ -211,10 +209,8 @@ module Domgen #nodoc
         task :load => [:preload, self.filename] do
           begin
             Domgen.current_filename = self.filename
-            Reality::Logging.set_levels(verbose? ? ::Logger::DEBUG : ::Logger::WARN,
-                                        Domgen::Logger,
-                                        Reality::Generators::Logger,
-                                        Reality::Facets::Logger) do
+            Domgen::Logging.set_levels(verbose? ? ::Logger::DEBUG : ::Logger::WARN,
+                                        Domgen::Logger) do
               require self.filename
             end
           rescue Exception => e

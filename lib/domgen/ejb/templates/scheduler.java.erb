@@ -33,7 +33,7 @@ public class <%= method.ejb.scheduler_name %>
   {
     try
     {
-      _service.<%= Reality::Naming.camelize(method.name) %>();
+      _service.<%= Domgen::Naming.camelize(method.name) %>();
     }
     catch ( final java.lang.Throwable t )
     {

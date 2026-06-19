@@ -32,7 +32,7 @@ module Domgen
       attr_writer :js_type
 
       def java_accessor_key
-        @java_accessor_key || Reality::Naming.pascal_case(self.name.to_s.gsub(' ', '_'))
+        @java_accessor_key || Domgen::Naming.pascal_case(self.name.to_s.gsub(' ', '_'))
       end
 
       def java_type
@@ -46,7 +46,7 @@ module Domgen
       attr_writer :token_accessor_key
 
       def token_accessor_key
-        @token_accessor_key || Reality::Naming.pascal_case(self.config['claim.name'] || self.name.to_s.gsub(' ', '_'))
+        @token_accessor_key || Domgen::Naming.pascal_case(self.config['claim.name'] || self.name.to_s.gsub(' ', '_'))
       end
 
       def standard_claim?
@@ -72,7 +72,7 @@ module Domgen
       attr_writer :consent_text
 
       def consent_text
-        @consent_text || (consent_required? ? "${#{Reality::Naming.camelize(name.to_s.gsub(' ', '_'))}}" : '')
+        @consent_text || (consent_required? ? "${#{Domgen::Naming.camelize(name.to_s.gsub(' ', '_'))}}" : '')
       end
 
       attr_writer :config
@@ -97,11 +97,11 @@ module Domgen
       attr_writer :jndi_config_base
 
       def jndi_config_base
-        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/remote-client/#{Reality::Naming.underscore(self.name)}"
+        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/remote-client/#{Domgen::Naming.underscore(self.name)}"
       end
 
       def client_constant_prefix
-        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_REMOTE_CLIENT_#{Reality::Naming.uppercase_constantize(name)}"
+        "#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_REMOTE_CLIENT_#{Domgen::Naming.uppercase_constantize(name)}"
       end
     end
 
@@ -125,7 +125,7 @@ module Domgen
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IdToken'
 
       def qualified_type_name
-        "#{default_client? ? '' : Reality::Naming.pascal_case(keycloak_repository.repository.name)}#{Reality::Naming.pascal_case(name)}"
+        "#{default_client? ? '' : Domgen::Naming.pascal_case(keycloak_repository.repository.name)}#{Domgen::Naming.pascal_case(name)}"
       end
 
       def qualified_class_name
@@ -163,7 +163,7 @@ module Domgen
       attr_writer :client_id
 
       def env_constant_prefix
-        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
+        "#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}"
       end
 
       def client_id
@@ -171,18 +171,18 @@ module Domgen
       end
 
       def client_constant_prefix
-        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_CLIENT#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
+        "#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_CLIENT#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}"
       end
 
       def default_client?
         repository_name = keycloak_repository.repository.name
-        Reality::Naming.underscore(repository_name) == key.to_s
+        Domgen::Naming.underscore(repository_name) == key.to_s
       end
 
       attr_writer :name
 
       def name
-        @name || Reality::Naming.underscore(key.to_s)
+        @name || Domgen::Naming.underscore(key.to_s)
       end
 
       attr_writer :root_url
@@ -507,7 +507,7 @@ module Domgen
       attr_writer :jndi_config_base
 
       def jndi_config_base
-        @jndi_config_base || "#{Reality::Naming.underscore(repository.name)}/keycloak"
+        @jndi_config_base || "#{Domgen::Naming.underscore(repository.name)}/keycloak"
       end
 
       # Relative url for base of all keycloak configuration
@@ -530,7 +530,7 @@ module Domgen
 
       def default_client
         Domgen.error('default_client called when local auth service is not enabled.') unless has_local_auth_service?
-        key = Reality::Naming.underscore(repository.name.to_s)
+        key = Domgen::Naming.underscore(repository.name.to_s)
         client(key) unless client_by_key?(key)
         client_by_key(key)
       end
@@ -621,9 +621,9 @@ module Domgen
           repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)
           repository.ejb.add_test_class_content(<<-JAVA)
 
-  public void setupAccount( #{self.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') } )
+  public void setupAccount( #{self.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Domgen::Naming.camelize(claim.java_accessor_key)}"}.join(', ') } )
   {
-    toObject( #{self.qualified_test_auth_service_implementation_name }.class, s( #{repository.service_by_name(self.auth_service_name).ejb.qualified_service_name }.class ) ).setupAccount( #{self.default_client.claims.collect {|claim| Reality::Naming.camelize(claim.java_accessor_key)}.join(', ') } );
+    toObject( #{self.qualified_test_auth_service_implementation_name }.class, s( #{repository.service_by_name(self.auth_service_name).ejb.qualified_service_name }.class ) ).setupAccount( #{self.default_client.claims.collect {|claim| Domgen::Naming.camelize(claim.java_accessor_key)}.join(', ') } );
   }
           JAVA
         end

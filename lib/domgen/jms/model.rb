@@ -45,7 +45,7 @@ module Domgen
       attr_writer :physical_name
 
       def resource_name
-        @resource_name || "#{Reality::Naming.underscore(jms_repository.repository.name)}/jms/#{default_name}"
+        @resource_name || "#{Domgen::Naming.underscore(jms_repository.repository.name)}/jms/#{default_name}"
       end
 
       def physical_name
@@ -130,7 +130,7 @@ module Domgen
       end
 
       def connection_factory_resource_name
-        @connection_factory_resource_name || "#{Reality::Naming.underscore(repository.name)}/jms/ConnectionFactory"
+        @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
 
       def additional_connection_factory_properties
@@ -142,7 +142,7 @@ module Domgen
       attr_writer :default_username
 
       def default_username
-        @default_username || Reality::Naming.underscore(repository.name)
+        @default_username || Domgen::Naming.underscore(repository.name)
       end
 
       def pre_verify
@@ -206,7 +206,7 @@ module Domgen
           JAVA
           self.destinations.each do |destination|
             content += <<-JAVA
-    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purge#{destination.is_queue? ? 'Queue' : 'Topic' }( #{qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(destination.name) }_PHYSICAL_NAME );
+    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purge#{destination.is_queue? ? 'Queue' : 'Topic' }( #{qualified_constants_container_name}.#{Domgen::Naming.uppercase_constantize(destination.name) }_PHYSICAL_NAME );
             JAVA
           end
           content += <<-JAVA
@@ -301,7 +301,7 @@ module Domgen
       end
 
       def mdb_resource_name
-        "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
+        "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
       end
 
       java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB'

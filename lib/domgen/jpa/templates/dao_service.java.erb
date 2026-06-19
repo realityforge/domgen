@@ -8,7 +8,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% end -%>
 {
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>
-  <%= query_result_type(query, '') %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
+  <%= query_result_type(query, '') %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
 
 <% end -%>
 <% if dao.repository? -%>
@@ -16,7 +16,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% if dao.entity.jpa.support_create? -%>
   /** Create the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
   @javax.annotation.Nonnull
-  <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> );
+  <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
 
 <% end -%>
 <% if dao.entity.jpa.support_delete? -%>
@@ -33,21 +33,21 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% if dao.entity.jpa.support_create? -%>
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> );
+  <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
 
 <% end -%>
 <% end -%>
 <% if dao.jpa.support_update? -%>
 <% if dao.entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
   /** Update the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
-  void update( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
+  void update( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>);
 
 <% dao.entity.jpa.update_defaults.each do |defaults|
     attr = dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? && (!defaults.has_attribute?(a.name) || !defaults.value_for(a.name).nil?)}
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
   /** Update the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
-  void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> );
+  void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
 
 <% end -%>
 <% end -%>
@@ -78,6 +78,6 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% end -%>
 <% dao.jpa.friend_daos.collect{|name| dao.data_module.dao_by_name(name)}.each do |friend| -%>
   @javax.annotation.Nonnull
-  <%= friend.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>();
+  <%= friend.jpa.qualified_dao_service_name %> <%= Domgen::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>();
 <% end -%>
 }

@@ -181,7 +181,7 @@ module Domgen
     def referencing_link_name
       Domgen.error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
       base_name = "#{self.respond_to?(:component_name) ? component_name : name}#{referenced_entity.primary_key.name}"
-      self.collection? ? Reality::Naming.pluralize(base_name) : base_name
+      self.collection? ? Domgen::Naming.pluralize(base_name) : base_name
     end
 
     attr_writer :polymorphic

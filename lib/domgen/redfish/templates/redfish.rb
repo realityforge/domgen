@@ -14,10 +14,10 @@ def define_context_service(data, name, options = {})
 end
 
 def generate(repository)
-  application = Reality::Naming.underscore(repository.name)
-  constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
+  application = Domgen::Naming.underscore(repository.name)
+  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
 
-  data = Reality::Mash.from(repository.redfish.data.to_h)
+  data = Domgen::Mash.from(repository.redfish.data.to_h)
 
   if repository.gwt? && repository.application.code_deployable?
     data['environment_vars']["#{constant_prefix}_CODE_SERVER_HOST"] = '127.0.0.1'

@@ -109,7 +109,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     if ( replicant.Replicant.areSpiesEnabled() )
     {
       final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
-      if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" ) ) )
+      if ( null != storage && "true".equals( storage.getItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" ) ) )
       {
         replicant.spy.tools.ReplicantSpyUtil.enableSpyEventLogging();
         akasha.Console.log( "Enabling Replicant Spy Logger at startup as it was left enabled when this application previously ran" );
@@ -125,7 +125,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
             {
               if ( null != storage )
               {
-                storage.removeItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" );
+                storage.removeItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" );
               }
               replicant.spy.tools.ReplicantSpyUtil.disableSpyEventLogging();
               akasha.Console.log( "Disabled Replicant Spy Logger" );
@@ -134,7 +134,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
             {
               if ( null != storage )
               {
-                storage.setItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled", "true" );
+                storage.setItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled", "true" );
               }
               replicant.spy.tools.ReplicantSpyUtil.enableSpyEventLogging();
               akasha.Console.log( "Enabled Replicant Spy Logger" );
@@ -177,7 +177,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     if ( arez.Arez.areSpiesEnabled() )
     {
       final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
-      if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" ) ) )
+      if ( null != storage && "true".equals( storage.getItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" ) ) )
       {
         arez.spytools.browser.BrowserSpyUtil.enableSpyEventLogging( createArezSpyEventHandler() );
       }
@@ -192,7 +192,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
             {
               if ( null != storage )
               {
-                storage.removeItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" );
+                storage.removeItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" );
               }
               arez.spytools.browser.react4j.ReactArezSpyUtil.disableSpyEventLogging();
               akasha.Console.log( "Disabled Arez Spy Logger" );
@@ -201,7 +201,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
             {
               if ( null != storage )
               {
-                storage.setItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled", "true" );
+                storage.setItem( "<%= Domgen::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled", "true" );
               }
               arez.spytools.browser.BrowserSpyUtil.enableSpyEventLogging( createArezSpyEventHandler() );
               akasha.Console.log( "Enabled Arez Spy Logger" );

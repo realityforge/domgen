@@ -35,7 +35,7 @@ module Domgen
 
         channel_prefix = graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter? ? "\"S\" + #{source_graph_variable}" : ''
         if graph_link.target_filter_requires_source_entity?
-          source_entity_suffix = "\"E\" + #{repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)} + \".\" + #{entity_id_variable}"
+          source_entity_suffix = "\"E\" + #{repository.imit.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)} + \".\" + #{entity_id_variable}"
           '' == channel_prefix ? source_entity_suffix : "#{channel_prefix} + #{source_entity_suffix}"
         else
           channel_prefix
@@ -44,7 +44,7 @@ module Domgen
 
       def target_address_expression(graph_link, target_id, target_filter_variable, target_filter_typed_variable = nil)
         target_graph = graph_link.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(graph_link.target_graph)
-        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(graph_link.target_graph)}"
+        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(graph_link.target_graph)}"
         if target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter? && target_filter_typed_variable
           "replicant.server.ChannelAddress.of( #{channel}, #{target_id}, deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{target_filter_typed_variable} ) )"
         elsif target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter?
@@ -56,7 +56,7 @@ module Domgen
 
       def entity_target_address_expression(graph_link, target_root_expression, source_expression, entity_expression, target_filter_typed_expression = nil)
         target_graph = graph_link.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(graph_link.target_graph)
-        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(graph_link.target_graph)}"
+        channel = "#{graph_link.imit_attribute.attribute.entity.data_module.repository.imit.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(graph_link.target_graph)}"
         if target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter? && target_filter_typed_expression
           "replicant.server.ChannelAddress.of( #{channel}, #{target_root_expression}, deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{target_filter_typed_expression} ) )"
         elsif target_graph.instanced? && graph_link.target_instance_id_derived_from_target_filter?
@@ -75,12 +75,12 @@ module Domgen
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)
-          value = Reality::Naming.camelize(parameter_name)
+          value = Domgen::Naming.camelize(parameter_name)
           return "#{prefix} java.util.Objects.equals( e.#{query_getter(a)}, #{value} ) #{javaql}"
         else
           # Handle parameters that are the primary keys of related entities
           entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-            return "#{prefix} java.util.Objects.equals( e.get#{a.name}().#{getter_for(a.referenced_entity.primary_key)}, #{Reality::Naming.camelize(parameter_name)} ) #{javaql}"
+            return "#{prefix} java.util.Objects.equals( e.get#{a.name}().#{getter_for(a.referenced_entity.primary_key)}, #{Domgen::Naming.camelize(parameter_name)} ) #{javaql}"
           end
           return nil
         end

@@ -1225,7 +1225,7 @@ module Domgen
       end
 
       def to_characteristic_transport_type
-        param = Reality::Naming.camelize(parameter.name)
+        param = Domgen::Naming.camelize(parameter.name)
         if parameter.collection?
           to_collection_transport_type
         elsif parameter.datetime?
@@ -1242,7 +1242,7 @@ module Domgen
       end
 
       def to_collection_transport_type
-        param = Reality::Naming.camelize(parameter.name)
+        param = Domgen::Naming.camelize(parameter.name)
         if parameter.integer? || parameter.reference?
           "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
         elsif parameter.datetime?

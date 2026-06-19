@@ -7,7 +7,7 @@ public class <%= persistence_unit.raw_test_module_name %>
 {
   public <%= persistence_unit.raw_test_module_name %>()
   {
-    this( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(persistence_unit.short_name) %>_KEY );
+    this( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(persistence_unit.short_name) %>_KEY );
   }
 
   public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix )
@@ -17,6 +17,6 @@ public class <%= persistence_unit.raw_test_module_name %>
 
   public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-    super( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(persistence_unit.short_name) %>_NAME, new String[ 0 ], databasePrefix, <%= persistence_unit.qualified_persistence_unit_test_util_name %>.createExtraPersistenceUnitProperties( additionalProperties ) );
+    super( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(persistence_unit.short_name) %>_NAME, new String[ 0 ], databasePrefix, <%= persistence_unit.qualified_persistence_unit_test_util_name %>.createExtraPersistenceUnitProperties( additionalProperties ) );
   }
 }

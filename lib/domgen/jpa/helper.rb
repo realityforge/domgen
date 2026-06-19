@@ -64,17 +64,17 @@ module Domgen
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
           s << "  @javax.annotation.Nullable\n"
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.camelize(Domgen::Naming.pluralize(attribute.inverse.name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
           s << "  @javax.annotation.Nullable\n"
-          s << "  private #{attribute.entity.jpa.qualified_name} #{Reality::Naming.camelize(attribute.inverse.name)};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.name)};\n"
         end
         s
       end
 
       def gen_column_annotation(attribute)
         parameters = []
-        parameters << "name = #{Reality::Naming.uppercase_constantize(attribute.name)}_COLUMN_NAME"
+        parameters << "name = #{Domgen::Naming.uppercase_constantize(attribute.name)}_COLUMN_NAME"
         parameters << "nullable = false" unless attribute.nullable?
         parameters << "updatable = false" unless attribute.updatable?
         parameters << "unique = true" if attribute.unique? || attribute.primary_key?
@@ -181,7 +181,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.name
-            field_name = Reality::Naming.camelize( name )
+            field_name = Domgen::Naming.camelize( name )
 
             local_getter = attribute.entity.jpa.module_local? || (attribute.reference? && (!attribute.referenced_entity.jpa? || attribute.referenced_entity.jpa.module_local?))
 
@@ -403,8 +403,8 @@ STR
 
       def j_has_many_attribute(attribute)
         name = attribute.inverse.name
-        plural_name = Reality::Naming.pluralize(name)
-        field_name = Reality::Naming.camelize(plural_name)
+        plural_name = Domgen::Naming.pluralize(name)
+        field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = <<STR
   @javax.annotation.Nonnull

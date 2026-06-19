@@ -4,7 +4,7 @@ package <%= to_package(persistence_unit.qualified_persistence_unit_test_util_nam
 public final class <%= persistence_unit.persistence_unit_test_util_name %>
 {
 <% persistence_unit.related_database_keys.each do |key| -%>
-  private static final String <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME = "<%= key %>.test.db.name";
+  private static final String <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME = "<%= key %>.test.db.name";
 <% end -%>
 
   private <%= persistence_unit.persistence_unit_test_util_name %>()
@@ -13,10 +13,10 @@ public final class <%= persistence_unit.persistence_unit_test_util_name %>
 
 <% persistence_unit.related_database_keys.each do |key| -%>
   @javax.annotation.Nonnull
-  public static String get<%= Reality::Naming.pascal_case(key) %>DatabaseName()
+  public static String get<%= Domgen::Naming.pascal_case(key) %>DatabaseName()
   {
-    final var databaseName = org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME );
-    org.testng.Assert.assertNotNull( databaseName, "org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( \"" + <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME + "\" )" );
+    final var databaseName = org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME );
+    org.testng.Assert.assertNotNull( databaseName, "org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( \"" + <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME + "\" )" );
     return databaseName;
   }
 <% end -%>

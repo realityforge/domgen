@@ -44,7 +44,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name || Reality::Naming.underscore(repository.name)
+        @module_name || Domgen::Naming.underscore(repository.name)
       end
 
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
@@ -160,7 +160,7 @@ module Domgen
 
       def css_obfuscation_prefix
         if @css_obfuscation_prefix.nil?
-          words = Reality::Naming.split_into_words(repository.name.to_s)
+          words = Domgen::Naming.split_into_words(repository.name.to_s)
           @css_obfuscation_prefix = (words.size == 1 ? repository.name.to_s : words.collect { |w| w[0, 1] }.join).downcase[0, 2]
         end
         @css_obfuscation_prefix

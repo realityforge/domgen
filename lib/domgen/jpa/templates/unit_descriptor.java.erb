@@ -11,10 +11,10 @@ public final class <%= repository.jpa.unit_descriptor_name %>
   @javax.annotation.Nonnull
   public static final String RESOURCE_NAME = "<%= repository.jpa.resolved_data_source %>";
   @javax.annotation.Nonnull
-  public static final String KEY = "<%= Reality::Naming.underscore(repository.jpa.default_persistence_unit.short_name) %>";
+  public static final String KEY = "<%= Domgen::Naming.underscore(repository.jpa.default_persistence_unit.short_name) %>";
 <% repository.jpa.default_persistence_unit.related_database_keys.each do |key| -%>
   @javax.annotation.Nonnull
-  public static final String <%= Reality::Naming.uppercase_constantize(repository.jpa.default_persistence_unit.short_name) %>_<%= Reality::Naming.uppercase_constantize(key) %>_DATABASE_NAME_JNDI_KEY = "<%= repository.jpa.default_persistence_unit.related_database_jndi(key) %>";
+  public static final String <%= Domgen::Naming.uppercase_constantize(repository.jpa.default_persistence_unit.short_name) %>_<%= Domgen::Naming.uppercase_constantize(key) %>_DATABASE_NAME_JNDI_KEY = "<%= repository.jpa.default_persistence_unit.related_database_jndi(key) %>";
 <% end -%>
 <% end -%>
 <% end -%>

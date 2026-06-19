@@ -30,7 +30,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% if client.keycloak_repository.repository.imit? -%>
     try
     {
-      _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
+      _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Domgen::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
     }
     catch ( final java.lang.Exception ignored )
     {

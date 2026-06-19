@@ -228,7 +228,7 @@ module Domgen
       attr_writer :properties
 
       def application_scope
-        Reality::Naming.underscore(jpa_repository.repository.name)
+        Domgen::Naming.underscore(jpa_repository.repository.name)
       end
 
       def applicationScope
@@ -258,7 +258,7 @@ module Domgen
       end
 
       def related_database_jndi(key)
-        prefix = jpa_repository.repository.name == short_name ? '' : "#{Reality::Naming.underscore(short_name)}/"
+        prefix = jpa_repository.repository.name == short_name ? '' : "#{Domgen::Naming.underscore(short_name)}/"
         "#{application_scope}/env/#{prefix}#{key}_database_name"
       end
 
@@ -357,7 +357,7 @@ module Domgen
       attr_writer :default_username
 
       def default_username
-        @default_username || Reality::Naming.underscore(repository.name)
+        @default_username || Domgen::Naming.underscore(repository.name)
       end
 
       attr_writer :include_default_unit
@@ -424,7 +424,7 @@ module Domgen
       end
 
       def application_scope
-        Reality::Naming.underscore(repository.name)
+        Domgen::Naming.underscore(repository.name)
       end
 
       def applicationScope
@@ -614,7 +614,7 @@ module Domgen
                                                 :login_timeout => unit.login_timeout)
 
             unit.related_database_keys.each do |key|
-              env_key = "#{Reality::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{Reality::Naming.uppercase_constantize(unit.short_name)}_"}#{Reality::Naming.uppercase_constantize(key)}_DATABASE_NAME"
+              env_key = "#{Domgen::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{Domgen::Naming.uppercase_constantize(unit.short_name)}_"}#{Domgen::Naming.uppercase_constantize(key)}_DATABASE_NAME"
               repository.redfish.environment_variable(env_key)
               repository.redfish.custom_resource(unit.related_database_jndi(key), "${#{env_key}}")
             end
@@ -690,7 +690,7 @@ module Domgen
       attr_writer :short_test_code
 
       def short_test_code
-        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect {|w| w[0, 1]}.join.downcase
+        @short_test_code || Domgen::Naming.split_into_words(data_module.name.to_s).collect {|w| w[0, 1]}.join.downcase
       end
 
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
@@ -992,7 +992,7 @@ module Domgen
           lock_mode = nil
           if query_text =~ /(.+)With([A-Z].*)Lock$/
             query_text = $1
-            lock_mode = Reality::Naming.underscore($2).to_sym
+            lock_mode = Domgen::Naming.underscore($2).to_sym
             unless Domgen::FacetManager::FacetDefinitions::JpaQueryFacet.valid_lock_modes.include?(lock_mode)
               Domgen.error("Invalid lock mode specified in query name #{query.qualified_name}")
             end
@@ -1008,14 +1008,14 @@ module Domgen
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = parameter_name
-                field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
+                field = "#{entity_prefix}#{Domgen::Naming.camelize(jpql_name)}"
                 comparison = "#{field} = :#{parameter_name}"
                 jpql = "#{operation} #{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
-                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
+                  field = "#{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
@@ -1030,14 +1030,14 @@ module Domgen
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = parameter_name
-                field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
+                field = "#{entity_prefix}#{Domgen::Naming.camelize(jpql_name)}"
                 comparison = "#{field} = :#{parameter_name}"
                 jpql = "#{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
-                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
+                  field = "#{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{comparison} #{jpql}"
                   found = true
@@ -1099,7 +1099,7 @@ module Domgen
       end
 
       def field_name(modality = :default)
-        Reality::Naming.camelize(name(modality))
+        Domgen::Naming.camelize(name(modality))
       end
 
       def generated_value_strategy

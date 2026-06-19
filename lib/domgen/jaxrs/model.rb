@@ -87,7 +87,7 @@ module Domgen
 
       def path
         return @path unless @path.nil?
-        return "/#{Reality::Naming.underscore(short_service_name)}"
+        return "/#{Domgen::Naming.underscore(short_service_name)}"
       end
     end
 
@@ -128,7 +128,7 @@ module Domgen
         if @path
           return @path == '' ? nil : @path
         end
-        base_path = "/#{Reality::Naming.underscore(method.name)}"
+        base_path = "/#{Domgen::Naming.underscore(method.name)}"
         path_parameters = method.parameters.select { |p| p.jaxrs? && :path == p.jaxrs.param_type }
         return base_path if path_parameters.empty?
         return "#{base_path}/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join('/')}}"
@@ -162,7 +162,7 @@ module Domgen
       attr_writer :param_key
 
       def param_key
-        @param_key || Reality::Naming.camelize(characteristic.name)
+        @param_key || Domgen::Naming.camelize(characteristic.name)
       end
 
       attr_accessor :default_value

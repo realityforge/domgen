@@ -15,7 +15,7 @@
 module Domgen #nodoc
 
   module FacetManager
-    extend Reality::Facets::FacetContainer
+    extend Domgen::Facets::FacetContainer
 
     def self.handle_sub_feature?(object, sub_feature_key)
       return object.reference? if :inverse == sub_feature_key && object.is_a?(Attribute)

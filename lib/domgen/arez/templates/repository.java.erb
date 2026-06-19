@@ -11,9 +11,9 @@ public abstract class <%= dao.arez.repository_name %>
 {
   @arez.annotations.Action
   @javax.annotation.Nonnull
-  public <%= dao.entity.arez.qualified_name %> create( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> )
+  public <%= dao.entity.arez.qualified_name %> create( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> )
   {
-    final <%= dao.entity.arez.qualified_name %> $entity = new <%= dao.entity.arez.qualified_arez_name %>( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> );
+    final <%= dao.entity.arez.qualified_name %> $entity = new <%= dao.entity.arez.qualified_arez_name %>( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> );
     attach( $entity );
     return $entity;
   }
@@ -39,7 +39,7 @@ public abstract class <%= dao.arez.repository_name %>
 <% dao.queries.select{|q|q.arez?}.each do |query| -%>
 
   <%= nullability_annotation(query.multiplicity == :zero_or_one) %>
-  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.arez.primitive? ? '' : nullability_annotation(p.nullable?)} final #{p.arez.java_type} #{Reality::Naming.camelize(p.name)}"}.join(', ') %> )
+  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.arez.primitive? ? '' : nullability_annotation(p.nullable?)} final #{p.arez.java_type} #{Domgen::Naming.camelize(p.name)}"}.join(', ') %> )
   {
 <%
   if query.multiplicity == :zero_or_one

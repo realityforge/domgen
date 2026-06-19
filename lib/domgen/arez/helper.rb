@@ -23,12 +23,12 @@ module Domgen
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)
-          value = Reality::Naming.camelize(parameter_name)
+          value = Domgen::Naming.camelize(parameter_name)
           return "#{prefix} java.util.Objects.equals( e.#{query_getter(a)}, #{value} ) #{javaql}"
         else
           # Handle parameters that are the primary keys of related entities
           entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-            return "#{prefix} java.util.Objects.equals( e.get#{a.name}().#{getter_for(a.referenced_entity.primary_key)}, #{Reality::Naming.camelize(parameter_name)} ) #{javaql}"
+            return "#{prefix} java.util.Objects.equals( e.get#{a.name}().#{getter_for(a.referenced_entity.primary_key)}, #{Domgen::Naming.camelize(parameter_name)} ) #{javaql}"
           end
           return nil
         end

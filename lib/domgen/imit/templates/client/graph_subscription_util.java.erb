@@ -38,7 +38,7 @@ public final class <%= graph.subscription_util_name %>
   @javax.annotation.Nonnull
   public static replicant.ChannelAddress getGraphAddress(<%= graph.instance_root? ? " final int id " : "" %><%= explicit_filter_instance_id ? ", @javax.annotation.Nonnull final java.lang.String filterInstanceId" : "" %>)
   {
-    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
+    return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %><%= explicit_filter_instance_id ? ", filterInstanceId" : "" %> );
   }
 <% if canonical_graph_link -%>
 

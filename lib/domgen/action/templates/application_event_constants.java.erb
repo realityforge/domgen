@@ -10,7 +10,7 @@ public @interface <%= repository.action.application_event_constants_name %>
    */
 <% data_module.services.select{|service|service.action? && service.action.defines_application_event_constants?}.each do |service| -%>
 <% service.methods.select{|method|method.action? && !method.action.application_event.nil?}.each do |method| -%>
-  String <%= Reality::Naming.uppercase_constantize(method.action.application_event) %> = "<%= method.action.application_event %>";
+  String <%= Domgen::Naming.uppercase_constantize(method.action.application_event) %> = "<%= method.action.application_event %>";
 <% end -%>
 <% end -%>
 <% end -%>

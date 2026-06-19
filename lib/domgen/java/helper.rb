@@ -87,7 +87,7 @@ module Domgen
 
         transform = variable_name
         if characteristic.characteristic_type_key == :reference
-          transform = "_#{Reality::Naming.camelize(characteristic.referenced_entity.dao.jpa.dao_service_name)}.getBy#{characteristic.referenced_entity.primary_key.name}( #{variable_name} )"
+          transform = "_#{Domgen::Naming.camelize(characteristic.referenced_entity.dao.jpa.dao_service_name)}.getBy#{characteristic.referenced_entity.primary_key.name}( #{variable_name} )"
         end
         if characteristic.nullable? && transform != variable_name
           transform = "(null == #{variable_name} ? null : #{transform})"

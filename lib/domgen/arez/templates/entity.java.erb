@@ -26,50 +26,50 @@ package <%= to_package(entity.arez.qualified_name) %>;
 <% end -%>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_default_max_length? }.each do |attribute| -%>
-  <%= entity.arez.module_local? ? '' : 'public ' %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
+  <%= entity.arez.module_local? ? '' : 'public ' %>static final int <%= Domgen::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? -%>
-  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Domgen::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% else -%>
-  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
+  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Domgen::Naming.camelize(attribute.arez.name) %>;
 <%
    end
    end
 -%>
 
-  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}.join(', ') %> )
+  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}.join(', ') %> )
   {
 <% if entity.extends -%>
-    super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}.join(', ') %> );
+    super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default)) %>;
+    _<%= Domgen::Naming.camelize(attribute.arez.name(:transport)) %> = <%= Domgen::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default)) %>;
 <% end -%>
   }
 <% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? }.each do |attribute| -%>
 <% if attribute.reference? -%>
 <% if attribute.immutable? -%>
 
-  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
+  @arez.annotations.Reference( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Domgen::Naming.camelize(Domgen::Naming.pluralize(attribute.inverse.name)) : Domgen::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
   <%= annotated_type(attribute, :arez, :default, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
-  @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
+  @arez.annotations.ReferenceId( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>" )
   <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => !entity.arez.module_local?) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
   {
-    return _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+    return _<%= Domgen::Naming.camelize(attribute.arez.name(:transport)) %>;
   }
 <% else -%>
 
-  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
+  @arez.annotations.Reference( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Domgen::Naming.camelize(Domgen::Naming.pluralize(attribute.inverse.name)) : Domgen::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
   <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
-  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
-  @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
+  @arez.annotations.Observable( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
+  @arez.annotations.ReferenceId( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>" )
   <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
 
-  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
-  abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+  @arez.annotations.Observable( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>" )
+  abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Domgen::Naming.camelize(attribute.arez.name(:transport)) %> );
 <% end -%>
 <% else -%>
 <% if attribute.immutable? -%>
@@ -79,15 +79,15 @@ package <%= to_package(entity.arez.qualified_name) %>;
 <% end -%>
   <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => !entity.arez.module_local?) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
-    return _<%= Reality::Naming.camelize(attribute.arez.name) %>;
+    return _<%= Domgen::Naming.camelize(attribute.arez.name) %>;
   }
 <% else -%>
 
-  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
+  @arez.annotations.Observable( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
   <%= annotated_type(attribute, :arez, :default, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
-  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
-  abstract void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default) %> <%= Reality::Naming.camelize(attribute.arez.name) %> );
+  @arez.annotations.Observable( name = "<%= Domgen::Naming.camelize(attribute.arez.name) %>" )
+  abstract void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default) %> <%= Domgen::Naming.camelize(attribute.arez.name) %> );
 <% end -%>
 <% end -%>
 <% end -%>
@@ -105,14 +105,14 @@ package <%= to_package(entity.arez.qualified_name) %>;
         name = attribute.inverse.name
         type = attribute.entity.arez.qualified_name
         if attribute.inverse.multiplicity == :many
-          name = Reality::Naming.pluralize(name) -%>
+          name = Domgen::Naming.pluralize(name) -%>
 
-  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
+  @arez.annotations.Inverse( name = "<%= Domgen::Naming.camelize(name) %>", referenceName = "<%= Domgen::Naming.camelize(attribute.name) %>" )
   @javax.annotation.Nonnull
   <%= attribute.inverse.arez.module_local? ? '' : 'public ' %>abstract java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= name %>();
 <% else -%>
 
-  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
+  @arez.annotations.Inverse( name = "<%= Domgen::Naming.camelize(name) %>", referenceName = "<%= Domgen::Naming.camelize(attribute.name) %>" )
   <%= nullability_annotation(attribute.inverse.arez.nullable?)  %>
   <%= entity.arez.module_local? ? '' : 'public ' %>abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
 <% end -%>

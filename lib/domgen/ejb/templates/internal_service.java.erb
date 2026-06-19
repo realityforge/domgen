@@ -5,7 +5,7 @@ package <%= to_package(service.ejb.qualified_internal_service_name) %>;
 public interface <%= service.ejb.internal_service_name %>
 {
 <% service.methods.select{|method| method.ejb.internal_service?}.each do |method| -%>
-  <%= annotated_type(method.return_value, :ejb, :default) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
+  <%= annotated_type(method.return_value, :ejb, :default) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>;
 <% end %>}

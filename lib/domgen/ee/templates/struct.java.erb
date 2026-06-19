@@ -9,7 +9,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
   private static final long serialVersionUID = 1;
 
 <% struct.fields.each do |field| -%>
-  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Reality::Naming.camelize(field.name) %>;
+  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Domgen::Naming.camelize(field.name) %>;
 <% end -%>
 
 <% if struct.fields.size != 0 %>
@@ -26,10 +26,10 @@ package <%= to_package(struct.ee.qualified_name) %>;
 <% end %>
 <% if struct.data_module.jpa? && struct.fields.any?{|field|field.enumeration?} && struct.jpa? && struct.jpa.generate_jpa_constructor? -%>
   // This constructor exists in case the JPA subsystem needs to map struct in result as enumerations are not mapped correctly
-  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(', ') %> )
   {
     this( <%= struct.fields.collect {|field|
-  name = Reality::Naming.camelize(field.name)
+  name = Domgen::Naming.camelize(field.name)
     if field.enumeration?
        enum_class = field.enumeration.ee.qualified_name
 
@@ -58,16 +58,16 @@ else
   }
 
 <% end -%>
-  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.each do |field|
-     null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " :''
+     null_protection = field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " :''
      if :sequence == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= Reality::Naming.camelize(field.name) %> ) );
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= Domgen::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= Reality::Naming.camelize(field.name) %> ) );
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= Domgen::Naming.camelize(field.name) %> ) );
   <%     else
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= Reality::Naming.camelize(field.name) %>;
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= Domgen::Naming.camelize(field.name) %>;
 <%   end
    end
 %>  }
@@ -75,7 +75,7 @@ else
 %>
   <%= annotated_type(field, :ee, :boundary, :public => !struct.ee.module_local?, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
-    return <%= Reality::Naming.camelize(field.name) %>;
+    return <%= Domgen::Naming.camelize(field.name) %>;
   }
 <% end -%>
 
@@ -104,7 +104,7 @@ else
     need_else = false
     struct.fields.select{|f|!f.collection?}.each do |field|
 -%>
-      <%= need_else ? 'else ' : '' %>if ( <%= field.ee.primitive?(:boundary) ? "#{Reality::Naming.camelize(field.name)} != that.#{Reality::Naming.camelize(field.name)}" : "!java.util.Objects.equals( #{Reality::Naming.camelize(field.name)}, that.#{Reality::Naming.camelize(field.name)} )" %> )
+      <%= need_else ? 'else ' : '' %>if ( <%= field.ee.primitive?(:boundary) ? "#{Domgen::Naming.camelize(field.name)} != that.#{Domgen::Naming.camelize(field.name)}" : "!java.util.Objects.equals( #{Domgen::Naming.camelize(field.name)}, that.#{Domgen::Naming.camelize(field.name)} )" %> )
       {
         return false;
       }
@@ -114,20 +114,20 @@ else
 -%>
 <% struct.fields.select{|f|f.collection?}.each do |field| -%>
 <% if field.nullable? -%>
-      <%= need_else ? 'else ' : '' %>if ( (null ==  <%= Reality::Naming.camelize(field.name) %> && null !=  that.<%= Reality::Naming.camelize(field.name) %>) || (null !=  <%= Reality::Naming.camelize(field.name) %> && null ==  that.<%= Reality::Naming.camelize(field.name) %>) )
+      <%= need_else ? 'else ' : '' %>if ( (null ==  <%= Domgen::Naming.camelize(field.name) %> && null !=  that.<%= Domgen::Naming.camelize(field.name) %>) || (null !=  <%= Domgen::Naming.camelize(field.name) %> && null ==  that.<%= Domgen::Naming.camelize(field.name) %>) )
       {
         return false;
       }
-      else if ( null != <%= Reality::Naming.camelize(field.name) %> )
+      else if ( null != <%= Domgen::Naming.camelize(field.name) %> )
 <% end -%>
       {
-        if ( <%= Reality::Naming.camelize(field.name) %>.size() != that.<%= Reality::Naming.camelize(field.name) %>.size() )
+        if ( <%= Domgen::Naming.camelize(field.name) %>.size() != that.<%= Domgen::Naming.camelize(field.name) %>.size() )
         {
           return false;
         }
-        for ( final var v : <%= Reality::Naming.camelize(field.name) %> )
+        for ( final var v : <%= Domgen::Naming.camelize(field.name) %> )
         {
-          if ( !that.<%= Reality::Naming.camelize(field.name) %>.contains( v ) )
+          if ( !that.<%= Domgen::Naming.camelize(field.name) %>.contains( v ) )
           {
             return false;
           }
@@ -147,7 +147,7 @@ else
   {
     var $result = 0;
 <% struct.fields.each do |field| -%>
-    $result = 31 * $result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Reality::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Reality::Naming.camelize(field.name)})" : Reality::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? 0 : " : ''}#{Reality::Naming.camelize(field.name)}.hashCode()" %>);
+    $result = 31 * $result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
     return $result;
   }

@@ -3,7 +3,7 @@ package <%= to_package(service.imit.qualified_service_name) %>;
 
 public interface <%= service.imit.service_name %>
 {<% service.methods.select{|method| method.imit?}.each do |method|
-   method_name = Reality::Naming.camelize(method.name)
+   method_name = Domgen::Naming.camelize(method.name)
    parameters = method.parameters.dup
    has_reference_parameters = parameters.any?{|p| p.reference? }
    low_level_method_name = ((method.return_value.reference? && !parameters.any?{|p| p.reference?}) || parameters.any?{|p| p.collection? }) && method.imit? && (method.return_value.reference? || has_reference_parameters) ? "_#{method_name}" : method_name
@@ -25,16 +25,16 @@ public interface <%= service.imit.service_name %>
   void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>);
 <% end -%>
 
-  default void <%= low_level_method_name %>(<%= parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
+  default void <%= low_level_method_name %>(<%= parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
   {
-    <%= low_level_method_name %>(<%= (parameters.collect{|p| Reality::Naming.camelize(p.name) } + ['null']).join(', ') %>);
+    <%= low_level_method_name %>(<%= (parameters.collect{|p| Domgen::Naming.camelize(p.name) } + ['null']).join(', ') %>);
   }
 
-  default void <%= low_level_method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
+  default void <%= low_level_method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
   {
-    <%= low_level_method_name %>(<%= (parameters.collect{|p| Reality::Naming.camelize(p.name) } + ['callback','null']).join(', ') %>);
+    <%= low_level_method_name %>(<%= (parameters.collect{|p| Domgen::Naming.camelize(p.name) } + ['callback','null']).join(', ') %>);
   }
 
-  void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>);
+  void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>);
 <% end -%>
 }

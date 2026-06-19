@@ -12,14 +12,19 @@
 # limitations under the License.
 #
 
-Reality::Naming.add_pluralization_rule do |string|
+require_relative 'base_element'
+require_relative 'logging'
+require_relative 'options'
+require_relative 'naming'
+
+Domgen::Naming.add_pluralization_rule do |string|
   string == 'dao' ? 'daos' : nil
 end
 
 module Domgen
-  Reality::Logging.configure(Domgen, ::Logger::WARN)
+  Domgen::Logging.configure(Domgen, ::Logger::WARN)
 
-  class BaseTaggableElement < Reality::BaseElement
+  class BaseTaggableElement < Domgen::BaseElement
     attr_writer :tags
 
     def tags

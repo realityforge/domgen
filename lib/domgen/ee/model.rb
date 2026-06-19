@@ -41,7 +41,7 @@ module Domgen
 
       def add_custom_jndi_resource(name, options = {}, &block)
         Domgen.error("Custom JNDI resource '#{name}' already defined") if custom_jndi_resources.key?(name)
-        path = Reality::Naming.uppercase_constantize(name.gsub(/^#{Reality::Naming.underscore(repository.name)}\/env\//, '').gsub(/^#{Reality::Naming.underscore(repository.name)}\//, '').gsub('/', '_'))
+        path = Domgen::Naming.uppercase_constantize(name.gsub(/^#{Domgen::Naming.underscore(repository.name)}\/env\//, '').gsub(/^#{Domgen::Naming.underscore(repository.name)}\//, '').gsub('/', '_'))
         custom_jndi_resources[name] = CustomJndiResource.new(self, name, path, options, &block)
       end
 
