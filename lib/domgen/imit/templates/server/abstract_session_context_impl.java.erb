@@ -633,6 +633,10 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
+    if ( addresses.isEmpty() )
+    {
+      return;
+    }
     // This block deals with non-existent root entities by sending a DELETE channel action
     // back, which is the behavior expected by the client and implemented in the non-bulk scenario
     addDeleteForInstanceRootIn<%= graph.name %>InstanceGraph( changeSet, addresses );
@@ -692,6 +696,10 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
+    if ( addresses.isEmpty() )
+    {
+      return;
+    }
     // This block deals with non-existent root entities by sending a DELETE channel action
     // back which is the behavior expected by the client and implemented in the non-bulk scenario
     addDeleteForInstanceRootIn<%= graph.name %>InstanceGraph( changeSet, addresses );
