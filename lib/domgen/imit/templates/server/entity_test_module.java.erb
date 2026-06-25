@@ -8,6 +8,6 @@ public class <%= repository.imit.server_entity_test_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bind( javax.transaction.TransactionSynchronizationRegistry.class ).annotatedWith( replicant.server.ee.ReplicantSystem.class ).to( javax.transaction.TransactionSynchronizationRegistry.class );
+    bind( javax.transaction.TransactionSynchronizationRegistry.class ).annotatedWith( replicant.server.runtime.ReplicantSystem.class ).to( javax.transaction.TransactionSynchronizationRegistry.class );
   }
 }

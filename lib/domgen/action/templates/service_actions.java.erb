@@ -103,7 +103,7 @@ class <%= service.action.service_actions_name %>
       {
 <% if method.return_value.return_type != :void -%>
         service.<%= Domgen::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Domgen::Naming.camelize(param.name)}.join(", ") %> );
-        final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+        final var encodedResult = replicant.server.runtime.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
         return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed successfully" );
 <% else -%>
         service.<%= Domgen::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Domgen::Naming.camelize(param.name)}.join(", ") %> );
@@ -113,7 +113,7 @@ class <%= service.action.service_actions_name %>
       <%- method.exceptions.each do |e| %>
       catch ( final <%= e.ee.qualified_name %> exception )
         {
-          final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+          final var encodedResult = replicant.server.runtime.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
           return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed with <%= e.name %>Exception" );
         }
 <% end %>
@@ -223,7 +223,7 @@ class <%= service.action.service_actions_name %>
           final var encodedResponse = encodeResponsePayload( result );
           // Put in the ThreadLocal in case this request is not going via Replicant (UserService)
           // Temporary hack as we should have all requests via Replicant
-          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.runtime.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           return result;
 <% else -%>
@@ -233,7 +233,7 @@ class <%= service.action.service_actions_name %>
         catch ( final Exception e  )
         {
           final var encodedResponse = encodeException( e );
-          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.runtime.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           throw e;
         }
