@@ -947,10 +947,6 @@ module Domgen
         unless repository.application.user_experience? || 1 != repository.imit.schema_id
           Domgen.error('repository.imit.schema_id must be explicitly set to a value other than 1 as the application expects to be used as a library.')
         end
-        if repository.ee?
-          repository.ee.cdi_scan_excludes << 'replicant.**'
-          repository.ee.cdi_scan_excludes << 'replicant.**'
-        end
         toprocess = []
         self.graphs.each do |graph|
           if graph.filter_parameter?
