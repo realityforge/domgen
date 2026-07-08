@@ -44,13 +44,19 @@ module Domgen #nodoc
         target_dir = File.expand_path(target_dir, base_directory)
       end
 
-      if target_dir.nil? && !buildr_project.nil?
-        if clean_generated_files
-          target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
-        else
-          target_dir = buildr_project._('src')
-        end
-      elsif !target_dir.nil? && !buildr_project.nil?
+      derived_target_dir = nil
+      if !buildr_project.nil?
+        derived_target_dir =
+          if clean_generated_files
+            buildr_project._(:target, :generated, 'domgen', build_key)
+          else
+            buildr_project._('src')
+          end
+      end
+
+      if target_dir.nil? && !derived_target_dir.nil?
+        target_dir = derived_target_dir
+      elsif !target_dir.nil? && !derived_target_dir.nil? && File.expand_path(target_dir) == File.expand_path(derived_target_dir)
         Domgen.warn('Domgen::Build.define_generate_task specifies a target directory parameter but it can be be derived from the context. The parameter should be removed.')
       end
 
