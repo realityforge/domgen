@@ -74,7 +74,7 @@ public final class <%= data_module.arez.test_factory_name %>
 
 <% end -%>
   @javax.annotation.Nonnull
-  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true, :assume_generated => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% needsLink = entity.attributes.any?{|a| a.reference?} -%>
 <% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
