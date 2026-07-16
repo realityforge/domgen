@@ -16,30 +16,6 @@ package <%= to_package(client.qualified_abstract_keycloak_filter_name) %>;
 public abstract class <%= client.abstract_keycloak_filter_name %>
   implements <%= client.qualified_keycloak_filter_interface_name %>
 {
-<% if client.keycloak_repository.repository.imit? -%>
-  private boolean _disableSessionServiceProtection;
-<% end -%>
-<% if client.keycloak_repository.repository.imit? -%>
-
-<% if client.keycloak_repository.repository.imit? -%>
-  @java.lang.SuppressWarnings( "BanJNDI" )
-<% end -%>
-  @javax.annotation.PostConstruct
-  protected void postConstruct()
-  {
-<% if client.keycloak_repository.repository.imit? -%>
-    try
-    {
-      _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Domgen::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
-    }
-    catch ( final java.lang.Exception ignored )
-    {
-      //Ignored.
-    }
-<% end -%>
-  }
-<% end -%>
-
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
   {
@@ -61,13 +37,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 
   protected boolean isPathProtected( @javax.annotation.Nonnull final String path )
   {
-<% base_path = client.keycloak_repository.repository.jaxrs? ? "#{client.keycloak_repository.repository.jaxrs.qualified_constants_name}.APPLICATION_PATH" : '"api"' -%>
-<% if client.keycloak_repository.repository.imit? -%>
-    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT ) )
-    {
-      return false;
-    }
-<% end -%>
     return true;
   }
 }

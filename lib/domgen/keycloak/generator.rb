@@ -39,6 +39,12 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template('keycloak.remote_client',
                               'ee_remote_client_config.java.erb',
                               'main/java/#{remote_client.qualified_ee_remote_client_config_name.gsub(".","/")}.java')
+    template_set.erb_template('keycloak.remote_client',
+                              'ee_remote_client_jndi_config.java.erb',
+                              'main/java/#{remote_client.qualified_ee_remote_client_jndi_config_name.gsub(".","/")}.java')
+    template_set.erb_template('keycloak.remote_client',
+                              'ee_remote_client_resources.java.erb',
+                              'main/java/#{remote_client.qualified_ee_remote_client_resources_name.gsub(".","/")}.java')
   end
 
   g.template_set(:keycloak_auth_service) do |template_set|
@@ -78,6 +84,12 @@ Domgen::Generator.define([:keycloak],
                               'js_min_service.java.erb',
                               'main/java/#{client.qualified_js_min_service_name.gsub(".","/")}.java',
                               :guard => 'client.enable_js?')
+    template_set.erb_template('keycloak.client',
+                              'js_jndi_config.java.erb',
+                              'main/java/#{client.qualified_js_jndi_config_name.gsub(".","/")}.java')
+    template_set.erb_template('keycloak.client',
+                              'js_resources.java.erb',
+                              'main/java/#{client.qualified_js_resources_name.gsub(".","/")}.java')
   end
 
   g.template_set(:keycloak_client_definitions) do |template_set|

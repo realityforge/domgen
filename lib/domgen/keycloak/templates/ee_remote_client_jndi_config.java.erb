@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(remote_client.qualified_ee_remote_client_jndi_config_name) %>;
+
+record <%= remote_client.ee_remote_client_jndi_config_name %>(@javax.annotation.Nonnull java.net.URI serverURL,
+                                                              @javax.annotation.Nonnull String realm,
+                                                              @javax.annotation.Nonnull String client,
+                                                              @javax.annotation.Nonnull String username,
+                                                              @javax.annotation.Nonnull String password,
+                                                              @javax.annotation.Nonnull String secret)
+{
+  @java.lang.Override
+  public String toString()
+  {
+    return "<%= remote_client.ee_remote_client_jndi_config_name %>[serverURL=" + serverURL + ", realm=" + realm + ", client=" + client + ", username=" + username + ", password=<redacted>, secret=<redacted>]";
+  }
+}

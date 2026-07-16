@@ -93,6 +93,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :ee_remote_client_config, :service, :server, :keycloak, '#{self.name}KeycloakConfig'
+      java_artifact :ee_remote_client_jndi_config, :service, :server, :keycloak, '#{self.name}KeycloakJndiConfig'
+      java_artifact :ee_remote_client_resources, :service, :server, :keycloak, '#{self.name}KeycloakResources'
 
       attr_writer :jndi_config_base
 
@@ -121,6 +123,8 @@ module Domgen
       java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'
       java_artifact :js_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakJsServlet'
       java_artifact :js_min_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakMinJsServlet'
+      java_artifact :js_jndi_config, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakJndiConfig'
+      java_artifact :js_resources, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakResources'
       java_artifact :token, :data_type, :client, :keycloak, '#{qualified_class_name}Token'
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IdToken'
 
@@ -152,10 +156,6 @@ module Domgen
 
       def jndi_config_base
         @jndi_config_base || "#{keycloak_repository.jndi_config_base}/client/#{name}"
-      end
-
-      def jndi_debug_key
-        "#{jndi_config_base}_debug"
       end
 
       attr_reader :key
@@ -629,10 +629,10 @@ module Domgen
         end
         if repository.redfish?
           repository.keycloak.clients.each do |client|
-            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/realm", :system_defined => true, :env_key => "#{client.client_constant_prefix}_REALM", :generate_constant => false)
-            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/realm-public-key", :system_defined => true, :env_key => "#{client.client_constant_prefix}_REALM_PUBLIC_KEY", :generate_constant => false)
-            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/auth-server-url", :system_defined => true, :env_key => "#{client.client_constant_prefix}_SERVER_URL", :generate_constant => client.enable_js?)
-            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/resource", :system_defined => true, :env_key => "#{client.client_constant_prefix}_CLIENT_NAME", :generate_constant => false)
+            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/realm", :system_defined => true, :env_key => "#{client.client_constant_prefix}_REALM")
+            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/realm-public-key", :system_defined => true, :env_key => "#{client.client_constant_prefix}_REALM_PUBLIC_KEY")
+            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/auth-server-url", :system_defined => true, :env_key => "#{client.client_constant_prefix}_SERVER_URL")
+            repository.redfish.custom_resource_from_env("#{client.jndi_config_base}/resource", :system_defined => true, :env_key => "#{client.client_constant_prefix}_CLIENT_NAME")
           end
           repository.keycloak.remote_clients.each do |remote_client|
             repository.redfish.custom_resource_from_env("#{remote_client.jndi_config_base}/server_url", :system_defined => true, :env_key => "#{remote_client.client_constant_prefix}_SERVER_URL")
