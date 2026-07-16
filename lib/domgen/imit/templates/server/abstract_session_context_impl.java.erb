@@ -32,7 +32,7 @@ target_filter_instance_id_graph_links =
    }
   }</pre>
  */
-@java.lang.SuppressWarnings( "SqlNoDataSourceInspection" )
+@java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "NoSystemCurrentTimeMillis" } )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends replicant.server.ee.AbstractSessionContextImpl
   implements replicant.server.transport.ReplicantSessionContext

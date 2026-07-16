@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode", "VisibilityModifier" } )
 public abstract class <%= repository.gwt.abstract_client_test_name %><T extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>>
 {
   @javax.annotation.Nonnull
@@ -20,8 +20,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.String> _observerErrors = new java.util.ArrayList<>();
   private boolean _captureObserverErrors;
-  @javax.annotation.Nullable
-  private java.lang.String _currentMethod;
 <% end -%>
 <% if repository.imit? -%>
   @javax.annotation.Nullable
@@ -38,13 +36,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   }
 <% if repository.arez? -%>
 
-  @javax.annotation.Nonnull
-  protected final java.lang.String currentMethod()
-  {
-    org.testng.Assert.assertNotNull( _currentMethod, "currentMethod() called before test method was invoked" );
-    return _currentMethod;
-  }
-
   protected final void captureObserverErrors()
   {
     _captureObserverErrors = true;
@@ -58,7 +49,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   @org.testng.annotations.BeforeMethod
   public void handleTestMethodName( @javax.annotation.Nonnull final java.lang.reflect.Method method )
   {
-    _currentMethod = method.getName();
     _captureObserverErrors = false;
     _observerErrors.clear();
     arez.Arez.context().addObserverErrorHandler( this::onObserverError );
@@ -200,25 +190,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% if repository.imit? -%>
 
   @javax.annotation.Nonnull
-  protected final org.mockito.ArgumentCaptor<<%= repository.gwt.qualified_async_error_callback_name %>> onFailureCaptor()
-  {
-    return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_error_callback_name %>.class );
-  }
-
-  @java.lang.SuppressWarnings( "unchecked" )
-  @javax.annotation.Nonnull
-  protected final <M> org.mockito.ArgumentCaptor<<%= repository.gwt.qualified_async_callback_name %><M>> onSuccessCaptor( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final java.lang.Class<M> type )
-  {
-    return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_callback_name %>.class );
-  }
-
-  @javax.annotation.Nonnull
   protected final TestTransport replicantTransport()
   {
     return _replicantTransport;
   }
 
-  @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   public final class TestTransport
     extends replicant.AbstractTransport
   {

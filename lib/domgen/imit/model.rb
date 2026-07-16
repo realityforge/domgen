@@ -1183,6 +1183,16 @@ module Domgen
       def qualified_service_impl_name
         "#{service.data_module.imit.client_service_package}.#{service_impl_name}"
       end
+
+      def mock_service_name
+        "Mock#{service_name}"
+      end
+
+      def qualified_mock_service_name
+        "#{service.data_module.imit.client_service_package}.#{mock_service_name}"
+      end
+
+
     end
 
     facet.enhance(Parameter) do

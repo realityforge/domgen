@@ -1,0 +1,179 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.imit.qualified_service_impl_name) %>;
+
+@SuppressWarnings( "unused" )
+public class <%= service.imit.mock_service_name %>
+  implements <%= service.imit.service_name %>
+{<% service.methods.select{|method| method.imit?}.each do |method|
+   method_name = Domgen::Naming.camelize(method.name)
+   parameters = method.parameters.dup
+   has_reference_parameters = parameters.any?{|p| p.reference? }
+   low_level_method_name = ((method.return_value.reference? && !parameters.any?{|p| p.reference?}) || parameters.any?{|p| p.collection? }) && method.imit? && (method.return_value.reference? || has_reference_parameters) ? "_#{method_name}" : method_name
+   method_class_name = "#{method_name[0].upcase}#{method_name[1..-1]}"
+   callback_type = "#{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}>"
+   boundary_callback_type = "#{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}>"
+   callback_pair_type = "CallbackPair<#{method.return_value.imit.non_primitive_java_type}>"
+   boundary_callback_pair_type = "CallbackPair<#{method.return_value.imit.non_primitive_java_type(:boundary)}>"
+ -%>
+<% if method.imit? && (has_reference_parameters || method.return_value.reference?) -%>
+  final java.util.Map<<%= method_class_name %>Call, <%= callback_pair_type %>> _<%= method_name %> = new java.util.HashMap<>();
+
+  @java.lang.Override
+  public void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  {
+    _<%= method_name %>.put( new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> ), new CallbackPair<>( callback, errorCallback ) );
+  }
+
+  public <%= callback_type %> verify_<%= method_name %>_successCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
+  {
+    final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
+    org.testng.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
+    final var callbackPair = _<%= method_name %>.get( call );
+    org.testng.Assert.assertNotNull( callbackPair._successCallback );
+    return callbackPair._successCallback;
+  }
+
+  public <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> verify_<%= method_name %>_errorCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
+  {
+    final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
+    org.testng.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
+    final var callbackPair = _<%= method_name %>.get( call );
+    org.testng.Assert.assertNotNull( callbackPair._errorCallback );
+    return callbackPair._errorCallback;
+  }
+
+  public void never_<%= method_name %>( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
+  {
+    final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
+    org.testng.Assert.assertFalse( _<%= method_name %>.containsKey( call ) );
+  }
+
+  @SuppressWarnings( "PatternVariableCanBeUsed" )
+  final static class <%= method_class_name %>Call
+  {
+<% method.parameters.each do |p| -%>
+    private final <%= Domgen::Java.java_type(p, :gwt, :default) %> _<%= Domgen::Naming.camelize(p.name) %>;
+
+<% end -%>
+    <%= method_class_name %>Call( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
+    {
+<% method.parameters.each do |p| -%>
+      _<%= Domgen::Naming.camelize(p.name) %> = <%= p.name %>;
+<% end -%>
+    }
+
+    @java.lang.Override
+    public boolean equals( @javax.annotation.Nullable final java.lang.Object object )
+    {
+      if ( this == object )
+      {
+        return true;
+      }
+      else if ( !( object instanceof <%= method_class_name %>Call ) )
+      {
+        return false;
+      }
+      else
+      {
+        final var other = (<%= method_class_name %>Call) object;
+        return <%= method.parameters.empty? ? 'true' : method.parameters.collect{|p| "java.util.Objects.equals( _#{Domgen::Naming.camelize(p.name)}, other._#{Domgen::Naming.camelize(p.name)} )" }.join(" &&\n               ") %>;
+      }
+    }
+
+    @java.lang.Override
+    public int hashCode()
+    {
+      return java.util.Objects.hash( <%= method.parameters.collect{|p| "_#{Domgen::Naming.camelize(p.name)}" }.join(', ') %> );
+    }
+  }
+<% end -%>
+<% boundary_suffix = method.imit? && (has_reference_parameters || method.return_value.reference?) ? 'Boundary' : ''
+   boundary_call_class_name = "#{method_class_name}#{boundary_suffix}Call"
+   boundary_field_name = "_#{method_name}#{boundary_suffix}"
+ -%>
+  final java.util.Map<<%= boundary_call_class_name %>, <%= boundary_callback_pair_type %>> <%= boundary_field_name %> = new java.util.HashMap<>();
+
+  @java.lang.Override
+  public void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  {
+    <%= boundary_field_name %>.put( new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> ), new CallbackPair<>( callback, errorCallback ) );
+  }
+
+  public <%= boundary_callback_type %> verify_<%= low_level_method_name %>_successCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
+  {
+    final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
+    org.testng.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
+    final var callbackPair = <%= boundary_field_name %>.get( call );
+    org.testng.Assert.assertNotNull( callbackPair._successCallback );
+    return callbackPair._successCallback;
+  }
+
+  public <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> verify_<%= low_level_method_name %>_errorCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
+  {
+    final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
+    org.testng.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
+    final var callbackPair = <%= boundary_field_name %>.get( call );
+    org.testng.Assert.assertNotNull( callbackPair._errorCallback );
+    return callbackPair._errorCallback;
+  }
+
+  public void never_<%= low_level_method_name %>( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
+  {
+    final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
+    org.testng.Assert.assertFalse( <%= boundary_field_name %>.containsKey( call ) );
+  }
+
+  @SuppressWarnings( "PatternVariableCanBeUsed" )
+  final static class <%= boundary_call_class_name %>
+  {
+<% method.parameters.each do |p| -%>
+    private final <%= Domgen::Java.java_type(p, :gwt, :boundary) %> _<%= Domgen::Naming.camelize(p.name) %>;
+
+<% end -%>
+    <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
+    {
+<% method.parameters.each do |p| -%>
+      _<%= Domgen::Naming.camelize(p.name) %> = <%= Domgen::Naming.camelize(p.name) %>;
+<% end -%>
+    }
+
+    @java.lang.Override
+    public boolean equals( @javax.annotation.Nullable final java.lang.Object object )
+    {
+      if ( this == object )
+      {
+        return true;
+      }
+      else if ( !( object instanceof <%= boundary_call_class_name %> ) )
+      {
+        return false;
+      }
+      else
+      {
+        final var other = (<%= boundary_call_class_name %>) object;
+        return <%= method.parameters.empty? ? 'true' : method.parameters.collect{|p| "java.util.Objects.equals( _#{Domgen::Naming.camelize(p.name)}, other._#{Domgen::Naming.camelize(p.name)} )" }.join(" &&\n               ") %>;
+      }
+    }
+
+    @java.lang.Override
+    public int hashCode()
+    {
+      return java.util.Objects.hash( <%= method.parameters.collect{|p| "_#{Domgen::Naming.camelize(p.name)}" }.join(', ') %> );
+    }
+  }
+<% end -%>
+
+  final static class CallbackPair<T>
+  {
+    private final <%= service.data_module.repository.gwt.qualified_async_callback_name %><T> _successCallback;
+
+    private final <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> _errorCallback;
+
+    CallbackPair( @javax.annotation.Nullable final <%= service.data_module.repository.gwt.qualified_async_callback_name %><T> successCallback,
+                  @javax.annotation.Nullable final <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> errorCallback )
+    {
+      _successCallback = successCallback;
+      _errorCallback = errorCallback;
+    }
+  }
+}

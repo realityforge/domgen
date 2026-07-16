@@ -8,11 +8,8 @@ public interface <%= repository.keycloak.mock_keycloak_sting_fragment_name %>
   @javax.annotation.Nonnull
   default org.realityforge.gwt.keycloak.Keycloak provideKeycloak()
   {
-    final var keycloak = org.mockito.Mockito.mock( org.realityforge.gwt.keycloak.Keycloak.class );
-    org.mockito.Mockito.doAnswer( invocation -> {
-      ( (Runnable) invocation.getArguments()[ 0 ] ).run();
-      return null;
-    } ).when( keycloak ).updateTokenAndExecute( org.mockito.Mockito.any( Runnable.class ) );
-    return keycloak;
+    return new org.realityforge.gwt.keycloak.Keycloak( )
+    {
+    };
   }
 }
