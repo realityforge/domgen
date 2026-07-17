@@ -27,25 +27,25 @@ public class <%= service.imit.mock_service_name %>
   public <%= callback_type %> verify_<%= method_name %>_successCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
   {
     final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
-    org.testng.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
+    org.junit.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
     final var callbackPair = _<%= method_name %>.get( call );
-    org.testng.Assert.assertNotNull( callbackPair._successCallback );
+    org.junit.Assert.assertNotNull( callbackPair._successCallback );
     return callbackPair._successCallback;
   }
 
   public <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> verify_<%= method_name %>_errorCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
   {
     final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
-    org.testng.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
+    org.junit.Assert.assertTrue( _<%= method_name %>.containsKey( call ) );
     final var callbackPair = _<%= method_name %>.get( call );
-    org.testng.Assert.assertNotNull( callbackPair._errorCallback );
+    org.junit.Assert.assertNotNull( callbackPair._errorCallback );
     return callbackPair._errorCallback;
   }
 
   public void never_<%= method_name %>( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %> )
   {
     final var call = new <%= method_class_name %>Call( <%= method.parameters.collect{|p| p.name }.join(', ') %> );
-    org.testng.Assert.assertFalse( _<%= method_name %>.containsKey( call ) );
+    org.junit.Assert.assertFalse( _<%= method_name %>.containsKey( call ) );
   }
 
   @SuppressWarnings( "PatternVariableCanBeUsed" )
@@ -102,25 +102,25 @@ public class <%= service.imit.mock_service_name %>
   public <%= boundary_callback_type %> verify_<%= low_level_method_name %>_successCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
   {
     final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
-    org.testng.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
+    org.junit.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
     final var callbackPair = <%= boundary_field_name %>.get( call );
-    org.testng.Assert.assertNotNull( callbackPair._successCallback );
+    org.junit.Assert.assertNotNull( callbackPair._successCallback );
     return callbackPair._successCallback;
   }
 
   public <%= service.data_module.repository.gwt.qualified_async_error_callback_name %> verify_<%= low_level_method_name %>_errorCallback( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
   {
     final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
-    org.testng.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
+    org.junit.Assert.assertTrue( <%= boundary_field_name %>.containsKey( call ) );
     final var callbackPair = <%= boundary_field_name %>.get( call );
-    org.testng.Assert.assertNotNull( callbackPair._errorCallback );
+    org.junit.Assert.assertNotNull( callbackPair._errorCallback );
     return callbackPair._errorCallback;
   }
 
   public void never_<%= low_level_method_name %>( <%= method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %> )
   {
     final var call = new <%= boundary_call_class_name %>( <%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %> );
-    org.testng.Assert.assertFalse( <%= boundary_field_name %>.containsKey( call ) );
+    org.junit.Assert.assertFalse( <%= boundary_field_name %>.containsKey( call ) );
   }
 
   @SuppressWarnings( "PatternVariableCanBeUsed" )

@@ -46,14 +46,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     _captureObserverErrors = false;
   }
 
-  @org.testng.annotations.BeforeMethod
-  public void handleTestMethodName( @javax.annotation.Nonnull final java.lang.reflect.Method method )
-  {
-    _captureObserverErrors = false;
-    _observerErrors.clear();
-    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
-  }
-
   private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer, @javax.annotation.Nonnull final arez.ObserverError error, @javax.annotation.Nullable final java.lang.Throwable throwable )
   {
     final var message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
@@ -68,18 +60,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     }
   }
 
-  @org.testng.annotations.AfterMethod
-  protected void afterTest()
-  {
-    arez.ArezTestUtil.resetConfig( true );
-    if ( !_captureObserverErrors && !_observerErrors.isEmpty() )
-    {
-      org.testng.Assert.fail( "Unexpected Observer Errors: " + java.lang.String.join( "\n", _observerErrors ) );
-    }
-  }
 <% end -%>
 
-  @org.testng.annotations.BeforeMethod
+  @org.junit.Before
   public void preTest()
     throws Exception
   {
@@ -92,6 +75,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     replicant.ReplicantTestUtil.resetConfig( false );
     _replicantTransport.reset();
 <% end -%>
+    _captureObserverErrors = false;
+    _observerErrors.clear();
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
 <% end -%>
     _injector = createInjector();
 <% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
@@ -107,7 +93,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   }
 <% if repository.arez? -%>
 
-  @org.testng.annotations.AfterMethod
+  @org.junit.After
   public void postTest()
   {
 <% if repository.arez? -%>
@@ -118,6 +104,10 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% end -%>
     arez.ArezTestUtil.resetConfig( true );
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
+    if ( !_captureObserverErrors && !_observerErrors.isEmpty() )
+    {
+      org.junit.Assert.fail( "Unexpected Observer Errors: " + java.lang.String.join( "\n", _observerErrors ) );
+    }
 <% end -%>
   }
 <% end -%>
@@ -127,12 +117,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 
   protected final void assertAsyncActionCount( final int count )
   {
-    org.testng.Assert.assertEquals( _asyncActions.size(), count );
+    org.junit.Assert.assertEquals( count, _asyncActions.size() );
   }
 
   protected final void pumpSingleAsyncAction()
   {
-    org.testng.Assert.assertTrue( _asyncActions.size() > 1 );
+    org.junit.Assert.assertTrue( _asyncActions.size() > 1 );
     _asyncActions.remove( 0 ).run();
   }
 
@@ -244,31 +234,28 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     public void onReplicantMessage( @javax.annotation.Nonnull final replicant.messages.ServerToClientMessage message )
     {
       final replicant.TransportContext transportContext = replicantTransport().transportContext();
-      org.testng.Assert.assertNotNull( transportContext );
+      org.junit.Assert.assertNotNull( transportContext );
       transportContext.onMessageReceived( message );
     }
 
     @javax.annotation.Nonnull
     public replicant.messages.ExecMessage expectExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
     {
-      final replicant.messages.ExecMessage execMessage = replicantTransport().expectRemoteMessage( index, replicant.messages.ExecMessage.class );
-      org.testng.Assert.assertEquals( execMessage.getCommand(), command, "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index );
-      org.testng.Assert.assertEquals( execMessage.getRequestId(), requestId, "Expected request id " + requestId + " but was " + execMessage.getRequestId() + " at index " + index );
+      final replicant.messages.ExecMessage execMessage = (replicant.messages.ExecMessage) replicantTransport().expectRemoteMessage( index );
+      org.junit.Assert.assertEquals( "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index, command, execMessage.getCommand() );
+      org.junit.Assert.assertEquals( "Expected request id " + requestId + " but was " + execMessage.getRequestId() + " at index " + index, requestId, execMessage.getRequestId() );
       return execMessage;
     }
 
-    @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
-    public <M> M expectRemoteMessage( final int index, @javax.annotation.Nonnull final java.lang.Class<M> type )
+    public java.lang.Object expectRemoteMessage( final int index )
     {
-      org.testng.Assert.assertTrue( _remoteMessages.size() > index, "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages );
-      final java.lang.Object message = _remoteMessages.get( index );
-      org.testng.Assert.assertTrue( type.isInstance( message ), "Message at index " + index + " is not of type " + type );
-      return type.cast( message );
+      org.junit.Assert.assertTrue( "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages, _remoteMessages.size() > index );
+      return _remoteMessages.get( index );
     }
 
     public void assertRemoteMessageCount( final int count )
     {
-      org.testng.Assert.assertEquals( _remoteMessages.size(), count );
+      org.junit.Assert.assertEquals( count, _remoteMessages.size() );
     }
   }
 <% end -%>
