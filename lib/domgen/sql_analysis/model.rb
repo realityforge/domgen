@@ -130,7 +130,7 @@ module Domgen
       end
 
       def standard_corruption_checks?
-        !entities_to_analyze_id_namespace.empty? || !references_to_analyze.empty? || !entities_with_validations.empty?
+        !sql_id_hierarchy_check.empty? || !sql_relationships_match_check.empty? || !sql_declared_validations_check.empty?
       end
 
       def post_complete
