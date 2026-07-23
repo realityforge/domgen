@@ -4,7 +4,7 @@ package <%= to_package(data_module.jpa.qualified_aggregate_entity_test_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public final class <%= data_module.jpa.aggregate_entity_test_name %>
 {
-  @org.testng.annotations.Test
+  @org.junit.jupiter.api.Test
   void ensureTestsPresent()
     throws java.lang.Exception
   {
@@ -12,11 +12,11 @@ public final class <%= data_module.jpa.aggregate_entity_test_name %>
 <%
     data_module.daos.select{|d|d.jpa? && d.jpa.expect_test?}.each do |dao|
 -%>
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isPublic( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a public class but is not" );
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a concrete class but is abstract" );
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a final class but is not" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isPublic( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a public class but is not" );
+    org.junit.jupiter.api.Assertions.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a concrete class but is abstract" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isFinal( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a final class but is not" );
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
-    org.testng.Assert.assertNotNull( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(query.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(query.name) %> annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(query.name) %>" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(query.name) %> annotated with the org.junit.jupiter.api.Test annotation" );
 <% end -%>
 <%
   end
@@ -24,17 +24,17 @@ public final class <%= data_module.jpa.aggregate_entity_test_name %>
 
     // Model tests
 <% data_module.entities.select{|e|e.jpa? && (e.jpa.non_standard_model_constraints? || !e.jpa.interfaces.empty?)}.each do |entity| -%>
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isPublic( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a public class but it is not" );
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a concrete class but is abstract" );
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a final class but is not" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isPublic( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a public class but it is not" );
+    org.junit.jupiter.api.Assertions.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a concrete class but is abstract" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isFinal( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a final class but is not" );
 <% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
-    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(constraint.name) %>Constraint" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(constraint.name) %>Constraint annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(constraint.name) %>Constraint" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(constraint.name) %>Constraint annotated with the org.junit.jupiter.api.Test annotation" );
 <% end -%>
 <% entity.sql.function_constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
-    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(constraint.name) %>FunctionConstraint" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(constraint.name) %>FunctionConstraint annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(constraint.name) %>FunctionConstraint" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(constraint.name) %>FunctionConstraint annotated with the org.junit.jupiter.api.Test annotation" );
 <% end -%>
 <% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.standard?}.each do |validation| -%>
-    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(validation.name) %>Validation" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(validation.name) %>Validation annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(validation.name) %>Validation" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(validation.name) %>Validation annotated with the org.junit.jupiter.api.Test annotation" );
 <% end -%>
 <%
     end

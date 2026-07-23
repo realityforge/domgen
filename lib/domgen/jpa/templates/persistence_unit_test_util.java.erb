@@ -16,7 +16,7 @@ public final class <%= persistence_unit.persistence_unit_test_util_name %>
   public static String get<%= Domgen::Naming.pascal_case(key) %>DatabaseName()
   {
     final var databaseName = org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME );
-    org.testng.Assert.assertNotNull( databaseName, "org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( \"" + <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME + "\" )" );
+    org.junit.jupiter.api.Assertions.assertNotNull( databaseName, "org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( \"" + <%= Domgen::Naming.uppercase_constantize(key) %>_TEST_DB_NAME + "\" )" );
     return databaseName;
   }
 <% end -%>

@@ -155,19 +155,26 @@ module Domgen
     return false;
   }
 
+  private static boolean _brokerStarted;
+
   @javax.annotation.Nullable
   protected com.google.inject.Module new#{self.repository.name}JmsServerModule()
   {
     return enableBroker() ? new #{self.qualified_test_module_name}() : null;
   }
 
-  @org.testng.annotations.BeforeMethod
+  @org.junit.jupiter.api.BeforeEach
   @java.lang.Override
   public void preTest()
     throws Exception
   {
     if( enableBroker() )
     {
+      if ( !_brokerStarted )
+      {
+        #{qualified_test_broker_factory_name}.getBroker().start();
+        _brokerStarted = true;
+      }
       // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectly
       org.glassfish.internal.api.Globals.getStaticHabitat();
     }
@@ -178,7 +185,7 @@ module Domgen
     }
   }
 
-  @org.testng.annotations.AfterMethod
+  @org.junit.jupiter.api.AfterEach
   @java.lang.Override
   public void postTest()
   {
@@ -226,22 +233,13 @@ module Domgen
     return "#{repository.name}";
   }
 
-  @org.testng.annotations.BeforeClass
-  public void beforeClass()
-    throws Exception
+  @org.junit.jupiter.api.AfterAll
+  public static void afterAll()
   {
-    if( enableBroker() )
-    {
-      #{qualified_test_broker_factory_name}.getBroker().start();
-    }
-  }
-
-  @org.testng.annotations.AfterClass
-  public void afterClass()
-  {
-    if( enableBroker() )
+    if( _brokerStarted )
     {
       #{qualified_test_broker_factory_name}.getBroker().stop();
+      _brokerStarted = false;
     }
   }
           JAVA

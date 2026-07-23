@@ -13,7 +13,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   private boolean _disableAnalysis;
 <% end -%>
 
-  @org.testng.annotations.BeforeMethod
+  @org.junit.jupiter.api.BeforeEach
   @java.lang.Override
   public void preTest()
     throws Exception
@@ -50,7 +50,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     }
   }
 
-  @org.testng.annotations.AfterMethod
+  @org.junit.jupiter.api.AfterEach
   @java.lang.Override
   public void postTest()
   {
@@ -108,7 +108,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
         sb.append( "  " );
         sb.append( message );
       }
-      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb );
+      org.junit.jupiter.api.Assertions.fail( "Database left in inconsistent state:\n" + sb );
     }
   }
 

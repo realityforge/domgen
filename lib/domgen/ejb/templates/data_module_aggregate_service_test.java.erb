@@ -4,18 +4,18 @@ package <%= to_package(data_module.ejb.qualified_aggregate_service_test_name) %>
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public final class <%= data_module.ejb.aggregate_service_test_name %>
 {
-  @org.testng.annotations.Test
+  @org.junit.jupiter.api.Test
   void ensureTestsPresent()
     throws java.lang.Exception
   {
 <% data_module.services.select{|s|s.ejb? && s.ejb.add_to_aggregate_test?}.each do |service| -%>
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a concrete class but is abstract" );
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a final class but is not" );
-    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isPublic( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a public class but is not" );
+    org.junit.jupiter.api.Assertions.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a concrete class but is abstract" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isFinal( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a final class but is not" );
+    org.junit.jupiter.api.Assertions.assertTrue( java.lang.reflect.Modifier.isPublic( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a public class but is not" );
 <% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
-    org.testng.Assert.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(method.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(method.name) %> annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(method.name) %>" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(method.name) %> annotated with the org.junit.jupiter.api.Test annotation" );
 <% method.exceptions.select{|exception|!exception.abstract?}.each do |exception| -%>
-    org.testng.Assert.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %> annotated with the org.testng.annotations.Test annotation" );
+    org.junit.jupiter.api.Assertions.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getDeclaredMethod( "<%= Domgen::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>" ).getAnnotation( org.junit.jupiter.api.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Domgen::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %> annotated with the org.junit.jupiter.api.Test annotation" );
 <% end -%>
 <% end -%>
 <% end -%>
@@ -26,12 +26,12 @@ public final class <%= data_module.ejb.aggregate_service_test_name %>
     has_service = true
 -%>
 
-  @org.testng.annotations.Test
+  @org.junit.jupiter.api.Test
   public void ensure<%= service.name %>ImplementationIsCdiType()
     throws java.lang.Exception
   {
     final var clazz = java.lang.Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" );
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= service.ejb.qualified_service_implementation_name %> is public but should be package access" );
+    org.junit.jupiter.api.Assertions.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= service.ejb.qualified_service_implementation_name %> is public but should be package access" );
     assertNoFinalMethodsForCDI( clazz );
   }
 <% end -%>
@@ -44,7 +44,7 @@ public final class <%= data_module.ejb.aggregate_service_test_name %>
       if ( java.lang.Object.class != method.getDeclaringClass() )
       {
         final var message = "Method " + method.getName() + " on " + clazz.getName() + " is final and thus not compatible with CDI";
-        org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isFinal( method.getModifiers() ), message );
+        org.junit.jupiter.api.Assertions.assertFalse( java.lang.reflect.Modifier.isFinal( method.getModifiers() ), message );
       }
     }
     final var parent = clazz.getSuperclass();
