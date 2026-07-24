@@ -122,6 +122,10 @@ module Domgen
     facet.enhance(Method) do
       include Domgen::JaxRS::MediaTypeEnabled
 
+      def public_exception_signature?
+        true
+      end
+
       attr_writer :path
 
       def path

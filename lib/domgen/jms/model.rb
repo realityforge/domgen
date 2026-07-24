@@ -343,6 +343,10 @@ module Domgen
         !@route_to_destination.nil?
       end
 
+      def public_exception_signature?
+        router?
+      end
+
       def route_to_destination=(destination_name)
         r = method.service.data_module.repository
         if r.jms.destination_by_name?(destination_name)

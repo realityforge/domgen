@@ -243,10 +243,13 @@ module Domgen
         "#{exception.data_module.ee.server_service_package}.#{name}"
       end
 
-      attr_writer :module_local
+      def module_local=(module_local)
+        Domgen.error("Exception #{exception.qualified_name} locality is derived and can only be overridden to false") unless false == module_local
+        @module_local = false
+      end
 
       def module_local?
-        @module_local.nil? ? false : !!@module_local
+        !non_module_local?
       end
 
       def non_module_local_parent_qualified_name
@@ -262,6 +265,53 @@ module Domgen
 
       def support_default_parameters?
         @support_default_parameters.nil? ? exception.data_module.ee.support_default_parameters? : !!@support_default_parameters
+      end
+
+      def non_module_local_override?
+        false == @module_local
+      end
+
+      private
+
+      def non_module_local?
+        exceptions = exception.data_module.repository.data_modules.collect(&:exceptions).flatten.select(&:ee?)
+        exceptions.any? { |candidate| candidate.ee.non_module_local_override? && ancestor_of?(candidate) } ||
+          exception.data_module.repository.data_modules.any? do |data_module|
+            data_module.services.any? do |service|
+              service.methods.any? do |method|
+                method.exceptions.any? do |candidate|
+                  cross_package_exception?(method, candidate) && ancestor_of?(candidate)
+                end ||
+                  (public_exception_signature?(method) &&
+                    method.base_exceptions.any? { |candidate| ancestor_of?(candidate) })
+              end
+            end
+          end
+      end
+
+      def cross_package_exception?(method, candidate)
+        method.service.data_module.ee.server_service_package != candidate.data_module.ee.server_service_package
+      end
+
+      def ancestor_of?(candidate)
+        current = candidate
+        until current.nil?
+          return true if exception == current
+          current = current.extends.nil? ? nil : current.data_module.exception_by_name(current.extends)
+        end
+        false
+      end
+
+      def public_exception_signature?(method)
+        method.enabled_facets.any? do |facet_key|
+          accessor = :"facet_#{facet_key}"
+          if method.respond_to?(accessor)
+            facet = method.send(accessor)
+            facet.respond_to?(:public_exception_signature?) && facet.public_exception_signature?
+          else
+            false
+          end
+        end
       end
     end
 

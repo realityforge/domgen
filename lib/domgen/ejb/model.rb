@@ -337,6 +337,13 @@ module Domgen
 
       attr_writer :internal_boundary_service
 
+      def public_exception_signature?
+        !method.service.ejb.module_local? ||
+          (method.service.ejb.generate_boundary? && generate_boundary? && !method.service.ejb.boundary_module_local?) ||
+          (method.service.ejb.generate_internal_service? && internal_service?) ||
+          (method.service.ejb.generate_internal_boundary_service? && internal_boundary_service?)
+      end
+
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test
       end
