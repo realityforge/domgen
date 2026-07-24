@@ -4,44 +4,14 @@ package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
 @arez.annotations.ArezComponentLike
 public abstract class <%= repository.gwt.abstract_application_name %><I extends <%= repository.gwt.qualified_abstract_sting_injector_name %>>
 {
-<% if repository.keycloak? || repository.imit? -%>
   @javax.annotation.Nonnull
   private final java.lang.String _applicationURL;
-<% end -%>
-<% if repository.keycloak? -%>
-  @javax.annotation.Nonnull
-  private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
-<% end -%>
-<% if repository.imit? && repository.keycloak? -%>
-  @javax.annotation.Nullable
-  private zemeckis.Cancelable _updateReplicantTokenTask;
-<% end -%>
 
-  protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
+  protected <%= repository.gwt.abstract_application_name %>()
   {
     _applicationURL = calculateApplicationURL();
-<% if repository.keycloak? -%>
-    _keycloak = new org.realityforge.gwt.keycloak.KeycloakNative( keycloakClient, _applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
-    _keycloak.addKeycloakListener( newKeycloakListener() );
-<% end -%>
   }
 
-<% if repository.imit? && repository.keycloak? -%>
-<% if repository.arez? -%>
-  @arez.annotations.PreDispose
-<% end -%>
-  protected void preDispose()
-  {
-<% if repository.imit? && repository.keycloak? -%>
-    if ( null != _updateReplicantTokenTask )
-    {
-      _updateReplicantTokenTask.cancel();
-      _updateReplicantTokenTask = null;
-    }
-<% end -%>
-  }
-
-<% end -%>
   @javax.annotation.Nonnull
   protected final String getApplicationURL()
   {
@@ -76,11 +46,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void init()
   {
-<% if repository.keycloak? -%>
-    getKeycloak().init();
-<% else -%>
     start();
-<% end -%>
   }
 
   public void start()
@@ -269,50 +235,10 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     return result.toString();
   }
 
-<% if repository.keycloak? -%>
-
-  @javax.annotation.Nonnull
-  public org.realityforge.gwt.keycloak.Keycloak getKeycloak()
-  {
-    return _keycloak;
-  }
-
-  @javax.annotation.Nonnull
-  protected org.realityforge.gwt.keycloak.KeycloakListener newKeycloakListener()
-  {
-    return new ApplicationKeycloakListener();
-  }
-
-  protected class ApplicationKeycloakListener
-    extends org.realityforge.gwt.keycloak.KeycloakListenerAdapter
-  {
-    @Override
-    public void onReady( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak, final boolean authenticated )
-    {
-      if ( authenticated )
-      {
-        start();
-      }
-      else
-      {
-        keycloak.login();
-      }
-    }
-  }
-<% end -%>
 <% if repository.imit? -%>
-<% if repository.keycloak? -%>
-
-  private void updateReplicantToken()
-  {
-    replicant.Replicant.context().setAuthToken( getKeycloak().getToken() );
-  }
-
-<% end -%>
   protected final void registerReplicantConnector( @javax.annotation.Nonnull final java.lang.String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
   {
-    final org.realityforge.gwt.keycloak.Keycloak keycloak = getKeycloak();
-    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL, keycloak::updateTokenAndExecute, keycloak::getToken );
+    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL );
     replicant.Replicant.context().registerConnector( schema, new replicant.WebSocketTransport( config ) );
   }
 
@@ -324,10 +250,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     replicant.Replicant.context();
     replicant.WebStorageCacheService.install();
     akasha.WindowGlobal.addBeforeunloadListener( e -> replicant.Replicant.context().deactivate(), true );
-<% if repository.keycloak? -%>
-    updateReplicantToken();
-    _updateReplicantTokenTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ReplicantKeycloakTokenUpdater" : null, () -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
-<% end -%>
   }
 <% end -%>
 

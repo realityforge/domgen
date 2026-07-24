@@ -70,6 +70,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     <%= repository.gwt.qualified_value_util_name %>.setNow( new java.util.Date() );
 <% if repository.arez? -%>
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
+<% if repository.imit? -%>
+    zemeckis.ZemeckisTestUtil.resetConfig( false );
+<% end -%>
     arez.ArezTestUtil.resetConfig( false );
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
@@ -100,6 +103,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% if repository.imit? -%>
     arez.Disposable.dispose( _connector );
     _connector = null;
+    zemeckis.ZemeckisTestUtil.resetConfig( true );
     replicant.ReplicantTestUtil.resetConfig( false );
 <% end -%>
     arez.ArezTestUtil.resetConfig( true );
@@ -194,6 +198,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     public void reset()
     {
       unbind();
+      _asyncActions.clear();
       resetRemoteMessages();
     }
 

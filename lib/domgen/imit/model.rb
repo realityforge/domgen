@@ -800,22 +800,6 @@ module Domgen
         @schema_id || 1
       end
 
-      def secured?
-        @secured.nil? ? repository.keycloak? : !!@secured
-      end
-
-      attr_writer :secured
-
-      attr_writer :keycloak_client_key
-
-      def keycloak_client_key
-        @keycloak_client_key || (repository.application? && !repository.application.user_experience? ? repository.keycloak.default_client.key : :api)
-      end
-
-      def keycloak_client
-        repository.keycloak.client_by_key(self.keycloak_client_key)
-      end
-
       attr_writer :client_component_package
 
       def client_component_package
@@ -991,20 +975,6 @@ module Domgen
           if graphs.size > 1
             Domgen.error("Multiple ReplicantGraphs map to the same code #{code} : #{graphs.collect{|g|g.name}.inspect}")
           end
-        end
-        if repository.keycloak? && repository.keycloak.has_local_auth_service?
-          exists = repository.keycloak.client_by_key?(self.keycloak_client_key)
-          client =
-            exists ?
-              repository.keycloak.client_by_key(self.keycloak_client_key) :
-              repository.keycloak.client(self.keycloak_client_key)
-          unless exists
-            client.bearer_only = true
-            client.redirect_uris.clear
-            client.web_origins.clear
-          end
-          prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
-          client.protected_url_patterns << prefix + '/session/*'
         end
         if repository.gwt?
           repository.gwt.sting_includes << qualified_schema_sting_fragment_name

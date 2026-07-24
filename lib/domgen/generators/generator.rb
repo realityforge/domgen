@@ -102,7 +102,6 @@ module Domgen #nodoc
       #   :repository => [ [repository, repository] ],
       #   :data_module => [ [module1, module1], [module2, module2]],
       #   :entity => [[entity1, entity1], [entity2, entity2]],
-      #   :'keycloak.client' => [[repository, client]],
       #   ...
       # }
       #

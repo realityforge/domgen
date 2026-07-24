@@ -127,10 +127,6 @@ require 'domgen/imit/generator'
 # Some caching for gwt apps
 require 'domgen/gwt_cache_filter/model'
 
-# Keycloak authentication integration
-require 'domgen/keycloak/model'
-require 'domgen/keycloak/generator'
-
 require 'domgen/application/model'
 
 require 'domgen/redfish/model'
