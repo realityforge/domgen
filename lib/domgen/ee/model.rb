@@ -274,8 +274,11 @@ module Domgen
       private
 
       def non_module_local?
+        return @non_module_local unless @non_module_local.nil?
+
         exceptions = exception.data_module.repository.data_modules.collect(&:exceptions).flatten.select(&:ee?)
-        exceptions.any? { |candidate| candidate.ee.non_module_local_override? && ancestor_of?(candidate) } ||
+        @non_module_local =
+          exceptions.any? { |candidate| candidate.ee.non_module_local_override? && ancestor_of?(candidate) } ||
           exception.data_module.repository.data_modules.any? do |data_module|
             data_module.services.any? do |service|
               service.methods.any? do |method|
