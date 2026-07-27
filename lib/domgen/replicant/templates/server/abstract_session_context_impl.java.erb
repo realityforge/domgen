@@ -368,12 +368,6 @@ end
 <% dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
     collectSubscriptionDataFor<%= entity.qualified_name.gsub('.','') %>In<%= dataset.name %><%= dataset.unfiltered? ? '' : dataset.implicitly_filtered? ? 'ImplicitlyFiltered' : 'ParameterFiltered' %>TypeDataset( changeSet<% if dataset.parameter_filtered? -%>, decodedFilterParameter<% end %> );
 <% end -%>
-<% if dataset.cacheable? -%>
-    if ( null == session )
-    {
-      changeSet.setETag( deriveETagFor<%= dataset.name %>TypeDataset( changeSet ) );
-    }
-<% end -%>
 <% if dataset.post_subscribe_collect_hook? -%>
     if ( callPostHook )
     {
@@ -386,16 +380,6 @@ end
   abstract void postCollectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(dataset.filter_parameter, :ee, :default) %> filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode )
     throws java.sql.SQLException;
 <% end -%>
-<% if dataset.cacheable? -%>
-
-  @javax.annotation.Nonnull
-  java.lang.String deriveETagFor<%= dataset.name %>TypeDataset( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
-  {
-    // Could calculate from contents in future but this is good enough for now.
-    return java.lang.String.valueOf( java.lang.System.currentTimeMillis() );
-  }
-<% end -%>
-
 <%
   dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity|
   in_single_dataset = 1 == entity.replicant.datasets.size

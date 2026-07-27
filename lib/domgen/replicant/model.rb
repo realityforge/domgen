@@ -306,6 +306,9 @@ module Domgen
         if cacheable? && (!unfiltered? || instance_dataset?)
           Domgen.error("Dataset #{self.name} can not be marked as cacheable as cacheable Datasets are not supported for Instance Datasets or filtered Datasets")
         end
+        if cacheable? && post_subscribe_collect_hook?
+          Domgen.error("Dataset #{self.name} can not be marked as cacheable when it has a post-subscribe collect hook because the hook may produce subscriber-specific results")
+        end
         if self.instance_dataset?
           dataset_root_entity_type = self.application.repository.entity_by_name(self.dataset_root_entity_type)
           unless dataset_root_entity_type.primary_key.integer?
@@ -319,20 +322,6 @@ module Domgen
 
         if self.internal_visibility? && !self.instance_dataset? && self.dependent_datasets.empty?
           Domgen.error("Dataset '#{self.name}' is a Type Dataset marked with internal visibility but has no dependent Datasets.")
-        end
-
-        if cacheable?
-          self.required_type_datasets.each do |other|
-            unless other.cacheable?
-              # This scenario is not supported as if the client has cached the Type Dataset then we will send a
-              # "use-cache" message for the Dataset. This will be queued immediately. But if we have a non-cacheable Required Type
-              # Dataset then it will be gathered and queued on ReplicantSession._pendingSubscriptionPackets ... but this
-              # will be sent to the client after the use-cache message which will mean that the Required Type Dataset is
-              # not present when use-cache arrives which will cause errors. The fix is to queue 'use-cache' onto the same
-              # queue but this requires some changes to the underlying library.
-              Domgen.error("Dataset '#{self.name}' is cacheable but requires non-cacheable Type Dataset '#{other.name}'.")
-            end
-          end
         end
 
         entities = self.included_entity_types
