@@ -11,9 +11,9 @@ final class <%= repository.replicant.client_router_name %>
   private void put_<%= dataset.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nullable final <%= routing_key.target_attribute.replicant.non_primitive_java_type %> value )
   {
 <% if routing_key.multivalued? -%>
-    ( (java.util.List<Integer>) map.computeIfAbsent( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ) ).add( value );
+    ( (java.util.List<Integer>) map.computeIfAbsent( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ) ).add( value );
 <% else -%>
-    map.put( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
 <% end -%>
   }
 
@@ -145,7 +145,7 @@ repository.data_modules.select { |data_module| data_module.replicant? }.each do 
 <% end -%>
 <% end -%>
 <% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
-    addDatasetRoot( map, <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, replica.<%= getter_for(entity.primary_key) %> );
+    addDatasetRoot( map, <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, replica.<%= getter_for(entity.primary_key) %> );
 <% elsif dataset.instance_dataset? -%>
 <% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -161,7 +161,7 @@ repository.data_modules.select { |data_module| data_module.replicant? }.each do 
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
 <% end -%>
   }
 <% end -%>

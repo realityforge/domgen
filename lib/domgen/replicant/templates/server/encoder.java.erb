@@ -132,7 +132,7 @@ public final class <%= data_module.replicant.encoder_name %>
   public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>TypeDataset( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= datasetKeyColumnParameter %><%= filterParameter %> )
     throws java.sql.SQLException
   {
-    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %><%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filterParameterArg %> );
+    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %><%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filterParameterArg %> );
   }
 
   @java.lang.SuppressWarnings( { "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
@@ -181,7 +181,7 @@ public final class <%= data_module.replicant.encoder_name %>
   public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>InstanceDataset( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, <%= type_magic_constant %> @javax.annotation.Nonnull final java.lang.String <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= datasetKeyColumnParameter %><%= filter_parameter %> )
     throws java.sql.SQLException
   {
-    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement, <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName<%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filter_parameter_arg %> );
+    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement, <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName<%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filter_parameter_arg %> );
   }
 
   @java.lang.SuppressWarnings( { "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
@@ -207,7 +207,7 @@ public final class <%= data_module.replicant.encoder_name %>
       in_single_dataset = 1 == entity.replicant.datasets.size
       require_dataset_root_id_column = has_subscription_dependencies || any_instance_dataset
       datasetKeyColumnParameter = any_keyed_dataset ? ", @javax.annotation.#{all_keyed_datasets ? 'Nonnull' : 'Nullable'} java.lang.String datasetKeyColumnName" : ''
-      datasetId = in_single_dataset ? "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.replicant.datasets[0].name)}" : 'datasetId'
+      datasetId = in_single_dataset ? "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.replicant.datasets[0].name)}" : 'datasetId'
       dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
       parameter_filtered_source_dataset_links = dataset_links.select{|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
       parameter_filtered_target_dataset_links = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
@@ -247,12 +247,12 @@ public final class <%= data_module.replicant.encoder_name %>
     assert null != datasetKeyColumnName;
 <% end -%>
 <% unless in_single_dataset -%>
-    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
+    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
 <% if any_instance_dataset && !all_instance_datasets -%>
-    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
 <% end -%>
 <% if any_keyed_dataset && !all_keyed_datasets -%>
-    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
 <% end -%>
 <% end -%>
     try ( var resultSet = statement.executeQuery() )
@@ -272,13 +272,13 @@ public final class <%= data_module.replicant.encoder_name %>
 <% end -%>
 <% unless in_single_dataset -%>
 <% if !all_instance_datasets -%>
-    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
+    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
 <% end -%>
 <% if any_instance_dataset && !all_instance_datasets -%>
-    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
 <% end -%>
 <% if any_keyed_dataset && !all_keyed_datasets -%>
-    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
 <% end -%>
 <% end -%>
     while ( resultSet.next() )
@@ -333,7 +333,7 @@ if !dataset_links.empty? && in_single_dataset
   dataset_link = dataset_links[0]
   source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
 -%>
-      final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', sourceDatasetKey' : '' %><% end %> );
+      final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', sourceDatasetKey' : '' %><% end %> );
 <% end -%>
 <% if any_keyed_dataset -%>
       final var datasetKey = <% unless all_keyed_datasets %>null == datasetKeyColumnName ? null : <% end -%>resultSet.getString( datasetKeyColumnName );
@@ -343,7 +343,7 @@ if !dataset_links.empty? && in_single_dataset
 -%>
 <% attribute.replicant.automatic_dataset_links.each do |dataset_link| -%>
 <% unless in_single_dataset -%>
-      if ( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %> == <%= datasetId %> )
+      if ( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %> == <%= datasetId %> )
       {
 <% end -%>
 <%
@@ -403,7 +403,7 @@ if !dataset_links.empty? && in_single_dataset
 <% unless in_single_dataset %><% if attribute.nullable? %>  <% end %>        assert null != datasetKey;
 <% end -%>
 <% end -%>
-<% unless in_single_dataset %><% if attribute.nullable? %>  <% end %>        final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', datasetKey' : '' %><% end %> );
+<% unless in_single_dataset %><% if attribute.nullable? %>  <% end %>        final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', datasetKey' : '' %><% end %> );
 <% end -%>
 <% if attribute.nullable? %>  <% end %><% unless in_single_dataset %>  <% end %>      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( sourceDatasetAddress, <%= target_dataset_address_expression(dataset_link, targetDatasetRootIdExpression, targetFilterParameterVariable, targetFilterParameterTypedVariable) %>, <%= target_dataset.parameter_filtered? ? targetFilterParameterVariable : 'null' -%> ) );
 <% if attribute.nullable? -%>
@@ -491,10 +491,10 @@ end
 -%>
 <% if source_dataset.instance_dataset? -%>
 <% generate_deriveSourceDatasetRootIds = true -%>
-    for ( final var sourceDatasetRootId : deriveSourceDatasetRootIds( routingKeys, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>_NAME ) )
+    for ( final var sourceDatasetRootId : deriveSourceDatasetRootIds( routingKeys, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>_NAME ) )
     {
 <% if target_dataset.keyed? -%>
-      final var sourceDatasetAddressCandidate = replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId );
+      final var sourceDatasetAddressCandidate = replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId );
 <% if entityTargetFilterParameterAvailable -%>
       final var <%= entityTargetFilterParameterTypedVariable %> = FILTER_PARAMETER_FACTORY.deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <%= dataset_link.target_filter_parameter_requires_source_entity? ? 'attributeValues' : '' %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %>sourceDatasetRootId<% end %> );
       assert null != <%= entityTargetFilterParameterTypedVariable %>;
@@ -514,15 +514,15 @@ end
       final var targetDatasetRootId = <% if dataset_link.replicant_attribute.attribute.nullable? -%>null == entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% end %><% if dataset_link.replicant_attribute.attribute.nullable? && last_getter_nullable %>|| <% end %><% if last_getter_nullable %>null == entity.<%= getter_path.join('.') %> <% end -%><% if nullcheck_required -%>? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %>;
       if ( null != targetDatasetRootId )
       {
-        subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, targetDatasetRootId )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+        subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, targetDatasetRootId )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
       }
 <% else -%>
-      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
 <% end -%>
 <% end -%>
     }
 <% else -%>
-    subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, <% if dataset_link.replicant_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %><%= target_dataset.keyed? ? ', XXX_IMPLEMENT_DATASET_KEY_XXX' : '' %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+    subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, <% if dataset_link.replicant_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %><%= target_dataset.keyed? ? ', XXX_IMPLEMENT_DATASET_KEY_XXX' : '' %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
 <% end -%>
 <% end -%>
     return subscriptionDependencyCandidates;
@@ -622,9 +622,9 @@ end
 -%>
 <% if routing_key.multivalued? -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% end -%>
 <% elsif routing_key.target_nullsafe?
     a = initial_attr
@@ -643,9 +643,9 @@ end
 -%>
 <% if routing_key.multivalued? -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% end -%>
 <% else -%>
     route_<%= dataset.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
@@ -654,7 +654,7 @@ end
 <% end -%>
 <% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif dataset.instance_dataset? -%>
 <% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -670,7 +670,7 @@ end
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
 <% end -%>
 <% end -%>
 <% end -%>
@@ -688,9 +688,9 @@ end
 -%>
 <% if routing_key.multivalued? -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% end -%>
 <% elsif routing_key.target_nullsafe?
     a = initial_attr
@@ -709,9 +709,9 @@ end
 -%>
 <% if routing_key.multivalued? -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% end -%>
 <% else -%>
     route_<%= dataset.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
@@ -720,7 +720,7 @@ end
 <% end -%>
 <% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif dataset.instance_dataset? -%>
 <% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -736,7 +736,7 @@ end
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
 <% end -%>
   }
 <% end -%>
@@ -804,9 +804,9 @@ end
 <% attr = (is_inverse ? a.entity : a.referenced_entity).attribute_by_name(routing_key.attribute_name) -%>
 <% if routing_key.multivalued? -%>
 <% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
 <% else -%>
-    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+    map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
 <% end -%>
 <% if a.nullable? -%>
     }

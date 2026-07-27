@@ -44,7 +44,7 @@ module Domgen
 
       def target_dataset_address_expression(dataset_link, target_dataset_root_id_expression, target_filter_parameter_variable, target_filter_parameter_typed_variable = nil)
         target_dataset = dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
-        dataset_id_expression = "#{dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}"
+        dataset_id_expression = "#{dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}"
         if target_dataset.keyed? && dataset_link.target_dataset_key_derived_from_target_filter_parameter? && target_filter_parameter_typed_variable
           "replicant.server.DatasetAddress.of( #{dataset_id_expression}, #{target_dataset_root_id_expression}, deriveDatasetKeyForDatasetLinkFrom#{dataset_link.source_dataset}To#{dataset_link.target_dataset}( #{target_filter_parameter_typed_variable} ) )"
         elsif target_dataset.keyed? && dataset_link.target_dataset_key_derived_from_target_filter_parameter?
@@ -56,7 +56,7 @@ module Domgen
 
       def entity_target_dataset_address_expression(dataset_link, target_dataset_root_id_expression, source_expression, entity_expression, target_filter_parameter_typed_expression = nil)
         target_dataset = dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
-        dataset_id_expression = "#{dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}"
+        dataset_id_expression = "#{dataset_link.replicant_attribute.attribute.entity.data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}"
         if target_dataset.keyed? && dataset_link.target_dataset_key_derived_from_target_filter_parameter? && target_filter_parameter_typed_expression
           "replicant.server.DatasetAddress.of( #{dataset_id_expression}, #{target_dataset_root_id_expression}, deriveDatasetKeyForDatasetLinkFrom#{dataset_link.source_dataset}To#{dataset_link.target_dataset}( #{target_filter_parameter_typed_expression} ) )"
         elsif target_dataset.keyed? && dataset_link.target_dataset_key_derived_from_target_filter_parameter?

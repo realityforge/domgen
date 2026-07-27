@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_subscription_constants_name) %>;
+package <%= to_package(repository.replicant.qualified_dataset_constants_name) %>;
 
-public final class <%= repository.replicant.subscription_constants_name %>
+public final class <%= repository.replicant.dataset_constants_name %>
 {
 <%=
     repository.replicant.datasets.collect do |dataset|
@@ -89,7 +89,7 @@ DATA
    data += "  public static final int #{Domgen::Naming.uppercase_constantize(dataset.name)} = #{dataset.code};\n\n"
    data += <<JAVADOC
   /**
-   * The name of the "#{dataset.name}" subscription.
+   * The name of the "#{dataset.name}" Dataset.
    */
 JAVADOC
    data += "  @javax.annotation.Nonnull\n"
@@ -106,7 +106,7 @@ JAVADOC
    data
   end.join("\n") %>
 
-  private <%= repository.replicant.subscription_constants_name %>()
+  private <%= repository.replicant.dataset_constants_name %>()
   {
   }
 }

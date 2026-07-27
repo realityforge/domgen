@@ -866,7 +866,7 @@ module Domgen
       java_artifact :gwt_client_session_context_impl, :comm, :client, :replicant, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :replicant, '#{repository.name}ClientRouter'
       java_artifact :system_constants, :comm, :shared, :replicant, '#{repository.name}SchemaConstants'
-      java_artifact :subscription_constants, :comm, :shared, :replicant, '#{repository.name}SubscriptionConstants'
+      java_artifact :dataset_constants, :comm, :shared, :replicant, '#{repository.name}DatasetConstants'
       java_artifact :entity_type_constants, :comm, :shared, :replicant, '#{repository.name}EntityTypeConstants'
       java_artifact :schema_sting_fragment, :comm, :client, :replicant, '#{repository.name}SystemSchemaFragment'
       java_artifact :schema_filter_tools, :comm, :client, :replicant, '#{repository.name}FilterTools'

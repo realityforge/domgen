@@ -11,31 +11,31 @@ public final class <%= repository.replicant.schema_test_name %>
   public void <%= Domgen::Naming.camelize(dataset.name) %>Dataset()
   {
 <% if dataset.instance_dataset? -%>
-    assertInstanceDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>.class );
+    assertInstanceDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>.class );
 <% else -%>
-    assertTypeDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    assertTypeDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% end -%>
-    assertDatasetFilterMode( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %> );
-    assertDatasetFilterParameterMode( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %> );
-    assertDatasetKeyed( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.keyed? %> );
+    assertDatasetFilterMode( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %> );
+    assertDatasetFilterParameterMode( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %> );
+    assertDatasetKeyed( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.keyed? %> );
 <% if dataset.cacheable? -%>
-    assertCacheableDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    assertCacheableDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% else -%>
-    assertNotCacheableDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    assertNotCacheableDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% end -%>
 <% if dataset.external_visibility? -%>
-    assertExternalDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    assertExternalDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% else -%>
-    assertInternalDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    assertInternalDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% end -%>
-    assertDatasetEntityTypes( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "#{repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name.to_s)}" }.join(', ') %> );
-    assertInwardDatasetLinkCount( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.instance_dataset? ? dataset.inward_dataset_links.size : 0 %> );
-    assertOutwardDatasetLinkCount( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.outward_dataset_links.size %> );
+    assertDatasetEntityTypes( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "#{repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name.to_s)}" }.join(', ') %> );
+    assertInwardDatasetLinkCount( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.instance_dataset? ? dataset.inward_dataset_links.size : 0 %> );
+    assertOutwardDatasetLinkCount( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.outward_dataset_links.size %> );
 <% if dataset.instance_dataset? -%>
 <% dataset.inward_dataset_links.each do |dataset_link| -%>
-    assertInwardDatasetLink( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
+    assertInwardDatasetLink( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
                              <%= repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.replicant_attribute.attribute.entity.qualified_name.gsub('.','_')) %>,
-                             <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %>,
+                             <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %>,
 <% unless dataset_link.auto? -%>
                              true,
 <% end -%>
@@ -43,9 +43,9 @@ public final class <%= repository.replicant.schema_test_name %>
 <% end -%>
 <% end -%>
 <% dataset.outward_dataset_links.each do |dataset_link| -%>
-    assertOutwardDatasetLink( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
+    assertOutwardDatasetLink( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
                               <%= repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.replicant_attribute.attribute.entity.qualified_name.gsub('.','_')) %>,
-                              <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.target_dataset) %>,
+                              <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.target_dataset) %>,
 <% unless dataset_link.auto? -%>
                               true,
 <% end -%>

@@ -57,7 +57,7 @@ final class <%= repository.replicant.schema_filter_tools_name %>
   {
     for ( final replicant.Subscription subscription : replicantContext.getInstanceDatasetSubscriptions() )
     {
-      if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(routing_key.dataset.name) %> == subscription.datasetAddress().datasetId() )
+      if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(routing_key.dataset.name) %> == subscription.datasetAddress().datasetId() )
       {
         for ( final replicant.ReplicaEntry replicaEntry : subscription.findAllReplicaEntriesByType( <%= routing_key.replicant_attribute.attribute.entity.arez.qualified_name %>.class ) )
         {
@@ -96,7 +96,7 @@ final class <%= repository.replicant.schema_filter_tools_name %>
 -%>
       @javax.annotation.Nonnull
       @java.lang.SuppressWarnings( "unchecked" )
-      final java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>>) route.get( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME );
+      final java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>>) route.get( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME );
       assert null != <%= root_var_name %>;
 <% end -%>
 <%
@@ -109,7 +109,7 @@ final class <%= repository.replicant.schema_filter_tools_name %>
       extra_filter_arguments << ", #{var_name}"
 -%>
       <%= nullability_annotation(nullable) %>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% if !nullable -%>
       assert null != <%= var_name %>;
 <% end -%>

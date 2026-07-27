@@ -20,8 +20,8 @@ Domgen::Generator.define([:replicant],
                               'shared/system_constants.java.erb',
                               'main/java/#{repository.replicant.qualified_system_constants_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'shared/subscription_constants.java.erb',
-                              'main/java/#{repository.replicant.qualified_subscription_constants_name.gsub(".","/")}.java')
+                              'shared/dataset_constants.java.erb',
+                              'main/java/#{repository.replicant.qualified_dataset_constants_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'shared/entity_type_constants.java.erb',
                               'main/java/#{repository.replicant.qualified_entity_type_constants_name.gsub(".","/")}.java')

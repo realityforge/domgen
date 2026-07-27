@@ -17,12 +17,12 @@ public interface <%= repository.replicant.schema_sting_fragment_name %>
                                   <%= entity.arez.qualified_name %>.class,
                                   (id, data) -> <%= entity.data_module.replicant.qualified_mapper_name %>.create<%= entity.name %>( <%= Domgen::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, id, data ),
                                   <%= entity.replicant.requires_updater? ? "#{entity.data_module.replicant.qualified_mapper_name}::update#{entity.name}" : 'null' %>,
-                                  new replicant.DatasetLink[]{ <%= entity.attributes.select{|a| a.replicant?}.collect{|a| a.replicant.dataset_links.collect{|dataset_link| "new replicant.DatasetLink(#{repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.source_dataset)}, #{repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}, #{dataset_link.auto?}, new java.lang.String[]{#{([a.name] + ([dataset_link.path])).flatten.compact.collect{|p| "\"#{p.to_s}\""}.join(', ')}} )" }}.flatten.join(', ') %>} );
+                                  new replicant.DatasetLink[]{ <%= entity.attributes.select{|a| a.replicant?}.collect{|a| a.replicant.dataset_links.collect{|dataset_link| "new replicant.DatasetLink(#{repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.source_dataset)}, #{repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset_link.target_dataset)}, #{dataset_link.auto?}, new java.lang.String[]{#{([a.name] + ([dataset_link.path])).flatten.compact.collect{|p| "\"#{p.to_s}\""}.join(', ')}} )" }}.flatten.join(', ') %>} );
 <% end %>
 <% repository.replicant.datasets.each do |dataset| -%>
     final replicant.Dataset dataset<%= dataset.name %> =
-      new replicant.Dataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
-                                   replicant.Replicant.areNamesEnabled() ? <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME : null,
+      new replicant.Dataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
+                                   replicant.Replicant.areNamesEnabled() ? <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME : null,
                                    <%= dataset.instance_dataset? ? "#{repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name}.class" : 'null' %>,
                                    replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %>,
                                    <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %>,

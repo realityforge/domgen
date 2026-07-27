@@ -74,7 +74,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   first = true
 -%>
 <% repository.replicant.datasets.select{|dataset|dataset.secure? && dataset.external_visibility?}.each do |dataset| -%>
-    <%= first ? '' : 'else ' %>if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
+    <%= first ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
     {
 <% if dataset.parameter_filtered? -%>
       assert null != filterParameter;
@@ -100,7 +100,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
     source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
 -%>
-<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetAddress.datasetId() && <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetAddressCandidate.datasetId() )
+<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetAddress.datasetId() && <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetAddressCandidate.datasetId() )
     {
 <% first = false -%>
 <% if dataset_link.target_filter_parameter_copied_from_source_filter_parameter? -%>
@@ -142,7 +142,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     target_filter_parameter_type = Domgen::Java.java_type(target_dataset.filter_parameter, :ee, :default)
     target_filter_parameter_var = Domgen::Naming.camelize("#{target_dataset.name}FilterParameter")
 -%>
-<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetAddress.datasetId() && <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetAddressTemplate.datasetId() )
+<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetAddress.datasetId() && <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetAddressTemplate.datasetId() )
     {
 <% first = false -%>
 <% if dataset_link.target_filter_parameter_copied_from_source_filter_parameter? -%>
@@ -191,7 +191,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% else -%>
 <% first = true -%>
 <% repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |dataset| -%>
-<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
+<% if first -%>   <% end -%> if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
     {
 <%
   first = false
@@ -202,7 +202,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     param_type = routing_key.target_attribute.jpa.non_primitive_java_type
     param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
 -%>
-      final var <%= var_name %> = (<%= param_type %>) entityChangeCandidate.getRoutingKeys().get( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final var <%= var_name %> = (<%= param_type %>) entityChangeCandidate.getRoutingKeys().get( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% end -%>
 <% if dataset.instance_dataset? -%>
       final var datasetRootId = datasetAddress.datasetRootId();
@@ -229,7 +229,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     try
     {
 <% repository.replicant.datasets.each do |dataset| -%>
-      <%= repository.replicant.datasets[0] == dataset ? '' : 'else ' %>if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
+      <%= repository.replicant.datasets[0] == dataset ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddress.datasetId() )
       {
 <% if dataset.parameter_filtered? -%>
         assert null != filterParameter;
@@ -256,7 +256,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     try
     {
 <% bulk_subscription_update_datasets.each do |dataset| -%>
-      <%= bulk_subscription_update_datasets[0] == dataset ? '' : 'else ' %>if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddresses.get( 0 ).datasetId() )
+      <%= bulk_subscription_update_datasets[0] == dataset ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> == datasetAddresses.get( 0 ).datasetId() )
       {
         assert null != newFilterParameter;
         assert null != originalFilterParameter;
@@ -288,7 +288,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
          source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
          target_dataset_root_entity_type = repository.entity_by_name(target_dataset.dataset_root_entity_type)
  -%>
-    <%= automatically_followed_dataset_links[0] == dataset_link ? '' : 'else ' %>if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetId && <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetId )
+    <%= automatically_followed_dataset_links[0] == dataset_link ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetId && <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetId )
     {
 <% if dataset_link.replicant_attribute.attribute.primary_key? -%>
 <% if target_dataset.instance_dataset? -%>
@@ -352,7 +352,7 @@ end
   <%= dataset.subscribe_private? ? 'private ' : '' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end %> )
     throws java.sql.SQLException
   {
-    final var datasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+    final var datasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
     if ( null != session )
     {
       session.recordSubscription( changeSet, datasetAddress, <%= dataset.parameter_filtered? ? 'filterParameter' : 'null' %>, mode );
@@ -402,7 +402,7 @@ end
      final var sql = "SELECT <%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
     try ( var statement = connection().prepareStatement( sql ) )
     {
-        <%= data_module.replicant.qualified_encoder_name %>.encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %> );
+        <%= data_module.replicant.qualified_encoder_name %>.encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %> );
     }
    * }</pre>
    *
@@ -419,7 +419,7 @@ end
   {
     try ( var statement = connection().prepareStatement( "SELECT <%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>" ) )
     {
-      <%= entity.data_module.replicant.qualified_encoder_name %>.encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %><%= dataset.keyed? ? ', datasetKeyColumnName' : '' %> );
+      <%= entity.data_module.replicant.qualified_encoder_name %>.encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %><%= dataset.keyed? ? ', datasetKeyColumnName' : '' %> );
     }
   }
 <% end -%>
@@ -589,7 +589,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
 <% dataset.required_type_datasets.each do |dataset| -%>
     if ( null != session )
     {
-      final var <%= Domgen::Naming.camelize(dataset.name) %>DatasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+      final var <%= Domgen::Naming.camelize(dataset.name) %>DatasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% end -%>
       for ( final var datasetAddress : datasetAddresses )
       {
@@ -687,7 +687,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
         while ( resultSet.next() )
         {
           final var datasetRootId = resultSet.getInt( "Id" );
-          final var datasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, datasetRootId );
+          final var datasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, datasetRootId );
           changeSet.mergeSubscriptionChange( datasetAddress, replicant.server.SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS );
           final var removed = datasetAddresses.remove( datasetAddress );
           assert removed;
@@ -746,7 +746,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
     throws java.sql.SQLException
   {
     final var filterParameter = <%= dataset.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.encode( <%= Domgen::Naming.camelize("#{target_dataset.name}FilterParameter") %> );
-    final var targetDatasetAddresses = getDatasetAddressesFor<%= target_dataset.keyed? ? 'Keyed' : '' %>TargetDataset( sql, <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, <%= Domgen::Naming.camelize("#{target_dataset.name}IdColumnName") %><%= target_dataset.keyed? ? ", #{Domgen::Naming.camelize("#{target_dataset.name}DatasetKeyColumnName")}" : '' %> );
+    final var targetDatasetAddresses = getDatasetAddressesFor<%= target_dataset.keyed? ? 'Keyed' : '' %>TargetDataset( sql, <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, <%= Domgen::Naming.camelize("#{target_dataset.name}IdColumnName") %><%= target_dataset.keyed? ? ", #{Domgen::Naming.camelize("#{target_dataset.name}DatasetKeyColumnName")}" : '' %> );
     for ( final var entry : partitionDatasetAddressesByFilterParameter( session, targetDatasetAddresses ).entrySet() )
     {
       collectSubscriptionDataFor<%= target_dataset.name %>FilterParameterChange( session, changeSet, entry.getValue(), entry.getKey(), filterParameter );
