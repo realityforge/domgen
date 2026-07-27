@@ -248,7 +248,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     // triggering schedulers during injector construction
     // noinspection ResultOfMethodCallIgnored
     replicant.Replicant.context();
-    replicant.WebStorageCacheService.install();
+    replicant.WebStorageDatasetCacheService.install();
     akasha.WindowGlobal.addBeforeunloadListener( e -> replicant.Replicant.context().deactivate(), true );
   }
 <% end -%>

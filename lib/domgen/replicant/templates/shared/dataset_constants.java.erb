@@ -8,7 +8,7 @@ public final class <%= repository.replicant.dataset_constants_name %>
     elements = dataset.instance_dataset? ? dataset.reachable_entity_types.sort : dataset.candidate_entity_types
     data = <<-DATA
   /**
-   * #{dataset.name} is an #{dataset.universal_visibility? ? 'internally and externally' : dataset.internal_visibility? ? 'internally' : 'externally'} visible #{dataset.instance_dataset? ? 'Instance Dataset' : 'Type Dataset'}#{dataset.cacheable? ? " that is cached" : ''}.
+   * #{dataset.name} is an #{dataset.universal_visibility? ? 'internally and externally' : dataset.internal_visibility? ? 'internally' : 'externally'} visible #{dataset.instance_dataset? ? 'Instance Dataset' : 'Type Dataset'}#{dataset.cacheable? ? " and is a Cacheable Dataset" : ''}.
    *
 DATA
     if dataset.instance_dataset?
