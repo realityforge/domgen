@@ -818,10 +818,10 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      attr_writer :schema_id
+      attr_writer :system_schema_id
 
-      def schema_id
-        @schema_id || 1
+      def system_schema_id
+        @system_schema_id || 1
       end
 
       attr_writer :client_component_package
@@ -865,15 +865,15 @@ module Domgen
       java_artifact :gwt_client_session_context, :comm, :client, :replicant, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :replicant, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :replicant, '#{repository.name}ClientRouter'
-      java_artifact :system_constants, :comm, :shared, :replicant, '#{repository.name}SchemaConstants'
+      java_artifact :system_schema_constants, :comm, :shared, :replicant, '#{repository.name}SystemSchemaConstants'
       java_artifact :dataset_constants, :comm, :shared, :replicant, '#{repository.name}DatasetConstants'
       java_artifact :entity_type_constants, :comm, :shared, :replicant, '#{repository.name}EntityTypeConstants'
-      java_artifact :schema_sting_fragment, :comm, :client, :replicant, '#{repository.name}SystemSchemaFragment'
-      java_artifact :schema_filter_tools, :comm, :client, :replicant, '#{repository.name}FilterTools'
-      java_artifact :system_metadata, :comm, :server, :replicant, '#{repository.name}MetaData'
+      java_artifact :system_schema_sting_fragment, :comm, :client, :replicant, '#{repository.name}SystemSchemaFragment'
+      java_artifact :system_schema_filter_tools, :comm, :client, :replicant, '#{repository.name}FilterTools'
+      java_artifact :system_schema, :comm, :server, :replicant, '#{repository.name}SystemSchema'
       java_artifact :session_context_impl, :comm, :server, :replicant, '#{repository.name}SessionContextImpl'
       java_artifact :abstract_session_context_impl, :comm, :server, :replicant, 'Abstract#{session_context_impl_name}'
-      java_artifact :schema_test, :comm, :client, :replicant, 'Simple#{repository.name}SchemaTest'
+      java_artifact :system_schema_test, :comm, :client, :replicant, 'Simple#{repository.name}SystemSchemaTest'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :replicant, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :replicant, '#{repository.name}RemoteServicesTestFragment'
       java_artifact :server_net_module, :comm, :server, :replicant, '#{repository.name}ReplicantNetModule'
@@ -952,8 +952,8 @@ module Domgen
       end
 
       def pre_complete
-        unless repository.application.user_experience? || 1 != repository.replicant.schema_id
-          Domgen.error('repository.replicant.schema_id must be explicitly set to a value other than 1 as the application expects to be used as a library.')
+        unless repository.application.user_experience? || 1 != repository.replicant.system_schema_id
+          Domgen.error('repository.replicant.system_schema_id must be explicitly set to a value other than 1 as the application expects to be used as a library.')
         end
         toprocess = []
         self.datasets.each do |dataset|
@@ -1001,7 +1001,7 @@ module Domgen
           end
         end
         if repository.gwt?
-          repository.gwt.sting_includes << qualified_schema_sting_fragment_name
+          repository.gwt.sting_includes << qualified_system_schema_sting_fragment_name
           repository.gwt.sting_includes << qualified_gwt_client_session_context_impl_name
         end
 

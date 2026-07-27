@@ -1,11 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_schema_filter_tools_name) %>;
+package <%= to_package(repository.replicant.qualified_system_schema_filter_tools_name) %>;
 <% entities = repository.data_modules.select { |data_module| data_module.replicant? }.collect{|data_module| data_module.entities.select{|entity| entity.replicant? && entity.concrete?} }.flatten -%>
 
 @java.lang.SuppressWarnings( "JavaDoc" )
-final class <%= repository.replicant.schema_filter_tools_name %>
+final class <%= repository.replicant.system_schema_filter_tools_name %>
 {
-  private <%= repository.replicant.schema_filter_tools_name %>()
+  private <%= repository.replicant.system_schema_filter_tools_name %>()
   {
   }
 <%

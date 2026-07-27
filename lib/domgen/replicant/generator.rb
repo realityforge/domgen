@@ -15,10 +15,10 @@
 Domgen::Generator.define([:replicant],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper, Domgen::Replicant::Helper]) do |g|
-  g.template_set(:replicant_metadata) do |template_set|
+  g.template_set(:replicant_system_schema) do |template_set|
     template_set.erb_template(:repository,
-                              'shared/system_constants.java.erb',
-                              'main/java/#{repository.replicant.qualified_system_constants_name.gsub(".","/")}.java')
+                              'shared/system_schema_constants.java.erb',
+                              'main/java/#{repository.replicant.qualified_system_schema_constants_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'shared/dataset_constants.java.erb',
                               'main/java/#{repository.replicant.qualified_dataset_constants_name.gsub(".","/")}.java')
@@ -29,11 +29,11 @@ Domgen::Generator.define([:replicant],
 
   g.template_set(:replicant_client_entity) do |template_set|
     template_set.erb_template(:repository,
-                              'client/schema_sting_fragment.java.erb',
-                              'main/java/#{repository.replicant.qualified_schema_sting_fragment_name.gsub(".","/")}.java')
+                              'client/system_schema_sting_fragment.java.erb',
+                              'main/java/#{repository.replicant.qualified_system_schema_sting_fragment_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'client/schema_filter_tools.java.erb',
-                              'main/java/#{repository.replicant.qualified_schema_filter_tools_name.gsub(".","/")}.java',
+                              'client/system_schema_filter_tools.java.erb',
+                              'main/java/#{repository.replicant.qualified_system_schema_filter_tools_name.gsub(".","/")}.java',
                               :guard => 'repository.replicant.datasets.any?{|dataset| dataset.updatable_filter_parameter? || dataset.reevaluate_membership_on_replica_update? || (!dataset.unfiltered? && dataset.routing_keys.any?{|routing_key| !routing_key.target_attribute.immutable?})}')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
@@ -101,8 +101,8 @@ Domgen::Generator.define([:replicant],
     end
     g.template_set(:"replicant_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:repository,
-                                'client/schema_test.java.erb',
-                                type + '/java/#{repository.replicant.qualified_schema_test_name.gsub(".","/")}.java')
+                                'client/system_schema_test.java.erb',
+                                type + '/java/#{repository.replicant.qualified_system_schema_test_name.gsub(".","/")}.java')
     end
   end
 end
@@ -116,8 +116,8 @@ Domgen::Generator.define([:replicant, :jpa],
                               'abstract_session_context_impl.java.erb',
                               'main/java/#{repository.replicant.qualified_abstract_session_context_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'system_metadata.java.erb',
-                              'main/java/#{repository.replicant.qualified_system_metadata_name.gsub(".","/")}.java')
+                              'system_schema.java.erb',
+                              'main/java/#{repository.replicant.qualified_system_schema_name.gsub(".","/")}.java')
     template_set.erb_template(:data_module,
                               'encoder.java.erb',
                               'main/java/#{data_module.replicant.qualified_encoder_name.gsub(".","/")}.java',

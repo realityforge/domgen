@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_schema_test_name) %>;
+package <%= to_package(repository.replicant.qualified_system_schema_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode", "SameParameterValue" } )
 @org.junit.runner.RunWith( org.junit.runners.JUnit4.class )
-public final class <%= repository.replicant.schema_test_name %>
+public final class <%= repository.replicant.system_schema_test_name %>
   extends <%= repository.gwt.qualified_client_entity_test_name %>
 {<% repository.replicant.datasets.each do |dataset| -%>
 
@@ -126,12 +126,12 @@ public final class <%= repository.replicant.schema_test_name %>
   @javax.annotation.Nonnull
   private replicant.Dataset getDataset( final int datasetId )
   {
-    return schema().getDataset( datasetId );
+    return systemSchema().getDataset( datasetId );
   }
 
   private void assertInwardDatasetLinkCount( final int datasetId, final int count )
   {
-    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getInwardDatasetLinks( datasetId );
+    final java.util.List<replicant.DatasetLink> datasetLinks = systemSchema().getInwardDatasetLinks( datasetId );
     final replicant.Dataset dataset = getDataset( datasetId );
     org.junit.Assert.assertEquals( "Expected datasetLinks to dataset " + dataset + " from other datasets",
                                     count,
@@ -140,7 +140,7 @@ public final class <%= repository.replicant.schema_test_name %>
 
   private void assertOutwardDatasetLinkCount( final int datasetId, final int count )
   {
-    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getOutwardDatasetLinks( datasetId );
+    final java.util.List<replicant.DatasetLink> datasetLinks = systemSchema().getOutwardDatasetLinks( datasetId );
     final replicant.Dataset dataset = getDataset( datasetId );
     org.junit.Assert.assertEquals( "Expected datasetLinks from dataset " + dataset + " to other datasets",
                                     count,
@@ -154,7 +154,7 @@ public final class <%= repository.replicant.schema_test_name %>
 
   private void assertInwardDatasetLink( final int datasetId, final int entityTypeId, final int sourceDatasetId, final boolean automatic, @javax.annotation.Nonnull final java.lang.String... path )
   {
-    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getInwardDatasetLinks( datasetId, entityTypeId );
+    final java.util.List<replicant.DatasetLink> datasetLinks = systemSchema().getInwardDatasetLinks( datasetId, entityTypeId );
 
     final java.util.List<replicant.DatasetLink> matches =
       datasetLinks
@@ -189,7 +189,7 @@ public final class <%= repository.replicant.schema_test_name %>
   }
 
   @javax.annotation.Nonnull
-  private replicant.SystemSchema schema()
+  private replicant.SystemSchema systemSchema()
   {
     return getInjector().getSystemSchema();
   }

@@ -38,7 +38,7 @@ public final class <%= dataset.subscription_util_name %>
   @javax.annotation.Nonnull
   public static replicant.DatasetAddress getDatasetAddress(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
   {
-    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_constants_name %>.SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ", datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ", datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
   }
 <% if canonical_dataset_link -%>
 

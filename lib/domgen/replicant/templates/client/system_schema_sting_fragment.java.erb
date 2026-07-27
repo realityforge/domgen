@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_schema_sting_fragment_name) %>;
+package <%= to_package(repository.replicant.qualified_system_schema_sting_fragment_name) %>;
 <% entities = repository.data_modules.select { |data_module| data_module.replicant? }.collect{|data_module| data_module.entities.select{|entity| entity.replicant? && entity.concrete?} }.flatten -%>
 
 @sting.Fragment
-public interface <%= repository.replicant.schema_sting_fragment_name %>
+public interface <%= repository.replicant.system_schema_sting_fragment_name %>
 {
   @javax.annotation.Nonnull
   @sting.Named( "<%= repository.name %>" )
@@ -27,15 +27,15 @@ public interface <%= repository.replicant.schema_sting_fragment_name %>
                                    replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %>,
                                    <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %>,
                                    <%= dataset.keyed? %>,
-                                   <% if dataset.updatable_filter_parameter? %>(<%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, replicant.ReplicaEntry replicaEntry) -> <%= repository.replicant.qualified_schema_filter_tools_name %>.doesReplicaMatch<%= dataset.name %>FilterParameter( context, router, filterParameter, replicaEntry )<% else %>null<% end %>,
+                                   <% if dataset.updatable_filter_parameter? %>(<%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, replicant.ReplicaEntry replicaEntry) -> <%= repository.replicant.qualified_system_schema_filter_tools_name %>.doesReplicaMatch<%= dataset.name %>FilterParameter( context, router, filterParameter, replicaEntry )<% else %>null<% end %>,
                                    <%= dataset.cacheable? %>,
                                    <%= dataset.external_visibility? %>,
                                    java.util.<%= 1 == dataset.included_entity_types.size ? 'Collections.singletonList' : 'Arrays.asList' %>( <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "entityType#{entity.data_module.name}#{entity.name}"}.join(', ') %> ) );
 <% end -%>
 
-    return new replicant.SystemSchema( <%= repository.replicant.qualified_system_constants_name %>.SCHEMA_ID,
+    return new replicant.SystemSchema( <%= repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
                                        replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
-                                       <%= repository.replicant.datasets.any?{|dataset| dataset.reevaluate_membership_on_replica_update? || (!dataset.unfiltered? && dataset.routing_keys.any?{|routing_key| !routing_key.target_attribute.immutable?})} ? "( replicantContext, replica ) -> #{repository.replicant.qualified_schema_filter_tools_name}.onReplicaUpdateAction( context, replicantContext, replica )": 'null' %>,
+                                       <%= repository.replicant.datasets.any?{|dataset| dataset.reevaluate_membership_on_replica_update? || (!dataset.unfiltered? && dataset.routing_keys.any?{|routing_key| !routing_key.target_attribute.immutable?})} ? "( replicantContext, replica ) -> #{repository.replicant.qualified_system_schema_filter_tools_name}.onReplicaUpdateAction( context, replicantContext, replica )": 'null' %>,
                                        new replicant.Dataset[]{ <%= repository.replicant.datasets_code_spaced.collect{|dataset| dataset.nil? ? "null" : "dataset#{dataset.name}" }.join(', ') %> },
                                        new replicant.EntityType[]{ <%= entities.collect{|entity| "entityType#{entity.data_module.name}#{entity.name}"}.join(', ') %> } );
   }

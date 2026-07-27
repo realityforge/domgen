@@ -93,7 +93,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
     ') %>
 
     replicant.Replicant.context()
-      .exec( <%= service.data_module.repository.replicant.qualified_system_constants_name %>.SCHEMA_ID,
+      .exec( <%= service.data_module.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
              "<%= method.action.code %>",
              $params,
              $response -> {

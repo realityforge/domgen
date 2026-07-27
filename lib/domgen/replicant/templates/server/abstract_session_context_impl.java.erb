@@ -56,9 +56,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  public replicant.server.transport.SchemaMetaData getSchemaMetaData()
+  public replicant.server.transport.SystemSchema getSystemSchema()
   {
-    return iris.rose.server.net.RoseMetaData.getSchemaMetaData();
+    return <%= repository.replicant.qualified_system_schema_name %>.getSystemSchema();
   }
 
   @Override

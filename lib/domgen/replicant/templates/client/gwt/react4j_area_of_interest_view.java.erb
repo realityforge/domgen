@@ -65,6 +65,6 @@ abstract class <%= dataset.react4j_area_of_interest_view_name %>
   @java.lang.Override
   protected replicant.DatasetAddress getDatasetAddress()
   {
-    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_constants_name %>.SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ', getId()' : dataset.keyed? ? ', null' : '' -%><%= dataset.keyed? ? ', datasetKey()' : '' -%> );
+    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ', getId()' : dataset.keyed? ? ', null' : '' -%><%= dataset.keyed? ? ', datasetKey()' : '' -%> );
   }
 }
