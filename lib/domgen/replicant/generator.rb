@@ -46,8 +46,8 @@ Domgen::Generator.define([:replicant],
                               'client/dataset_subscription_util.java.erb',
                               'main/java/#{dataset.qualified_subscription_util_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'client/gwt/session_context.java.erb',
-                              'main/java/#{repository.replicant.qualified_gwt_client_session_context_name.gsub(".","/")}.java')
+                              'client/system_schema_hooks.java.erb',
+                              'main/java/#{repository.replicant.qualified_system_schema_hooks_name.gsub(".","/")}.java')
   end
 
   g.template_set(:replicant_client_react4j_support) do |template_set|

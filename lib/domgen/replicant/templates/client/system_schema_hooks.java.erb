@@ -1,8 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_gwt_client_session_context_name) %>;
+package <%= to_package(repository.replicant.qualified_system_schema_hooks_name) %>;
 
+/**
+ * Application hooks used to construct and support the <%= repository.name %> System Schema.
+ *
+ * <p>This callback surface is not a Replicant Context and does not own System Schema registrations, Areas of
+ * Interest, Subscriptions, or Replicas. The Replicant Context passed to applicable callbacks owns that state.
+ */
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= repository.replicant.gwt_client_session_context_name %>
+public interface <%= repository.replicant.system_schema_hooks_name %>
 {
 <% repository.replicant.datasets.select(&:updatable_filter_parameter?).each do |dataset|
     extra_filter_arguments = ''

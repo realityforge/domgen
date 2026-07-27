@@ -699,7 +699,7 @@ module Domgen
       end
 
       def post_verify
-        # The next check could be removed if we were willing to update the client-side session context to walk down and unlink
+        # The next check could be removed if we were willing to update the client-side System Schema hooks to walk down and unlink
         # child entities when an intermediate entity is delinked. In which case the dataset would not need to worry about leaf nodes
         # at all anymore
         Domgen.error("Routing key '#{self.name}' on #{self.replicant_attribute.attribute.name} is not immutable, not on a leaf Entity Type within an Instance Dataset and not a set_once") unless self.dataset.type_dataset? || self.replicant_attribute.attribute.immutable? || self.dataset.leaf_entity_types.include?(self.replicant_attribute.attribute.entity.qualified_name.to_s)
@@ -860,8 +860,8 @@ module Domgen
         @server_web_package || "#{server_package}.web"
       end
 
-      java_artifact :gwt_client_session_context, :comm, :client, :replicant, '#{repository.name}GwtSessionContext'
-      java_artifact :gwt_client_session_context_impl, :comm, :client, :replicant, '#{gwt_client_session_context_name}Impl'
+      java_artifact :system_schema_hooks, :comm, :client, :replicant, '#{repository.name}SystemSchemaHooks'
+      java_artifact :system_schema_hooks_impl, :comm, :client, :replicant, '#{system_schema_hooks_name}Impl'
       java_artifact :client_router, :comm, :client, :replicant, '#{repository.name}ClientRouter'
       java_artifact :system_schema_constants, :comm, :shared, :replicant, '#{repository.name}SystemSchemaConstants'
       java_artifact :dataset_constants, :comm, :shared, :replicant, '#{repository.name}DatasetConstants'
@@ -1000,7 +1000,7 @@ module Domgen
         end
         if repository.gwt?
           repository.gwt.sting_includes << qualified_system_schema_sting_fragment_name
-          repository.gwt.sting_includes << qualified_gwt_client_session_context_impl_name
+          repository.gwt.sting_includes << qualified_system_schema_hooks_impl_name
         end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?

@@ -26,17 +26,17 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
 -%>
 <% unless entity_routing_keys.empty? -%>
 
-  static void onReplicaUpdateAction( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final Object replica )
+  static void onReplicaUpdateAction( @javax.annotation.Nonnull final <%= repository.replicant.qualified_system_schema_hooks_name %> hooks, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final Object replica )
   {
 <% entity_routing_keys.keys.each do |entity| -%>
     if ( replica instanceof <%= entity.arez.qualified_name %> )
     {
       final <%= entity.arez.qualified_name %> $replica = (<%= entity.arez.qualified_name %>) replica;
 <% entity_routing_keys[entity].each do |routing_key| -%>
-      on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( context, replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, $replica<% end %> );
+      on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( hooks, replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, $replica<% end %> );
 <% end -%>
 <% (entity_implicit_datasets[entity] || []).each do |dataset| -%>
-      context.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
+      hooks.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
 <% end -%>
     }
 <% end -%>
@@ -45,7 +45,7 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
     {
       final <%= entity.arez.qualified_name %> $replica = (<%= entity.arez.qualified_name %>) replica;
 <% (entity_implicit_datasets[entity]).each do |dataset| -%>
-      context.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
+      hooks.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
 <% end -%>
     }
 <% end -%>
@@ -53,7 +53,7 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
 <% entity_routing_keys.values.each do |routing_keys| -%>
 <% routing_keys.each do |routing_key| -%>
 
-  private static void on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, @javax.annotation.Nonnull final <%= routing_key.target_attribute.entity.arez.qualified_name %> replica<% end %> )
+  private static void on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull final <%= repository.replicant.qualified_system_schema_hooks_name %> hooks, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, @javax.annotation.Nonnull final <%= routing_key.target_attribute.entity.arez.qualified_name %> replica<% end %> )
   {
     for ( final replicant.Subscription subscription : replicantContext.getInstanceDatasetSubscriptions() )
     {
@@ -65,7 +65,7 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
           final Object filterParameter = subscription.getFilterParameter();
           assert null != filterParameter;
 <% end -%>
-          if ( context.shouldDelinkOn<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( <% if routing_key.dataset.parameter_filtered? %>(<%= Domgen::Java.java_type(routing_key.dataset.filter_parameter, :gwt, :default) %>) filterParameter, <% end %>(<%= routing_key.replicant_attribute.attribute.entity.arez.qualified_name %>) replicaEntry.getReplica()<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, replica <% end %> ) )
+          if ( hooks.shouldDelinkOn<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( <% if routing_key.dataset.parameter_filtered? %>(<%= Domgen::Java.java_type(routing_key.dataset.filter_parameter, :gwt, :default) %>) filterParameter, <% end %>(<%= routing_key.replicant_attribute.attribute.entity.arez.qualified_name %>) replicaEntry.getReplica()<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, replica <% end %> ) )
           {
             replicaEntry.delinkFromSubscriptionAfterMembershipChange( subscription );
           }
@@ -79,7 +79,7 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
 <% repository.replicant.datasets.select(&:updatable_filter_parameter?).each do |dataset| -%>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
-  static boolean doesReplicaMatch<%= dataset.name %>FilterParameter( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.replicant.qualified_client_router_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, @javax.annotation.Nonnull final replicant.ReplicaEntry replicaEntry )
+  static boolean doesReplicaMatch<%= dataset.name %>FilterParameter( @javax.annotation.Nonnull final <%= repository.replicant.qualified_system_schema_hooks_name %> hooks, @javax.annotation.Nonnull final <%= repository.replicant.qualified_client_router_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, @javax.annotation.Nonnull final replicant.ReplicaEntry replicaEntry )
   {
       final Object replica = replicaEntry.getReplica();
       assert null != replica;
@@ -121,7 +121,7 @@ final class <%= repository.replicant.system_schema_filter_tools_name %>
       for( final <%= entity.primary_key.replicant.non_primitive_java_type %> <%= singular_root_var_name %>: <%= root_var_name %> )
       {
 <% end -%>
-        if( context.does<%= dataset.name %>FilterParameterMatchReplica( filterParameter, replica<%= extra_filter_arguments %> ) )
+        if( hooks.does<%= dataset.name %>FilterParameterMatchReplica( filterParameter, replica<%= extra_filter_arguments %> ) )
         {
           return true;
         }
