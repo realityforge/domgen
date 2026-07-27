@@ -8,7 +8,8 @@ public final class <%= repository.replicant.dataset_constants_name %>
     elements = dataset.instance_dataset? ? dataset.reachable_entity_types.sort : dataset.candidate_entity_types
     data = <<-DATA
   /**
-   * #{dataset.name} is an #{dataset.universal_visibility? ? 'internally and externally' : dataset.internal_visibility? ? 'internally' : 'externally'} visible #{dataset.instance_dataset? ? 'Instance Dataset' : 'Type Dataset'}#{dataset.cacheable? ? " and is a Cacheable Dataset" : ''}.
+   * #{dataset.name} is a #{dataset.instance_dataset? ? 'Instance Dataset' : 'Type Dataset'} with #{dataset.visibility.to_s.capitalize} Dataset Visibility#{dataset.cacheable? ? " and is a Cacheable Dataset" : ''}.
+   * #{:external == dataset.visibility ? 'An Area of Interest may request it directly.' : :internal == dataset.visibility ? 'It may be reached through a Dataset Link or Required Type Dataset.' : 'It may originate from an Area of Interest or through a Dataset Link or Required Type Dataset.'}
    *
 DATA
     if dataset.instance_dataset?

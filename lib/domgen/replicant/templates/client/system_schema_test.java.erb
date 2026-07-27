@@ -23,11 +23,7 @@ public final class <%= repository.replicant.system_schema_test_name %>
 <% else -%>
     assertNotCacheableDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
 <% end -%>
-<% if dataset.external_visibility? -%>
-    assertExternalDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
-<% else -%>
-    assertInternalDataset( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
-<% end -%>
+    assertDatasetVisibility( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, replicant.Dataset.Visibility.<%= dataset.visibility.to_s.upcase %> );
     assertDatasetEntityTypes( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "#{repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name.to_s)}" }.join(', ') %> );
     assertInwardDatasetLinkCount( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.instance_dataset? ? dataset.inward_dataset_links.size : 0 %> );
     assertOutwardDatasetLinkCount( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.outward_dataset_links.size %> );
@@ -64,14 +60,9 @@ public final class <%= repository.replicant.system_schema_test_name %>
     org.junit.Assert.assertTrue( getDataset( datasetId ).isTypeDataset() );
   }
 
-  private void assertInternalDataset( final int datasetId )
+  private void assertDatasetVisibility( final int datasetId, @javax.annotation.Nonnull final replicant.Dataset.Visibility visibility )
   {
-    org.junit.Assert.assertFalse( getDataset( datasetId ).isExternal() );
-  }
-
-  private void assertExternalDataset( final int datasetId )
-  {
-    org.junit.Assert.assertTrue( getDataset( datasetId ).isExternal() );
+    org.junit.Assert.assertEquals( visibility, getDataset( datasetId ).getVisibility() );
   }
 
   private void assertDatasetFilterMode( final int datasetId, @javax.annotation.Nonnull final replicant.Dataset.FilterMode filterMode )

@@ -29,7 +29,7 @@ public interface <%= repository.replicant.system_schema_sting_fragment_name %>
                                    <%= dataset.keyed? %>,
                                    <% if dataset.updatable_filter_parameter? %>(<%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, replicant.ReplicaEntry replicaEntry) -> <%= repository.replicant.qualified_system_schema_filter_tools_name %>.doesReplicaMatch<%= dataset.name %>FilterParameter( context, router, filterParameter, replicaEntry )<% else %>null<% end %>,
                                    <%= dataset.cacheable? %>,
-                                   <%= dataset.external_visibility? %>,
+                                   replicant.Dataset.Visibility.<%= dataset.visibility.to_s.upcase %>,
                                    java.util.<%= 1 == dataset.included_entity_types.size ? 'Collections.singletonList' : 'Arrays.asList' %>( <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "entityType#{entity.data_module.name}#{entity.name}"}.join(', ') %> ) );
 <% end -%>
 

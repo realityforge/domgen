@@ -107,7 +107,7 @@ public final class <%= dataset.subscription_util_name %>
     return findSubscription( context, datasetRootId, deriveDatasetKey( filterParameter ) );
   }
 <% end -%>
-<% unless dataset.external_visibility? -%>
+<% unless dataset.area_of_interest_origin_permitted? -%>
 <% if dataset.instance_dataset? && !explicit_dataset_key -%>
 
   /**
@@ -189,7 +189,7 @@ public final class <%= dataset.subscription_util_name %>
   }
 <% end -%>
 <% end -%>
-<% if dataset.external_visibility? -%>
+<% if dataset.area_of_interest_origin_permitted? -%>
 <% if dataset.instance_dataset? && !explicit_dataset_key -%>
 
   @javax.annotation.Nullable

@@ -163,18 +163,14 @@ module Domgen
         @visibility
       end
 
-      def external_visibility?
-        self.visibility == :external || self.universal_visibility?
+      # Does the Dataset Visibility permit a direct Area of Interest origin?
+      def area_of_interest_origin_permitted?
+        [:external, :universal].include?(visibility)
       end
 
-      def internal_visibility?
-        self.visibility == :internal || self.universal_visibility?
-      end
-
-      # Default visibility is both internal and externally visible
-      # So a user can both subscribe to dataset explicitly and a dataset can dataset_link to this dataset
-      def universal_visibility?
-        self.visibility == :universal
+      # Does the Dataset Visibility permit an origin through a Dataset Link or Required Type Dataset?
+      def dataset_link_or_required_type_dataset_origin_permitted?
+        [:internal, :universal].include?(visibility)
       end
 
       def instance_dataset?
@@ -282,6 +278,7 @@ module Domgen
       def require_type_dataset(dataset_key)
         dataset = application.repository.replicant.dataset_by_name(dataset_key)
         Domgen.error("Dataset '#{self.name}' requires Type Dataset #{dataset_key} but the required Dataset is not a Type Dataset.") if dataset.instance_dataset?
+        Domgen.error("Dataset '#{self.name}' requires Type Dataset #{dataset_key}, but that Dataset has #{dataset.visibility} Dataset Visibility, which does not permit a Required Type Dataset origin.") unless dataset.dataset_link_or_required_type_dataset_origin_permitted?
         Domgen.error("Dataset '#{self.name}' requires self which is invalid.") if self.name.to_s == dataset_key.to_s
         Domgen.error("Dataset '#{self.name}' requires Type Dataset #{dataset_key} multiple times.") if @required_type_datasets.include?(dataset)
         @required_type_datasets << dataset
@@ -316,12 +313,12 @@ module Domgen
           end
         end
 
-        if self.internal_visibility? && self.instance_dataset? && self.inward_dataset_links.empty?
-          Domgen.error("Dataset '#{self.name}' is marked with internal visibility but has no inward Dataset Links.")
+        if self.dataset_link_or_required_type_dataset_origin_permitted? && self.instance_dataset? && self.inward_dataset_links.empty?
+          Domgen.error("Dataset '#{self.name}' has #{self.visibility} Dataset Visibility, which permits a Dataset Link origin, but has no inward Dataset Links.")
         end
 
-        if self.internal_visibility? && !self.instance_dataset? && self.dependent_datasets.empty?
-          Domgen.error("Dataset '#{self.name}' is a Type Dataset marked with internal visibility but has no dependent Datasets.")
+        if self.dataset_link_or_required_type_dataset_origin_permitted? && !self.instance_dataset? && self.dependent_datasets.empty?
+          Domgen.error("Dataset '#{self.name}' is a Type Dataset with #{self.visibility} Dataset Visibility, which permits a Required Type Dataset origin, but has no dependent Datasets.")
         end
 
         entities = self.included_entity_types
@@ -531,6 +528,7 @@ module Domgen
         prefix = "Dataset Link from '#{self.source_dataset}' to '#{self.target_dataset}' via '#{self.replicant_attribute.attribute.name}'"
         Domgen.error("#{prefix} must have an Instance Dataset on the LHS if the target Dataset is not Unfiltered") unless source_dataset.instance_dataset? || target_dataset.unfiltered?
         Domgen.error("#{prefix} must have an Instance Dataset on the RHS") unless target_dataset.instance_dataset?
+        Domgen.error("#{prefix} targets a Dataset with #{target_dataset.visibility} Dataset Visibility, which does not permit a Dataset Link origin") unless target_dataset.dataset_link_or_required_type_dataset_origin_permitted?
 
         # Need to make sure that the other side is the Dataset Root Entity Type
         unless target_dataset.dataset_root_entity_type != entity.name
