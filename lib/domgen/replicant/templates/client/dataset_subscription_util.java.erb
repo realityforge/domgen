@@ -107,6 +107,88 @@ public final class <%= dataset.subscription_util_name %>
     return findSubscription( context, datasetRootId, deriveDatasetKey( filterParameter ) );
   }
 <% end -%>
+<% unless dataset.external_visibility? -%>
+<% if dataset.instance_dataset? && !explicit_dataset_key -%>
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
+  {
+    return isDataAvailable( datasetRoot.<%= getter_for(dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key) %> );
+  }
+
+<% end -%>
+<% if dataset.instance_dataset? -%>
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction. It returns false when a
+   * required address component is null.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable( @javax.annotation.Nullable final java.lang.Integer datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nullable final java.lang.String datasetKey" : "" %> )
+  {
+    return null != datasetRootId<%= explicit_dataset_key ? " && null != datasetKey" : "" %> && isDataAvailable( (int) datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+<% end -%>
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    return isDataAvailable( replicant.Replicant.context()<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the specified Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    return context.isDataAvailable( getDatasetAddress(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>) );
+  }
+<% if canonical_dataset_link -%>
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return isDataAvailable( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  /**
+   * Return whether complete data for the Dataset Address is currently usable in the specified Replicant Context.
+   *
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
+   */
+  public static boolean isDataAvailable( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return isDataAvailable( context, datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+<% end -%>
+<% end -%>
 <% if dataset.external_visibility? -%>
 <% if dataset.instance_dataset? && !explicit_dataset_key -%>
 
@@ -124,14 +206,15 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address.
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
   {
-    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( datasetRoot );
-    return null != areaOfInterest && areaOfInterest.isDataAvailable();
+    return isDataAvailable( datasetRoot.<%= getter_for(dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key) %> );
   }
 
 <% end -%>
@@ -150,14 +233,18 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address.
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction. It returns false when a
+   * required address component is null.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable( @javax.annotation.Nullable final java.lang.Integer datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nullable final java.lang.String datasetKey" : "" %> )
   {
     return null != datasetRootId<%= explicit_dataset_key ? " && null != datasetKey" : "" %> && isDataAvailable( (int) datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
   }
+
 <% end -%>
 
   @javax.annotation.Nullable
@@ -168,14 +255,15 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address.
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
   {
-    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>);
-    return null != areaOfInterest && areaOfInterest.isDataAvailable();
+    return isDataAvailable( replicant.Replicant.context()<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
   }
 
   @javax.annotation.Nullable
@@ -192,15 +280,17 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address in the specified context.
+   * Return whether complete data for the Dataset Address is currently usable in the specified Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
   {
-    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
-    return null != areaOfInterest && areaOfInterest.isDataAvailable();
+    return context.isDataAvailable( getDatasetAddress(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>) );
   }
+
 <% if canonical_dataset_link -%>
 
   @javax.annotation.Nullable
@@ -228,9 +318,11 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address.
+   * Return whether complete data for the Dataset Address is currently usable in the Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
   {
@@ -238,14 +330,17 @@ public final class <%= dataset.subscription_util_name %>
   }
 
   /**
-   * Return whether complete data is locally available for the Dataset Address in the specified context.
+   * Return whether complete data for the Dataset Address is currently usable in the specified Replicant Context.
    *
-   * @return true if complete data is locally available.
+   * <p>This reports actual Data Availability independently of Area of Interest satisfaction.
+   *
+   * @return true if complete data is currently usable.
    */
   public static boolean isDataAvailable( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
   {
     return isDataAvailable( context, datasetRootId, deriveDatasetKey( filterParameter ) );
   }
+
 <% end -%>
 <% end -%>
 <% if dataset.instance_dataset? -%>
@@ -259,11 +354,9 @@ public final class <%= dataset.subscription_util_name %>
   @javax.annotation.Nullable
   public static <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> findDatasetRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
   {
-<% if dataset.external_visibility? -%>
     final boolean dataAvailable = isDataAvailable( context, datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
-<% end -%>
     final replicant.Subscription subscription = findSubscription( context, datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
-    return null == subscription <% if dataset.external_visibility? -%>|| !dataAvailable<% end -%> ? null : (<%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>) subscription.getDatasetRoot();
+    return null == subscription || !dataAvailable ? null : (<%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>) subscription.getDatasetRoot();
   }
 <% if canonical_dataset_link -%>
 
