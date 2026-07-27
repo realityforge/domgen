@@ -1,0 +1,41 @@
+/* DO NOT EDIT: File is auto-generated*/
+package <%= to_package( exception.replicant.qualified_name ) %>;
+
+public final class <%= exception.replicant.json_decoder_name %>
+{
+  private <%= exception.replicant.json_decoder_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  public static <%= exception.replicant.non_module_local_parent_qualified_name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json )
+  {
+<% if exception.direct_subtypes.empty? -%>
+    return new <%= "#{exception.replicant.qualified_name}( #{exception.parameters.collect{|exception_param| "#{exception_param.replicant.get_from_json_extension("json")}"}.join(', ')} );"%>
+<% else -%>
+    return decode( json, json.getAsAny( "$type" ).asString() );
+<% end -%>
+  }
+<% unless exception.direct_subtypes.empty? -%>
+
+  @javax.annotation.Nonnull
+  public static <%= exception.replicant.non_module_local_parent_qualified_name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json, @javax.annotation.Nonnull final String exceptionType )
+  {
+    switch ( exceptionType )
+    {<% exception.direct_subtypes.select{|e|e.replicant?}.each do |e| -%>
+
+      case "<%= e.data_module.name %>.<%= e.name %>":
+        return <%= e.replicant.qualified_json_decoder_name %>.decode( json<%= e.direct_subtypes.empty? ? '' : ', exceptionType' %> );
+<% end -%>
+<% unless exception.abstract? -%>
+
+      case "<%= exception.data_module.name %>.<%= exception.name %>":
+        return new <%= "#{exception.replicant.qualified_name}( #{exception.parameters.collect{|exception_param| "#{exception_param.replicant.get_from_json_extension("json")}"}.join(', ')} );"%>
+<% end -%>
+
+      default:
+        throw new IllegalArgumentException( json.toString() );
+    }
+  }
+<% end -%>
+}

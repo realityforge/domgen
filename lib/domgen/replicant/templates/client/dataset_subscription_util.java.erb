@@ -1,0 +1,220 @@
+/* DO NOT EDIT: File is auto-generated */
+<%
+  canonical_dataset_link =
+    dataset.instance_dataset? ?
+    dataset.
+        inward_dataset_links.
+        find{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter?} :
+    nil
+  explicit_dataset_key = dataset.keyed?
+  filter_parameter_type = canonical_dataset_link ? Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) : nil
+-%>
+package <%= to_package(dataset.qualified_subscription_util_name) %>;
+
+public final class <%= dataset.subscription_util_name %>
+{
+  private <%= dataset.subscription_util_name %>()
+  {
+  }
+<% if canonical_dataset_link -%>
+
+  interface DatasetKeyFactory
+  {
+    @javax.annotation.Nonnull
+    java.lang.String deriveDatasetKey( @javax.annotation.Nonnull <%= filter_parameter_type %> filterParameter );
+  }
+
+  @javax.annotation.Nonnull
+  private static final DatasetKeyFactory DATASET_KEY_FACTORY =
+    new <%= dataset.subscription_util_name %>DatasetKeyFactoryImpl();
+
+  @javax.annotation.Nonnull
+  public static java.lang.String deriveDatasetKey( @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return DATASET_KEY_FACTORY.deriveDatasetKey( filterParameter );
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.DatasetAddress getDatasetAddress(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_constants_name %>.SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ", datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+<% if canonical_dataset_link -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.DatasetAddress getDatasetAddress( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return getDatasetAddress( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+<% end -%>
+
+<% if dataset.instance_dataset? && !explicit_dataset_key -%>
+  public static boolean isSubscribed( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
+  {
+    return isSubscribed( datasetRoot.<%= getter_for(dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key) %> );
+  }
+
+<% end -%>
+  public static boolean isSubscribed(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    return isSubscribed( replicant.Replicant.context()<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+  public static boolean isSubscribed( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    return null != findSubscription( context<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+<% if dataset.instance_dataset? && !explicit_dataset_key -%>
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
+  {
+    return findSubscription( datasetRoot.<%= getter_for(dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key) %> );
+  }
+
+<% end -%>
+<% if dataset.instance_dataset? -%>
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( @javax.annotation.Nullable final java.lang.Integer datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nullable final java.lang.String datasetKey" : "" %> )
+  {
+    return null == datasetRootId<%= explicit_dataset_key ? " || null == datasetKey" : "" %> ? null : findSubscription( replicant.Replicant.context(), datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+<% end -%>
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    return findSubscription( replicant.Replicant.context()<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    return context.findSubscription( getDatasetAddress(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>) );
+  }
+<% if canonical_dataset_link -%>
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findSubscription( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findSubscription( context, datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+<% end -%>
+<% if dataset.external_visibility? -%>
+<% if dataset.instance_dataset? && !explicit_dataset_key -%>
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
+  {
+    return findAreaOfInterest( datasetRoot.<%= getter_for(dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key) %> );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> datasetRoot )
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( datasetRoot );
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
+  }
+
+<% end -%>
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    return findAreaOfInterest( replicant.Replicant.context()<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+<% if dataset.instance_dataset? -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nullable final java.lang.Integer datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nullable final java.lang.String datasetKey" : "" %> )
+  {
+    return null == datasetRootId<%= explicit_dataset_key ? " || null == datasetKey" : "" %> ? replicant.AreaOfInterest.Status.NOT_ASKED : findAreaOfInterestStatus( (int) datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus(<%= dataset.instance_dataset? ? " final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %>)
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>);
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    return context.findAreaOfInterestByDatasetAddress( getDatasetAddress(<%= dataset.instance_dataset? ? " datasetRootId " : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %>) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= dataset.instance_dataset? ? ", final int datasetRootId " : "" %><%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= dataset.instance_dataset? ? ", datasetRootId" : "" %><%= explicit_dataset_key ? ", datasetKey" : "" %> );
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
+  }
+<% if canonical_dataset_link -%>
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findAreaOfInterest( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findAreaOfInterest( context, datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findAreaOfInterestStatus( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findAreaOfInterestStatus( context, datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+<% end -%>
+<% end -%>
+<% if dataset.instance_dataset? -%>
+
+  @javax.annotation.Nullable
+  public static <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> findDatasetRoot( final int datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+    return findDatasetRoot( replicant.Replicant.context(), datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+  }
+
+  @javax.annotation.Nullable
+  public static <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> findDatasetRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId<%= explicit_dataset_key ? ", @javax.annotation.Nonnull final java.lang.String datasetKey" : "" %> )
+  {
+<% if dataset.external_visibility? -%>
+    final replicant.AreaOfInterest.Status status = findAreaOfInterestStatus( context, datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+<% end -%>
+    final replicant.Subscription subscription = findSubscription( context, datasetRootId<%= explicit_dataset_key ? ", datasetKey" : "" %> );
+    return null == subscription <% if dataset.external_visibility? -%>|| !status.shouldDataBePresent()<% end -%> ? null : (<%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>) subscription.getDatasetRoot();
+  }
+<% if canonical_dataset_link -%>
+
+  @javax.annotation.Nullable
+  public static <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> findDatasetRoot( final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findDatasetRoot( datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+
+  @javax.annotation.Nullable
+  public static <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %> findDatasetRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int datasetRootId, @javax.annotation.Nonnull final <%= filter_parameter_type %> filterParameter )
+  {
+    return findDatasetRoot( context, datasetRootId, deriveDatasetKey( filterParameter ) );
+  }
+<% end -%>
+<% end -%>
+}

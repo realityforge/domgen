@@ -10,8 +10,8 @@ public abstract class <%= repository.jpa.standalone_entity_test_name %>
   {
     final var modules = new java.util.ArrayList<com.google.inject.Module>();
     java.util.Collections.addAll( modules, super.getModules() );
-<% if repository.imit? && repository.imit.include_standard_integration_test_module? -%>
-    modules.add( new <%= repository.imit.qualified_integration_module_name %>() );
+<% if repository.replicant? && repository.replicant.include_standard_integration_test_module? -%>
+    modules.add( new <%= repository.replicant.qualified_integration_module_name %>() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }

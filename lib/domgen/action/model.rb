@@ -73,12 +73,12 @@ module Domgen
       end
 
       def pre_pre_complete
-        if self.repository.imit?
-          self.repository.imit.graphs.select{|graph|!graph.filter_parameter.nil?}.each do |graph|
-            if graph.filter_parameter.enumeration? && graph.filter_parameter.enumeration.action?
-              graph.filter_parameter.enumeration.action.mark_as_referenced!
-            elsif graph.filter_parameter.struct? && graph.filter_parameter.referenced_struct.action?
-              graph.filter_parameter.referenced_struct.action.mark_as_referenced!
+        if self.repository.replicant?
+          self.repository.replicant.datasets.select(&:parameter_filtered?).each do |dataset|
+            if dataset.filter_parameter.enumeration? && dataset.filter_parameter.enumeration.action?
+              dataset.filter_parameter.enumeration.action.mark_as_referenced!
+            elsif dataset.filter_parameter.struct? && dataset.filter_parameter.referenced_struct.action?
+              dataset.filter_parameter.referenced_struct.action.mark_as_referenced!
             end
           end
         end
@@ -95,7 +95,7 @@ module Domgen
       def post_complete
         self.data_module.services.select { |service| service.action? }.each do |service|
           service.methods.select { |method| method.action? }.each do |method|
-            if !method.imit? && !method.action.generate_serverside_action? && !method.action.schedule? && !method.action.dynamic_invoke? && method.action.application_event.nil?
+            if !method.replicant? && !method.action.generate_serverside_action? && !method.action.schedule? && !method.action.dynamic_invoke? && method.action.application_event.nil?
               Domgen.error("Service method #{method.qualified_name} is an action but is not exposed to the client-side, nor is it a serverside action, nor is it expected to be scheduled and nor is it expected to be dynamically invoked. Disable the action facet.")
             end
           end

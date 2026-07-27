@@ -1,0 +1,176 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_client_router_name) %>;
+
+@java.lang.SuppressWarnings( "unchecked" )
+final class <%= repository.replicant.client_router_name %>
+{
+<%
+  repository.replicant.datasets.reject(&:unfiltered?).each do |dataset|
+    dataset.routing_keys.each do |routing_key|
+-%>
+  private void put_<%= dataset.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nullable final <%= routing_key.target_attribute.replicant.non_primitive_java_type %> value )
+  {
+<% if routing_key.multivalued? -%>
+    ( (java.util.List<Integer>) map.computeIfAbsent( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ) ).add( value );
+<% else -%>
+    map.put( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+<% end -%>
+  }
+
+<%
+      unless routing_key.target_nullsafe?
+        index = 0
+        a = routing_key.replicant_attribute.attribute
+        e = a.reference? ? a.referenced_entity : a.entity
+        is_inverse = routing_key.inverse_start?
+        routing_key.path.each do |path_element|
+          next_is_inverse = routing_key.is_inverse_path_element?(path_element)
+          n = routing_key.get_attribute_name_from_path_element?(path_element)
+          next_attribute =
+            next_is_inverse ?
+            a.entity.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == n.to_s}[0] :
+            e.attribute_by_name(n)
+-%>
+  private void route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).arez.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% if routing_key.is_path_element_recursive?(path_element) -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value );
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
+<% elsif next_is_inverse -%>
+    for( final <%= next_attribute.entity.arez.qualified_name %> v : value.get<%= next_attribute.inverse.multiplicity == :many ? Domgen::Naming.pluralize(next_attribute.inverse.name) : next_attribute.inverse.name %>() )
+    {
+      route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, v );
+    }
+<% else -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+
+<%
+          index = index + 1
+          is_inverse = next_is_inverse
+          a = next_attribute
+          e = a.entity
+        end
+-%>
+  private void route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).arez.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% attr = (is_inverse ? a.entity : a.referenced_entity).attribute_by_name(routing_key.attribute_name) -%>
+    put_<%= dataset.name %>_<%= routing_key.name %>( map, value.<%= getter_for(attr) %> );
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+
+<%
+      end
+    end
+  end
+-%>
+  @javax.annotation.Nonnull
+  java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull final Object replica )
+  {
+  <%
+repository.data_modules.select { |data_module| data_module.replicant? }.each do |data_module|
+  data_module.entities.select { |entity| entity.replicant? && entity.concrete? }.each do |entity|
+-%> if( replica instanceof <%= entity.arez.qualified_name %> )
+    {
+      return route<%= entity.name %>( (<%= entity.arez.qualified_name %>) replica );
+    }
+    else<%
+  end
+end
+-%>
+
+    {
+      return java.util.Collections.emptyMap();
+    }
+  }
+<%
+repository.data_modules.select { |data_module| data_module.replicant? }.each do |data_module|
+  data_module.entities.select { |entity| entity.replicant? && entity.concrete? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.replicant.traversable? && a.referenced_entity.arez?}
+ -%>
+
+  @javax.annotation.Nonnull
+  private java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> replica )
+  {
+    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
+<% entity.replicant.datasets.each do |dataset| -%>
+    _route<%= dataset.name %>_<%= entity.name %>( map, replica );
+<% end -%>
+    return map;
+  }
+<% entity.replicant.datasets.each do |dataset| -%>
+
+  private void _route<%= dataset.name %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> replica )
+  {
+<% unless dataset.unfiltered? -%>
+<%
+  dataset.routing_keys.select{|rk| rk.replicant_attribute.attribute.entity.name == entity.name}.each do |routing_key|
+    initial_attr = routing_key.replicant_attribute.attribute
+    if !routing_key.reference?
+-%>
+    put_<%= dataset.name %>_<%= routing_key.name %>( map, replica<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% elsif routing_key.target_nullsafe?
+    a = initial_attr
+    v = ''
+    path = initial_attr.primary_key? ? ['replica'] : ["replica.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
+      path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
+-%>
+    put_<%= dataset.name %>_<%= routing_key.name %>( map, <%= v %> );
+<% else -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_0( map, replica<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
+    addDatasetRoot( map, <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, replica.<%= getter_for(entity.primary_key) %> );
+<% elsif dataset.instance_dataset? -%>
+<% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
+    {
+      final <%= outgoing_link.replicant.java_type %> v = replica.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        _route<%= dataset.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
+      }
+    }
+<% else -%>
+    _route<%= dataset.name %>_<%= outgoing_link.referenced_entity.name %>( map, replica.<%= getter_for(outgoing_link) %> );
+<% end -%>
+<% end -%>
+<% else -%>
+    map.put( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+<% end -%>
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  private boolean addDatasetRoot( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> map, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
+  {
+    return ( (java.util.List<java.lang.Integer>) map.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
+  }
+}

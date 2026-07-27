@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_server_entity_test_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+public class <%= repository.replicant.server_entity_test_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+    bind( javax.transaction.TransactionSynchronizationRegistry.class ).annotatedWith( replicant.server.runtime.ReplicantSystem.class ).to( javax.transaction.TransactionSynchronizationRegistry.class );
+  }
+}

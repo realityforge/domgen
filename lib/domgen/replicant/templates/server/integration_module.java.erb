@@ -1,0 +1,23 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_integration_module_name) %>;
+
+public final class <%= repository.replicant.integration_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  public static class NoopChangeRecorderImpl
+    implements replicant.server.transport.ReplicantChangeRecorder
+  {
+    @javax.annotation.Nullable
+    @java.lang.Override
+    public replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final java.lang.Object object, final boolean isUpdate )
+    {
+      return null;
+    }
+  }
+
+  @java.lang.Override
+  protected void configure()
+  {
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( NoopChangeRecorderImpl.class ).in( javax.inject.Singleton.class );
+  }
+}

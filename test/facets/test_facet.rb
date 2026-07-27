@@ -21,7 +21,7 @@ class Domgen::Facets::TestFacet < Domgen::TestCase
   def test_basic_operation
     assert_equal false, TestFacetContainer.facet_by_name?(:gwt)
     assert_equal false, TestFacetContainer.facet_by_name?(:gwt_rpc)
-    assert_equal false, TestFacetContainer.facet_by_name?(:imit)
+    assert_equal false, TestFacetContainer.facet_by_name?(:replicant)
 
     TestFacetContainer.target_manager.target(Project, :project)
     TestFacetContainer.target_manager.target(Component,
@@ -33,7 +33,7 @@ class Domgen::Facets::TestFacet < Domgen::TestCase
     facet_gwt = Domgen::Facets::Facet.new(TestFacetContainer, :gwt)
     Domgen::Facets::Facet.new(TestFacetContainer, :gwt_rpc, :required_facets => [:gwt])
 
-    facet_imit = Domgen::Facets::Facet.new(TestFacetContainer, :imit, :suggested_facets => [:gwt_rpc]) do |f|
+    facet_replicant = Domgen::Facets::Facet.new(TestFacetContainer, :replicant, :suggested_facets => [:gwt_rpc]) do |f|
       f.enhance(Project) do
         def name
           "Gwt#{project.name}"
@@ -44,15 +44,15 @@ class Domgen::Facets::TestFacet < Domgen::TestCase
 
     assert_equal true, TestFacetContainer.facet_by_name?(:gwt)
     assert_equal true, TestFacetContainer.facet_by_name?(:gwt_rpc)
-    assert_equal true, TestFacetContainer.facet_by_name?(:imit)
+    assert_equal true, TestFacetContainer.facet_by_name?(:replicant)
 
     assert_equal false, facet_gwt.enhanced?(Project)
     assert_equal false, facet_gwt.enhanced?(Component)
-    assert_equal true, facet_imit.enhanced?(Project)
-    assert_equal true, facet_imit.enhanced?(Component)
+    assert_equal true, facet_replicant.enhanced?(Project)
+    assert_equal true, facet_replicant.enhanced?(Component)
 
     project = Project.new(:MyProject) do |p|
-      p.enable_facets(:imit)
+      p.enable_facets(:replicant)
       p.component(:MyComponent)
     end
     component = project.comps[0]
@@ -63,32 +63,32 @@ class Domgen::Facets::TestFacet < Domgen::TestCase
     assert_equal true, project.gwt_rpc?
     assert_equal false, project.respond_to?(:gwt_rpc)
     assert_equal false, project.respond_to?(:facet_gwt_rpc)
-    assert_equal true, project.imit?
-    assert_equal true, project.respond_to?(:imit)
-    assert_equal true, project.respond_to?(:facet_imit)
-    assert_equal 'GwtMyProject', project.imit.name
-    assert_equal :imit, project.imit.facet_key
-    assert_equal :project, project.imit.target_key
-    assert_equal :imit, project.imit.class.facet_key
-    assert_equal :project, project.imit.class.target_key
+    assert_equal true, project.replicant?
+    assert_equal true, project.respond_to?(:replicant)
+    assert_equal true, project.respond_to?(:facet_replicant)
+    assert_equal 'GwtMyProject', project.replicant.name
+    assert_equal :replicant, project.replicant.facet_key
+    assert_equal :project, project.replicant.target_key
+    assert_equal :replicant, project.replicant.class.facet_key
+    assert_equal :project, project.replicant.class.target_key
 
     # These methods all test that FacetModule has been mixed in.
-    assert_equal 'GwtMyProject', project.facet(:imit).name
-    assert_equal true, project.facet_enabled?(:imit)
+    assert_equal 'GwtMyProject', project.facet(:replicant).name
+    assert_equal true, project.facet_enabled?(:replicant)
 
-    assert_equal [:gwt, :gwt_rpc, :imit], project.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :imit], component.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :replicant], project.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :replicant], component.enabled_facets
 
-    assert_equal :imit, component.imit.facet_key
-    assert_equal :component, component.imit.target_key
-    assert_equal :imit, component.imit.class.facet_key
-    assert_equal :component, component.imit.class.target_key
+    assert_equal :replicant, component.replicant.facet_key
+    assert_equal :component, component.replicant.target_key
+    assert_equal :replicant, component.replicant.class.facet_key
+    assert_equal :component, component.replicant.class.target_key
 
     # Ensure there is a link back to the container using inverse_access_method
-    assert_equal project, project.imit.project
-    assert_equal project, project.imit.parent
-    assert_equal component, component.imit.comp
-    assert_equal component, component.imit.parent
+    assert_equal project, project.replicant.project
+    assert_equal project, project.replicant.parent
+    assert_equal component, component.replicant.comp
+    assert_equal component, component.replicant.parent
   end
 
   class Component2 < Domgen.base_element(:name => true, :container_key => :project, :pre_config_code => 'Domgen::TestCase::TestFacetContainer.target_manager.apply_extension(self)')

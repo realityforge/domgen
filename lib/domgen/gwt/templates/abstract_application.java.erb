@@ -51,7 +51,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void start()
   {
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     prepareReplicant();
 <% end -%>
     setupUncaughtExceptionHandler();
@@ -63,11 +63,11 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.arez? -%>
     initializeArez();
 <% end -%>
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     initializeReplicant();
 <% end -%>
   }
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
 
   protected void initializeReplicant()
   {
@@ -235,7 +235,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     return result.toString();
   }
 
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
   protected final void registerReplicantConnector( @javax.annotation.Nonnull final java.lang.String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
   {
     final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL );

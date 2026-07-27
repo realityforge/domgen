@@ -1,0 +1,38 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_entity_type_constants_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= repository.replicant.entity_type_constants_name %>
+{
+<%
+repository.data_modules.select { |data_module| data_module.replicant? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.replicant? && entity.concrete? -%>
+  /**
+   * The type id of the "<%= entity.name %>" entity.
+   */
+  public static final int <%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %> = <%= entity.replicant.transport_id %>;
+
+  /**
+   * The name of the "<%= entity.name %>" entity.
+   * To ensure these constants are removed in production code, the constants should only be used when
+   * guarded by <code>replicant.Replicant.areNamesEnabled()</code>.
+   */
+  @javax.annotation.Nonnull
+  public static final String <%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %>_NAME = "<%= entity.qualified_name %>";
+
+<% entity.attributes.select{ |attribute| attribute.arez?  }.each do |attribute| -%>
+  @javax.annotation.Nonnull
+  public static final String <%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name) %>_<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>_ATTRIBUTE_KEY = "<%= attribute.name %>";
+<% end -%>
+
+<%
+    end
+  end
+end
+%>
+
+  private <%= repository.replicant.entity_type_constants_name %>()
+  {
+  }
+}

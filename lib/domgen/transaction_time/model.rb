@@ -63,13 +63,13 @@ module Domgen
             self.entity.jpa.remove_update_default(defaults)
           end
         end
-        if self.entity.imit?
-          attributes = self.entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit?}.collect {|a| a.name.to_s}
+        if self.entity.replicant?
+          attributes = self.entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.replicant?}.collect {|a| a.name.to_s}
           if attributes.size > 0
             defaults = {}
             defaults[:CreatedAt] = 'org.realityforge.guiceyloops.shared.ValueUtil.now()' if attributes.include?('CreatedAt')
             defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
-            self.entity.imit.test_create_default(defaults)
+            self.entity.replicant.test_create_default(defaults)
           end
         end
       end

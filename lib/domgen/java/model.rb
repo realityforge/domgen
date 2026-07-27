@@ -341,7 +341,7 @@ module Domgen
       end
     end
 
-    module ImitJavaCharacteristic
+    module ReplicantJavaCharacteristic
       include JavaCharacteristic
 
       protected
@@ -485,7 +485,7 @@ module Domgen
       end
     end
 
-    module ImitJavaPackage
+    module ReplicantJavaPackage
       include ClientServerJavaPackage
 
       protected

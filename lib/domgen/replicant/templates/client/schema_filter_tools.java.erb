@@ -1,0 +1,134 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_schema_filter_tools_name) %>;
+<% entities = repository.data_modules.select { |data_module| data_module.replicant? }.collect{|data_module| data_module.entities.select{|entity| entity.replicant? && entity.concrete?} }.flatten -%>
+
+@java.lang.SuppressWarnings( "JavaDoc" )
+final class <%= repository.replicant.schema_filter_tools_name %>
+{
+  private <%= repository.replicant.schema_filter_tools_name %>()
+  {
+  }
+<%
+  # A mapping between entity and any mutable routing keys defined by that entity
+  entity_routing_keys = {}
+  # A mapping between Entity Type and an Implicitly Filtered Dataset that reevaluates membership after Replica updates.
+  entity_implicit_datasets = {}
+  repository.replicant.datasets.reject(&:unfiltered?).each do |dataset|
+    dataset.routing_keys.select{|routing_key| !routing_key.target_attribute.immutable?}.each do |routing_key|
+      (entity_routing_keys[routing_key.target_attribute.entity] ||= []) << routing_key
+    end
+    if dataset.reevaluate_membership_on_replica_update?
+      dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity|
+        (entity_implicit_datasets[entity] ||= []) << dataset
+      end
+    end
+  end
+-%>
+<% unless entity_routing_keys.empty? -%>
+
+  static void onReplicaUpdateAction( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final Object replica )
+  {
+<% entity_routing_keys.keys.each do |entity| -%>
+    if ( replica instanceof <%= entity.arez.qualified_name %> )
+    {
+      final <%= entity.arez.qualified_name %> $replica = (<%= entity.arez.qualified_name %>) replica;
+<% entity_routing_keys[entity].each do |routing_key| -%>
+      on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( context, replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, $replica<% end %> );
+<% end -%>
+<% (entity_implicit_datasets[entity] || []).each do |dataset| -%>
+      context.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
+<% end -%>
+    }
+<% end -%>
+<% entity_implicit_datasets.keys.select{|e|entity_routing_keys[e].nil?}.each do |entity| -%>
+    if ( replica instanceof <%= entity.arez.qualified_name %> )
+    {
+      final <%= entity.arez.qualified_name %> $replica = (<%= entity.arez.qualified_name %>) replica;
+<% (entity_implicit_datasets[entity]).each do |dataset| -%>
+      context.on<%= dataset.name %><%= entity.name %>ReplicaUpdate( replicantContext, $replica );
+<% end -%>
+    }
+<% end -%>
+  }
+<% entity_routing_keys.values.each do |routing_keys| -%>
+<% routing_keys.each do |routing_key| -%>
+
+  private static void on<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, @javax.annotation.Nonnull final <%= routing_key.target_attribute.entity.arez.qualified_name %> replica<% end %> )
+  {
+    for ( final replicant.Subscription subscription : replicantContext.getInstanceDatasetSubscriptions() )
+    {
+      if ( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(routing_key.dataset.name) %> == subscription.datasetAddress().datasetId() )
+      {
+        for ( final replicant.ReplicaEntry replicaEntry : subscription.findAllReplicaEntriesByType( <%= routing_key.replicant_attribute.attribute.entity.arez.qualified_name %>.class ) )
+        {
+<% if routing_key.dataset.parameter_filtered? -%>
+          final Object filterParameter = subscription.getFilterParameter();
+          assert null != filterParameter;
+<% end -%>
+          if ( context.shouldDelinkOn<%= routing_key.dataset.name %><%= routing_key.name %>RoutingKeyUpdate( <% if routing_key.dataset.parameter_filtered? %>(<%= Domgen::Java.java_type(routing_key.dataset.filter_parameter, :gwt, :default) %>) filterParameter, <% end %>(<%= routing_key.replicant_attribute.attribute.entity.arez.qualified_name %>) replicaEntry.getReplica()<% if routing_key.target_attribute.entity != routing_key.replicant_attribute.attribute.entity %>, replica <% end %> ) )
+          {
+            replicaEntry.delinkFromSubscriptionAfterMembershipChange( subscription );
+          }
+        }
+      }
+    }
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+<% repository.replicant.datasets.select(&:updatable_filter_parameter?).each do |dataset| -%>
+
+  @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
+  static boolean doesReplicaMatch<%= dataset.name %>FilterParameter( @javax.annotation.Nonnull final <%= repository.replicant.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.replicant.qualified_client_router_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter, @javax.annotation.Nonnull final replicant.ReplicaEntry replicaEntry )
+  {
+      final Object replica = replicaEntry.getReplica();
+      assert null != replica;
+<% if dataset.instance_dataset? || (!dataset.unfiltered? && dataset.routing_keys.size > 0) -%>
+      final java.util.Map<java.lang.String, java.io.Serializable> route = router.route( replica );
+<% end -%>
+<%
+  extra_filter_arguments = ''
+  if dataset.instance_dataset?
+    entity = repository.entity_by_name(dataset.dataset_root_entity_type)
+    singular_root_var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    root_var_name = Domgen::Naming.pluralize(singular_root_var_name)
+    extra_filter_arguments = ", #{singular_root_var_name}"
+-%>
+      @javax.annotation.Nonnull
+      @java.lang.SuppressWarnings( "unchecked" )
+      final java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.replicant.non_primitive_java_type %>>) route.get( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME );
+      assert null != <%= root_var_name %>;
+<% end -%>
+<%
+  unless dataset.unfiltered?
+    dataset.routing_keys.each do |routing_key|
+      var_name = Domgen::Naming.camelize(routing_key.name)
+      nullable = !dataset.instance_dataset? || !(routing_key.replicant_attribute.attribute.entity.qualified_name == dataset.dataset_root_entity_type)
+      param_type = routing_key.target_attribute.replicant.non_primitive_java_type
+      param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
+      extra_filter_arguments << ", #{var_name}"
+-%>
+      <%= nullability_annotation(nullable) %>
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+<% if !nullable -%>
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+    end
+  end
+-%>
+<% if dataset.instance_dataset? -%>
+      for( final <%= entity.primary_key.replicant.non_primitive_java_type %> <%= singular_root_var_name %>: <%= root_var_name %> )
+      {
+<% end -%>
+        if( context.does<%= dataset.name %>FilterParameterMatchReplica( filterParameter, replica<%= extra_filter_arguments %> ) )
+        {
+          return true;
+        }
+<% if dataset.instance_dataset? -%>
+      }
+<% end -%>
+      return false;
+  }
+<% end -%>
+}

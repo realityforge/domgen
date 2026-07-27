@@ -1,0 +1,196 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_schema_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode", "SameParameterValue" } )
+@org.junit.runner.RunWith( org.junit.runners.JUnit4.class )
+public final class <%= repository.replicant.schema_test_name %>
+  extends <%= repository.gwt.qualified_client_entity_test_name %>
+{<% repository.replicant.datasets.each do |dataset| -%>
+
+  @org.junit.Test
+  public void <%= Domgen::Naming.camelize(dataset.name) %>Dataset()
+  {
+<% if dataset.instance_dataset? -%>
+    assertInstanceDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name %>.class );
+<% else -%>
+    assertTypeDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+<% end -%>
+    assertDatasetFilterMode( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %> );
+    assertDatasetFilterParameterMode( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %> );
+    assertDatasetKeyed( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.keyed? %> );
+<% if dataset.cacheable? -%>
+    assertCacheableDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+<% else -%>
+    assertNotCacheableDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+<% end -%>
+<% if dataset.external_visibility? -%>
+    assertExternalDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+<% else -%>
+    assertInternalDataset( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
+<% end -%>
+    assertDatasetEntityTypes( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.included_entity_types.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "#{repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name.to_s)}" }.join(', ') %> );
+    assertInwardDatasetLinkCount( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.instance_dataset? ? dataset.inward_dataset_links.size : 0 %> );
+    assertOutwardDatasetLinkCount( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>, <%= dataset.outward_dataset_links.size %> );
+<% if dataset.instance_dataset? -%>
+<% dataset.inward_dataset_links.each do |dataset_link| -%>
+    assertInwardDatasetLink( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
+                             <%= repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.replicant_attribute.attribute.entity.qualified_name.gsub('.','_')) %>,
+                             <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %>,
+<% unless dataset_link.auto? -%>
+                             true,
+<% end -%>
+                             "<%= dataset_link.replicant_attribute.attribute.name %><%= dataset_link.path.nil? ? '' : '.' + [dataset_link.path].flatten.compact.collect{|p|p.to_s}.join(".") %>" );
+<% end -%>
+<% end -%>
+<% dataset.outward_dataset_links.each do |dataset_link| -%>
+    assertOutwardDatasetLink( <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>,
+                              <%= repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.replicant_attribute.attribute.entity.qualified_name.gsub('.','_')) %>,
+                              <%= repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.target_dataset) %>,
+<% unless dataset_link.auto? -%>
+                              true,
+<% end -%>
+                              "<%= dataset_link.replicant_attribute.attribute.name %><%= dataset_link.path.nil? ? '' : '.' + [dataset_link.path].flatten.compact.collect{|p|p.to_s}.join(".") %>" );
+<% end -%>
+  }
+<% end -%>
+  private void assertInstanceDataset( final int datasetId, @javax.annotation.Nonnull final Class<?> rootEntityType )
+  {
+    org.junit.Assert.assertTrue( getDataset( datasetId ).isInstanceDataset() );
+    org.junit.Assert.assertEquals( rootEntityType, getDataset( datasetId ).getDatasetRootEntityType() );
+  }
+
+  private void assertTypeDataset( final int datasetId )
+  {
+    org.junit.Assert.assertTrue( getDataset( datasetId ).isTypeDataset() );
+  }
+
+  private void assertInternalDataset( final int datasetId )
+  {
+    org.junit.Assert.assertFalse( getDataset( datasetId ).isExternal() );
+  }
+
+  private void assertExternalDataset( final int datasetId )
+  {
+    org.junit.Assert.assertTrue( getDataset( datasetId ).isExternal() );
+  }
+
+  private void assertDatasetFilterMode( final int datasetId, @javax.annotation.Nonnull final replicant.Dataset.FilterMode filterMode )
+  {
+    org.junit.Assert.assertEquals( filterMode, getDataset( datasetId ).getFilterMode() );
+  }
+
+  private void assertDatasetFilterParameterMode( final int datasetId, @javax.annotation.Nullable final replicant.Dataset.FilterParameterMode filterParameterMode )
+  {
+    org.junit.Assert.assertEquals( filterParameterMode, getDataset( datasetId ).getFilterParameterMode() );
+  }
+
+  private void assertDatasetKeyed( final int datasetId, final boolean keyed )
+  {
+    org.junit.Assert.assertEquals( keyed, getDataset( datasetId ).isKeyed() );
+  }
+
+  private void assertCacheableDataset( final int datasetId )
+  {
+    org.junit.Assert.assertTrue( getDataset( datasetId ).isCacheable() );
+  }
+
+  private void assertNotCacheableDataset( final int datasetId )
+  {
+    org.junit.Assert.assertFalse( getDataset( datasetId ).isCacheable() );
+  }
+
+  private void assertDatasetEntityTypes( final int datasetId, final int... entityTypeIds )
+  {
+    final replicant.Dataset dataset = getDataset( datasetId );
+    for ( final int entityTypeId : entityTypeIds )
+    {
+      ensureEntityType( dataset, entityTypeId );
+    }
+    org.junit.Assert.assertEquals( "Expected entity type count for dataset " + dataset, entityTypeIds.length, dataset.getEntityTypes().size() );
+  }
+
+  @javax.annotation.Nonnull
+  private replicant.EntityType ensureEntityType( final int datasetId, final int entityTypeId )
+  {
+    return ensureEntityType( getDataset( datasetId ), entityTypeId );
+  }
+
+  @javax.annotation.Nonnull
+  private replicant.EntityType ensureEntityType( @javax.annotation.Nonnull final replicant.Dataset dataset, final int entityTypeId )
+  {
+    final replicant.EntityType entityType = dataset.findEntityTypeById( entityTypeId );
+    org.junit.Assert.assertNotNull( "Expected Entity Type with Id " + entityTypeId + " in dataset " + dataset, entityType );
+    return entityType;
+  }
+
+  @javax.annotation.Nonnull
+  private replicant.Dataset getDataset( final int datasetId )
+  {
+    return schema().getDataset( datasetId );
+  }
+
+  private void assertInwardDatasetLinkCount( final int datasetId, final int count )
+  {
+    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getInwardDatasetLinks( datasetId );
+    final replicant.Dataset dataset = getDataset( datasetId );
+    org.junit.Assert.assertEquals( "Expected datasetLinks to dataset " + dataset + " from other datasets",
+                                    count,
+                                    datasetLinks.size() );
+  }
+
+  private void assertOutwardDatasetLinkCount( final int datasetId, final int count )
+  {
+    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getOutwardDatasetLinks( datasetId );
+    final replicant.Dataset dataset = getDataset( datasetId );
+    org.junit.Assert.assertEquals( "Expected datasetLinks from dataset " + dataset + " to other datasets",
+                                    count,
+                                    datasetLinks.size() );
+  }
+
+  private void assertInwardDatasetLink( final int datasetId, final int entityTypeId, final int sourceDatasetId, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    assertInwardDatasetLink( datasetId, entityTypeId, sourceDatasetId, true, path );
+  }
+
+  private void assertInwardDatasetLink( final int datasetId, final int entityTypeId, final int sourceDatasetId, final boolean automatic, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    final java.util.List<replicant.DatasetLink> datasetLinks = schema().getInwardDatasetLinks( datasetId, entityTypeId );
+
+    final java.util.List<replicant.DatasetLink> matches =
+      datasetLinks
+        .stream()
+        .filter( datasetLink -> datasetLink.getSourceDatasetId() == sourceDatasetId &&
+                      datasetLink.isAutomatic() == automatic &&
+                      java.lang.String.join( ".", datasetLink.getPath() ).equals( java.lang.String.join( ".", path ) ) )
+        .toList();
+    org.junit.Assert.assertEquals( "Expected to match a Dataset Link from Dataset " + sourceDatasetId + " (automatic=" + automatic + ", path=" + java.util.Arrays.asList( path ) + ")" + " but Entity Type only has the inward Dataset Links " + datasetLinks, 1, matches.size() );
+  }
+
+  private void assertOutwardDatasetLink( final int datasetId, final int entityTypeId, final int targetDatasetId, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    assertOutwardDatasetLink( datasetId, entityTypeId, targetDatasetId, true, path );
+  }
+
+  private void assertOutwardDatasetLink( final int datasetId, final int entityTypeId, final int targetDatasetId, final boolean automatic, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    final replicant.Dataset dataset = getDataset( datasetId );
+    final replicant.EntityType entityType = dataset.findEntityTypeById( entityTypeId );
+    org.junit.Assert.assertNotNull( "Unable to locate entity type with id " + entityTypeId + " in dataset " + dataset, entityType );
+    final java.util.List<replicant.DatasetLink> datasetLinks = entityType.getOutwardDatasetLinks( datasetId );
+
+    final java.util.List<replicant.DatasetLink> matches =
+      datasetLinks
+        .stream()
+        .filter( datasetLink -> datasetLink.getTargetDatasetId() == targetDatasetId &&
+                      datasetLink.isAutomatic() == automatic &&
+                      java.lang.String.join( ".", datasetLink.getPath() ).equals( java.lang.String.join( ".", path ) ) )
+        .toList();
+    org.junit.Assert.assertEquals( "Expected to match a Dataset Link to Dataset " + targetDatasetId + " (automatic=" + automatic + ", path=" + java.util.Arrays.asList( path ) + ")" + " but Entity Type only has the outward Dataset Links " + datasetLinks, 1, matches.size() );
+  }
+
+  @javax.annotation.Nonnull
+  private replicant.SystemSchema schema()
+  {
+    return getInjector().getSystemSchema();
+  }
+}

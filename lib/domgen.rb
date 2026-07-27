@@ -119,10 +119,10 @@ require 'domgen/gwt/model'
 require 'domgen/gwt/helper'
 require 'domgen/gwt/generator'
 
-# Imit
-require 'domgen/imit/model'
-require 'domgen/imit/helper'
-require 'domgen/imit/generator'
+# Replicant
+require 'domgen/replicant/model'
+require 'domgen/replicant/helper'
+require 'domgen/replicant/generator'
 
 # Some caching for gwt apps
 require 'domgen/gwt_cache_filter/model'

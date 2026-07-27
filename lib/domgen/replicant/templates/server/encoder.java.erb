@@ -1,0 +1,961 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.replicant.qualified_encoder_name) %>;
+
+<%
+  generate_toDateString = false
+  generate_decodeIntAttribute = false
+  generate_decodeNullableIntAttribute = false
+  generate_decodeTimestampAttribute = false
+  generate_decodeNullableTimestampAttribute = false
+  generate_decodeDateAttribute = false
+  generate_decodeNullableDateAttribute = false
+  generate_decodeStringAttribute = false
+  generate_decodeNullableStringAttribute = false
+  generate_decodeBooleanAttribute = false
+  generate_decodeNullableBooleanAttribute = false
+  generate_deriveSourceDatasetRootIds = false
+  generate_addDatasetRootRouterKey = false
+
+# Collect all Dataset Links that we automatically follow that require construction of a target Filter Parameter.
+auto_follow_dataset_links =
+  data_module.
+    repository.
+    replicant.
+    datasets.
+    select{|g| g.instance_dataset? }.
+    collect{|g| g.inward_dataset_links.select{|dataset_link| dataset_link.auto?} }.
+    flatten.
+    select{|dataset_link| dataset_link.replicant_attribute.attribute.entity.data_module == data_module}.
+    select{|dataset_link| !dataset_link.target_filter_parameter_copied_from_source_filter_parameter?}.
+    select do |dataset_link|
+      target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+      target_dataset.parameter_filtered? && target_dataset.instance_dataset? && data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).instance_dataset?
+    end
+
+target_dataset_key_dataset_links =
+  data_module.
+    repository.
+    replicant.
+    datasets.
+    select{|g| g.instance_dataset? }.
+    collect{|g| g.inward_dataset_links.select{|dataset_link| dataset_link.auto?} }.
+    flatten.
+    select{|dataset_link| dataset_link.replicant_attribute.attribute.entity.data_module == data_module}.
+    select{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter?}
+-%>
+/**
+ * Utility class to map an entity to changes.
+ *
+ * <p>NOTE: This must be in the same package as the entities otherwise you will not be able to access the getters.</p>
+ */
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NoSystemCurrentTimeMillis" } )
+public final class <%= data_module.replicant.encoder_name %>
+{
+<% unless auto_follow_dataset_links.empty? -%>
+  @javax.annotation.Nonnull
+  private static final FilterParameterFactory FILTER_PARAMETER_FACTORY = new <%= data_module.replicant.qualified_encoder_name %>FilterParameterFactoryImpl();
+<% end -%>
+<% unless target_dataset_key_dataset_links.empty? -%>
+  @javax.annotation.Nonnull
+  private static final DatasetKeyFactory DATASET_KEY_FACTORY = new <%= data_module.replicant.qualified_encoder_name %>DatasetKeyFactoryImpl();
+<% end -%>
+<% unless auto_follow_dataset_links.empty? && target_dataset_key_dataset_links.empty? -%>
+
+<% end -%>
+  private <%= data_module.replicant.encoder_name %>()
+  {
+  }
+<% unless auto_follow_dataset_links.empty? -%>
+
+  interface FilterParameterFactory
+  {
+<%
+  auto_follow_dataset_links.each do |dataset_link|
+    target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+    source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+-%>
+    @javax.annotation.Nonnull
+    <%= Domgen::Java.java_type(target_dataset.filter_parameter, :ee, :default) %> deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <% if dataset_link.target_filter_parameter_requires_source_entity? %>@javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues<% end %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %>final int <%= Domgen::Naming.camelize(data_module.repository.entity_by_name(source_dataset.dataset_root_entity_type).primary_key.qualified_name.gsub(/[\.#]/,'')) %><% end %><% if source_dataset.parameter_filtered? && dataset_link.target_filter_parameter_requires_source_filter_parameter? %>, @javax.annotation.Nonnull <%= Domgen::Java.java_type(source_dataset.filter_parameter, :ee, :default) %> sourceDatasetFilterParameter<% end %> );
+<% end -%>
+  }
+<% end -%>
+<% unless target_dataset_key_dataset_links.empty? -%>
+
+  interface DatasetKeyFactory
+  {
+<%
+  target_dataset_key_dataset_links.each do |dataset_link|
+    target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+    source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+-%>
+    @javax.annotation.Nonnull
+    String deriveDatasetKeyForDatasetLinkFrom<%= source_dataset.name %>To<%= target_dataset.name %>( @javax.annotation.Nonnull <%= Domgen::Java.java_type(target_dataset.filter_parameter, :ee, :default) %> targetDatasetFilterParameter );
+<% end -%>
+  }
+<% end -%>
+<% unless auto_follow_dataset_links.empty? -%>
+<%
+  auto_follow_dataset_links.each do |dataset_link|
+    target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+    source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+-%>
+
+  @javax.annotation.Nonnull
+  public static <%= Domgen::Java.java_type(target_dataset.filter_parameter, :ee, :default) %> deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <% if dataset_link.target_filter_parameter_requires_source_entity? %>@javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues<% end %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %>final int <%= Domgen::Naming.camelize(data_module.repository.entity_by_name(source_dataset.dataset_root_entity_type).primary_key.qualified_name.gsub(/[\.#]/,'')) %><% end %><% if source_dataset.parameter_filtered? && dataset_link.target_filter_parameter_requires_source_filter_parameter? %>, @javax.annotation.Nonnull <%= Domgen::Java.java_type(source_dataset.filter_parameter, :ee, :default) %> sourceDatasetFilterParameter<% end %> )
+  {
+    return FILTER_PARAMETER_FACTORY.deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <% if dataset_link.target_filter_parameter_requires_source_entity? %>attributeValues<% end %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %><%= Domgen::Naming.camelize(data_module.repository.entity_by_name(source_dataset.dataset_root_entity_type).primary_key.qualified_name.gsub(/[\.#]/,'')) %><% end %><% if source_dataset.parameter_filtered? && dataset_link.target_filter_parameter_requires_source_filter_parameter? %>, sourceDatasetFilterParameter<% end %> );
+  }
+<% end -%>
+<% end -%>
+<%
+  data_module.repository.replicant.datasets.select{|dataset|dataset.type_dataset?}.each do |dataset|
+     dataset.included_entity_types.collect{|name| data_module.repository.entity_by_name(name)}.each do |entity|
+       next unless data_module == entity.data_module
+       in_single_dataset = 1 == entity.replicant.datasets.size
+       in_instance_dataset = entity.replicant.datasets.any?{|dataset| dataset.instance_dataset?}
+       dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+       has_subscription_dependencies = !dataset_links.empty?
+       dataset_links_that_require_source_filter_parameter = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
+       unfiltered_source_dataset_links_exist = dataset_links.any?{|dataset_link| !data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
+       require_dataset_root_id_column = has_subscription_dependencies || in_instance_dataset
+       entity_ever_in_keyed_dataset = entity.replicant.datasets.any?{|dataset| dataset.keyed?}
+       datasetKeyColumnParameter = dataset.keyed? ? ", @javax.annotation.Nonnull java.lang.String datasetKeyColumnName" : ''
+       any_dataset_links_that_require_source_filter_parameter = !dataset_links_that_require_source_filter_parameter.empty?
+       require_source_filter_parameter = dataset.parameter_filtered? && any_dataset_links_that_require_source_filter_parameter
+       filterParameterName = require_source_filter_parameter ? Domgen::Naming.camelize("#{dataset.name}FilterParameter") : ''
+       filterParameterArg = require_source_filter_parameter ? ", #{filterParameterName}" : any_dataset_links_that_require_source_filter_parameter ? ', null' : ''
+       filterParameter = require_source_filter_parameter ? ", @javax.annotation.#{unfiltered_source_dataset_links_exist ? 'Nullable' : 'Nonnull'} javax.json.JsonObject #{filterParameterName}" : ''
+       if entity.replicant.datasets.any?{|dataset| dataset.type_dataset? && !dataset.unfiltered?}
+-%>
+
+  @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
+  public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>TypeDataset( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= datasetKeyColumnParameter %><%= filterParameter %> )
+    throws java.sql.SQLException
+  {
+    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement<% if require_dataset_root_id_column %>, null<% end %><%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filterParameterArg %> );
+  }
+
+  @java.lang.SuppressWarnings( { "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
+  public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>TypeDataset( @javax.annotation.Nonnull final java.sql.Connection connection, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql<%= datasetKeyColumnParameter %><%= filterParameter %> )
+    throws java.sql.SQLException
+  {
+    try ( var statement = connection.prepareStatement( sql ) )
+    {
+      addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>TypeDataset( changeSet, statement<%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filterParameterArg %> );
+    }
+  }
+<%     end -%>
+<%   end -%>
+<% end -%>
+<% data_module.repository.replicant.datasets.select{|dataset|dataset.instance_dataset?}.each do |dataset|
+  dataset_root_entity_type = data_module.repository.entity_by_name(dataset.dataset_root_entity_type)
+  pk_long_name = dataset_root_entity_type.primary_key.qualified_name.gsub('.','')
+
+  dataset.included_entity_types.collect{|name| data_module.repository.entity_by_name(name)}.each do |entity|
+  next unless data_module == entity.data_module
+    in_single_dataset = 1 == entity.replicant.datasets.size
+    entity_ever_in_keyed_dataset = entity.replicant.datasets.any?{|dataset| dataset.keyed?}
+    datasetKeyColumnParameter = dataset.keyed? ? ', @javax.annotation.Nonnull java.lang.String datasetKeyColumnName' : ''
+
+    dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+    dataset_links_that_require_source_filter_parameter = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
+    unfiltered_source_dataset_links_exist = dataset_links.any?{|dataset_link| !data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
+    parameter_filtered_source_dataset_links_exist = dataset_links.any?{|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
+    any_dataset_links_that_require_source_filter_parameter = !dataset_links_that_require_source_filter_parameter.empty?
+    require_source_filter_parameter = dataset.parameter_filtered? && any_dataset_links_that_require_source_filter_parameter
+    filter_parameter_name = require_source_filter_parameter ? Domgen::Naming.camelize("#{dataset.name}FilterParameter") : ''
+    filter_parameter_arg = require_source_filter_parameter ? ", #{filter_parameter_name}" : parameter_filtered_source_dataset_links_exist && any_dataset_links_that_require_source_filter_parameter ? ', null' : ''
+    filter_parameter = require_source_filter_parameter ? ", @javax.annotation.#{unfiltered_source_dataset_links_exist ? 'Nullable' : 'Nonnull'} javax.json.JsonObject #{filter_parameter_name}" : ''
+
+    candidates = ["#{dataset_root_entity_type.jpa.qualified_name}.#{Domgen::Naming.uppercase_constantize(dataset_root_entity_type.primary_key.name)}_COLUMN_NAME"]
+    dataset.included_entity_types.each do |e|
+      e = data_module.repository.entity_by_name(e)
+      e.attributes.select{|a| a.replicant? && a.reference? && a.referenced_entity == dataset_root_entity_type}.each do |a|
+        candidates += ["#{e.jpa.qualified_name}.#{Domgen::Naming.uppercase_constantize(a.name)}_COLUMN_NAME"]
+      end
+    end
+    type_magic_constant = "@org.intellij.lang.annotations.MagicConstant( stringValues = { #{candidates.sort.join(', ')} } )"
+-%>
+
+  @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
+  public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>InstanceDataset( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, <%= type_magic_constant %> @javax.annotation.Nonnull final java.lang.String <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= datasetKeyColumnParameter %><%= filter_parameter %> )
+    throws java.sql.SQLException
+  {
+    encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><% end %>, statement, <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName<%= entity_ever_in_keyed_dataset ? ", #{dataset.keyed? ? 'datasetKeyColumnName' : 'null'}" : '' %><%= filter_parameter_arg %> );
+  }
+
+  @java.lang.SuppressWarnings( { "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
+  public static void addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>InstanceDataset( @javax.annotation.Nonnull final java.sql.Connection connection, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, <%= type_magic_constant %> @javax.annotation.Nonnull final java.lang.String <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql<%= datasetKeyColumnParameter %><%= filter_parameter %> )
+    throws java.sql.SQLException
+  {
+    try ( var statement = connection.prepareStatement( sql ) )
+    {
+      addUpdateFor<%= entity.name %>In<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %>InstanceDataset( changeSet, <%= Domgen::Naming.camelize(pk_long_name) %>ColumnName, statement<%= dataset.keyed? ? ', datasetKeyColumnName' : '' %><%= require_source_filter_parameter ? ", #{filter_parameter_name}" : '' %> );
+    }
+  }
+<% end -%>
+<% end -%>
+<%
+  data_module.entities.each do |entity|
+    if entity.replicant? && entity.concrete?
+      has_subscription_dependencies = entity.attributes.any?{|a| a.replicant? && !a.replicant.automatic_dataset_links.empty?}
+      any_instance_dataset = entity.replicant.datasets.any?{|dataset| dataset.instance_dataset?}
+      all_instance_datasets = entity.replicant.datasets.all?{|dataset| dataset.instance_dataset?}
+      any_type_dataset = entity.replicant.datasets.any?{|dataset| dataset.type_dataset?}
+      any_keyed_dataset = entity.replicant.datasets.any?{|dataset| dataset.keyed?}
+      all_keyed_datasets = entity.replicant.datasets.all?{|dataset| dataset.keyed?}
+      in_single_dataset = 1 == entity.replicant.datasets.size
+      require_dataset_root_id_column = has_subscription_dependencies || any_instance_dataset
+      datasetKeyColumnParameter = any_keyed_dataset ? ", @javax.annotation.#{all_keyed_datasets ? 'Nonnull' : 'Nullable'} java.lang.String datasetKeyColumnName" : ''
+      datasetId = in_single_dataset ? "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.replicant.datasets[0].name)}" : 'datasetId'
+      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+      parameter_filtered_source_dataset_links = dataset_links.select{|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
+      parameter_filtered_target_dataset_links = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
+      # Pass the source Filter Parameter when a Dataset Link uses it to derive the target Filter Parameter.
+      require_source_filter_parameter = !parameter_filtered_target_dataset_links.empty?
+      all_source_datasets_have_filter_parameter = entity.replicant.datasets.all?{|dataset| dataset.parameter_filtered?}
+
+      source_filter_parameter = require_source_filter_parameter ? ", @javax.annotation.#{all_source_datasets_have_filter_parameter ? 'Nonnull' : 'Nullable'} javax.json.JsonObject sourceDatasetFilterParameter" : ''
+
+      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+      dataset_links.select {|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? }.each do |dataset_link|
+        target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+        source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+-%>
+
+  @javax.annotation.Nonnull
+<% if dataset_link.target_dataset_key_derived_from_target_filter_parameter? -%>
+  public static String deriveDatasetKeyForDatasetLinkFrom<%= source_dataset.name %>To<%= target_dataset.name %>( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_dataset.filter_parameter, :ee, :default) %> targetDatasetFilterParameter )
+  {
+    return DATASET_KEY_FACTORY.deriveDatasetKeyForDatasetLinkFrom<%= source_dataset.name %>To<%= target_dataset.name %>( targetDatasetFilterParameter );
+  }
+<% else -%>
+  public static String deriveDatasetKeyForDatasetLinkFrom<%= dataset_link.source_dataset %>To<%= dataset_link.target_dataset %>( <% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? || dataset_link.target_filter_parameter_requires_source_filter_parameter? %>@javax.annotation.Nonnull final replicant.server.DatasetAddressCandidate <%= "#{Domgen::Naming.camelize(dataset_link.source_dataset)}DatasetAddressCandidate" %><% end %><% if (dataset_link.target_filter_parameter_requires_source_dataset_root_id? || dataset_link.target_filter_parameter_requires_source_filter_parameter?) && dataset_link.target_filter_parameter_requires_source_entity? %>, <% end %><% if dataset_link.target_filter_parameter_requires_source_entity? %>final int <%= "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}" %><% end %> )
+  {
+    return <%= derive_dataset_key(dataset_link, "#{Domgen::Naming.camelize(dataset_link.source_dataset)}DatasetAddressCandidate", "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}") %>;
+  }
+<% end -%>
+<% end -%>
+
+  public static void encode<%= entity.name %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_dataset %>, @java.lang.SuppressWarnings( "SameParameterValue" ) final int datasetId<% end %>, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<% if require_dataset_root_id_column %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= any_type_dataset ? 'Nullable' : 'Nonnull' %> final java.lang.String datasetRootIdColumn<% end %><%= datasetKeyColumnParameter %><%= source_filter_parameter %> )
+    throws java.sql.SQLException
+  {
+<% if all_instance_datasets -%>
+    assert null != datasetRootIdColumn;
+<% end -%>
+<% if all_keyed_datasets -%>
+    assert null != datasetKeyColumnName;
+<% end -%>
+<% unless in_single_dataset -%>
+    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
+<% if any_instance_dataset && !all_instance_datasets -%>
+    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+<% end -%>
+<% if any_keyed_dataset && !all_keyed_datasets -%>
+    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+<% end -%>
+<% end -%>
+    try ( var resultSet = statement.executeQuery() )
+    {
+      encode<%= entity.name %>( changeSet<% unless in_single_dataset %>, datasetId<% end %>, resultSet<% if require_dataset_root_id_column %>, datasetRootIdColumn<% end %><%= any_keyed_dataset ? ', datasetKeyColumnName' : '' %><%= require_source_filter_parameter ? ', sourceDatasetFilterParameter' : '' %> );
+    }
+  }
+
+  private static void encode<%= entity.name %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_dataset %>, final int datasetId<% end %>, @javax.annotation.Nonnull final java.sql.ResultSet resultSet<% if require_dataset_root_id_column %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= any_type_dataset ? 'Nullable' : 'Nonnull' %> final java.lang.String datasetRootIdColumn<% end %><%= datasetKeyColumnParameter %><%= source_filter_parameter %> )
+    throws java.sql.SQLException
+  {
+<% if all_instance_datasets -%>
+    assert null != datasetRootIdColumn;
+<% end -%>
+<% if all_keyed_datasets -%>
+    assert null != datasetKeyColumnName;
+<% end -%>
+<% unless in_single_dataset -%>
+<% if !all_instance_datasets -%>
+    assert <%= entity.replicant.datasets.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %>;
+<% end -%>
+<% if any_instance_dataset && !all_instance_datasets -%>
+    assert ( null == datasetRootIdColumn && !( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetRootIdColumn && ( <%= entity.replicant.datasets.select{|dataset|dataset.instance_dataset?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+<% end -%>
+<% if any_keyed_dataset && !all_keyed_datasets -%>
+    assert ( null == datasetKeyColumnName && !( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) ) || ( null != datasetKeyColumnName && ( <%= entity.replicant.datasets.select{|dataset|dataset.keyed?}.collect{|dataset| "#{data_module.repository.replicant.qualified_subscription_constants_name}.#{Domgen::Naming.uppercase_constantize(dataset.name)} == datasetId"}.join(" || ") %> ) );
+<% end -%>
+<% end -%>
+    while ( resultSet.next() )
+    {
+<% if any_instance_dataset -%>
+      final var datasetRootId = <%= any_type_dataset ? 'null == datasetRootIdColumn ? null : ' : '' %>resultSet.getInt( datasetRootIdColumn );
+<% end -%>
+      final var attributeValues = new java.util.HashMap<String, java.io.Serializable>();
+<% if has_subscription_dependencies -%>
+      final var subscriptionDependencyCandidates = new java.util.HashSet<replicant.server.SubscriptionDependencyCandidate>();
+<% end -%>
+<% entity.attributes.select{|a| a.replicant?}.each do |attribute|
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
+    type_suffix = 'Object'
+    type_suffix = 'Int' if a.integer?
+    type_suffix = 'Int' if a.replicant.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values?
+    type_suffix = 'Long' if a.long? && !attribute.nullable?
+    type_suffix = 'Boolean' if a.boolean?
+    type_suffix = 'Date' if a.date?
+    type_suffix = 'Timestamp' if a.datetime?
+    type_suffix = 'String' if a.text?
+    type_suffix = 'String' if a.replicant.transport_characteristic_type_key == :enumeration && a.enumeration.textual_values?
+    type_suffix = 'Double' if a.real?
+
+    generate_decodeIntAttribute = true if 'Int' == type_suffix && !attribute.nullable?
+    generate_decodeNullableIntAttribute = true if 'Int' == type_suffix && attribute.nullable?
+    generate_decodeStringAttribute = true if 'String' == type_suffix && !attribute.nullable?
+    generate_decodeNullableStringAttribute = true if 'String' == type_suffix && attribute.nullable?
+    generate_decodeBooleanAttribute = true if 'Boolean' == type_suffix && !attribute.nullable?
+    generate_decodeNullableBooleanAttribute = true if 'Boolean' == type_suffix && attribute.nullable?
+    generate_decodeDateAttribute = true if 'Date' == type_suffix && !attribute.nullable?
+    generate_decodeNullableDateAttribute = true if 'Date' == type_suffix && attribute.nullable?
+    generate_decodeTimestampAttribute = true if 'Timestamp' == type_suffix && !attribute.nullable?
+    generate_decodeNullableTimestampAttribute = true if 'Timestamp' == type_suffix && attribute.nullable?
+-%>
+<% if attribute.primary_key? -%>
+      final var entityId = resultSet.getInt( <%= "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %> );
+<% else -%>
+<%
+if [:date, :datetime, :text, :integer, :enumeration, :boolean].include?(attribute.replicant.transport_characteristic_type_key)
+-%>
+      <% unless attribute.replicant.automatic_dataset_links.select{|dataset_link| dataset_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(attribute.name) %>_COLUMN_NAME );
+<%
+else
+  Domgen.error("Unable to convert data type #{attribute.replicant.transport_characteristic_type_key} on #{attribute.qualified_name}")
+end -%>
+<% end -%>
+<% end -%>
+<%
+  dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+if !dataset_links.empty? && in_single_dataset
+  dataset_link = dataset_links[0]
+  source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+-%>
+      final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', sourceDatasetKey' : '' %><% end %> );
+<% end -%>
+<% if any_keyed_dataset -%>
+      final var datasetKey = <% unless all_keyed_datasets %>null == datasetKeyColumnName ? null : <% end -%>resultSet.getString( datasetKeyColumnName );
+<% end -%>
+<% entity.attributes.select{|a| a.replicant?}.each do |attribute|
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
+-%>
+<% attribute.replicant.automatic_dataset_links.each do |dataset_link| -%>
+<% unless in_single_dataset -%>
+      if ( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %> == <%= datasetId %> )
+      {
+<% end -%>
+<%
+  dataset_root_entity_type = dataset_link.path.nil? ? nil : data_module.repository.entity_by_name(data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset).dataset_root_entity_type)
+  targetDatasetRootIdExpression = nil
+  check_column = nil
+  if dataset_root_entity_type
+    targetDatasetRootIdExpression = "datasetLinkTarget#{dataset_root_entity_type.name}DatasetRootId"
+    if attribute.nullable?
+      check_column = "final var #{targetDatasetRootIdExpression} = (java.lang.Integer) resultSet.getObject( \"#{dataset_root_entity_type.name}#{dataset_root_entity_type.primary_key.sql.column_name}\" )"
+    else
+      check_column = "final var #{targetDatasetRootIdExpression} = resultSet.getInt( \"#{dataset_root_entity_type.name}#{dataset_root_entity_type.primary_key.sql.column_name}\" )"
+    end
+  end
+  targetDatasetRootIdExpression = 'entityId' if dataset_root_entity_type.nil? && attribute.primary_key?
+  targetDatasetRootIdExpression = "attribute#{attribute.name}" if dataset_root_entity_type.nil? && !attribute.primary_key?
+-%>
+<% if check_column -%>
+<% unless in_single_dataset %>  <% end %>      <%= check_column %>;
+<% end -%>
+<% source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset) -%>
+<% target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset) -%>
+<% targetFilterParameterVariable = dataset_link.target_filter_parameter_copied_from_source_filter_parameter? || in_single_dataset ? 'sourceDatasetFilterParameter' : Domgen::Naming.camelize("#{target_dataset.name}FilterParameter") -%>
+<%
+  targetFilterParameterTypedVariable =
+    if dataset_link.target_filter_parameter_copied_from_source_filter_parameter?
+      dataset_link.target_dataset_key_derived_from_target_filter_parameter? ? "#{Domgen::Naming.camelize("#{target_dataset.name}FilterParameter")}Typed" : nil
+    else
+      "#{targetFilterParameterVariable}Typed"
+    end
+-%>
+<% if dataset_link.target_filter_parameter_copied_from_source_filter_parameter? -%>
+<% if in_single_dataset -%>
+<% targetFilterParameterVariable = 'sourceDatasetFilterParameter' if in_single_dataset -%>
+<% unless in_single_dataset %>  <% end %>      assert null != <%= targetFilterParameterVariable %>;
+<% else -%>
+<% unless dataset_link.target_filter_parameter_copied_from_source_filter_parameter?-%>
+<% unless in_single_dataset %>  <% end %>      final var <%= targetFilterParameterVariable %> = <% unless in_single_dataset -%>(<%= Domgen::Java.java_type(source_dataset.filter_parameter, :ee, :default) %>) <% end -%>sourceDatasetFilterParameter;
+<% end -%>
+<% unless in_single_dataset %>  <% end %>      assert null != <%= targetFilterParameterVariable %>;
+<% end -%>
+<% if targetFilterParameterTypedVariable -%>
+<% unless in_single_dataset %>  <% end %>      final var <%= targetFilterParameterTypedVariable %> = <%= target_dataset.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( <%= targetFilterParameterVariable %> );
+<% end -%>
+<% else -%>
+<% if target_dataset.parameter_filtered? -%>
+<% unless in_single_dataset %>  <% end %>      final var <%= targetFilterParameterVariable %>Typed = FILTER_PARAMETER_FACTORY.deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <%= dataset_link.target_filter_parameter_requires_source_entity? ? 'attributeValues' : '' %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %>datasetRootId<% end %><% if source_dataset.parameter_filtered? && dataset_link.target_filter_parameter_requires_source_filter_parameter? %>, sourceDatasetFilterParameter<% end %> );
+<% unless in_single_dataset %>  <% end %>      assert null != <%= targetFilterParameterVariable %>Typed;
+<% unless in_single_dataset %>  <% end %>      final var <%= targetFilterParameterVariable %> = <%= target_dataset.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.encode( <%= targetFilterParameterVariable %>Typed );
+<% end -%>
+<% end -%>
+<% if attribute.nullable? -%>
+<% unless in_single_dataset %>  <% end %>      if ( null != <%= targetDatasetRootIdExpression %> )
+<% unless in_single_dataset %>  <% end %>      {
+<% end -%>
+<% if source_dataset.keyed? -%>
+<% unless in_single_dataset %><% if attribute.nullable? %>  <% end %>        assert null != datasetKey;
+<% end -%>
+<% end -%>
+<% unless in_single_dataset %><% if attribute.nullable? %>  <% end %>        final var sourceDatasetAddress = replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %><% if source_dataset.instance_dataset? || source_dataset.keyed? %><%= source_dataset.instance_dataset? ? ', datasetRootId' : ', null' %><%= source_dataset.keyed? ? ', datasetKey' : '' %><% end %> );
+<% end -%>
+<% if attribute.nullable? %>  <% end %><% unless in_single_dataset %>  <% end %>      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( sourceDatasetAddress, <%= target_dataset_address_expression(dataset_link, targetDatasetRootIdExpression, targetFilterParameterVariable, targetFilterParameterTypedVariable) %>, <%= target_dataset.parameter_filtered? ? targetFilterParameterVariable : 'null' -%> ) );
+<% if attribute.nullable? -%>
+<% unless in_single_dataset %>  <% end %>      }
+<% end -%>
+<% unless in_single_dataset -%>
+      }
+<% end -%>
+<% end -%>
+<% end -%>
+      changeSet.merge( new replicant.server.EntityChange( new replicant.server.EntityChangeCandidate( entityId, <%= data_module.repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Domgen::Naming.uppercase_constantize(entity.name) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_subscription_dependencies ? 'subscriptionDependencyCandidates' : 'null' %> ), replicant.server.DatasetAddress.of( <%= datasetId %><%= any_instance_dataset ? ', datasetRootId' : '' %><%= any_keyed_dataset ? ', datasetKey' : '' %> ) ) );
+    }
+  }
+<%
+    end
+  end
+-%>
+
+  @javax.annotation.Nullable
+  public static replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  {
+   <%
+  data_module.entities.each do |entity|
+    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.automatic_dataset_links : [] }.flatten
+    if entity.replicant? && entity.concrete?
+-%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isInitialLoad || !isUpdate || !entity.unmodified() )<% end -%> )
+    {
+<% if 0 == dataset_links.size -%>
+      return new replicant.server.EntityChangeCandidate( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Domgen::Naming.uppercase_constantize(entity.name) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null );
+<% else -%>
+      return convert<%= entity.name %>ToEntityChangeCandidate( entity, isUpdate );
+<% end -%>
+    }
+    else<%
+    end
+end
+%>
+    {
+      return null;
+    }
+  }
+<%
+  data_module.entities.each do |entity|
+    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.automatic_dataset_links : [] }.flatten
+    entity_subscription_dependencies_need_attribute_values = dataset_links.any?{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter? && dataset_link.target_filter_parameter_requires_source_entity?}
+    if entity.replicant? && entity.concrete? && 0 != dataset_links.size
+ -%>
+
+  @javax.annotation.Nonnull
+  private static replicant.server.EntityChangeCandidate convert<%= entity.name %>ToEntityChangeCandidate( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, final boolean isUpdate )
+  {
+    final var routingKeys = route<%= entity.name %>( entity );
+<% if entity_subscription_dependencies_need_attribute_values -%>
+    final var attributeValues = encode<%= entity.name %>( entity );
+<% end -%>
+    return new replicant.server.EntityChangeCandidate( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Domgen::Naming.uppercase_constantize(entity.name) %>, System.currentTimeMillis(), <% if dataset_links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? <% if entity_subscription_dependencies_need_attribute_values -%>attributeValues<% else %>encode<%= entity.name %>( entity )<% end %> : null, <%= dataset_links.size == 0 ? 'null' : "isUpdate#{entity.transaction_time? ? ' && null == entity.getDeletedAt()' : ''} ? encode#{entity.name}SubscriptionDependencyCandidates( entity#{entity_subscription_dependencies_need_attribute_values ? ', attributeValues' : ''}, routingKeys ) : null" %> );
+  }
+
+  @javax.annotation.Nonnull
+  private static java.util.Set<replicant.server.SubscriptionDependencyCandidate> encode<%= entity.name %>SubscriptionDependencyCandidates( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, <% if entity_subscription_dependencies_need_attribute_values -%>@javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, <% end -%>@javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> routingKeys )
+  {
+    final var subscriptionDependencyCandidates = new java.util.HashSet<replicant.server.SubscriptionDependencyCandidate>();
+<%
+  dataset_links.each do |dataset_link|
+    source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
+    target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
+    entityTargetFilterParameterAvailable = target_dataset.parameter_filtered? && !dataset_link.target_filter_parameter_copied_from_source_filter_parameter? && !dataset_link.target_filter_parameter_requires_source_filter_parameter?
+    entityTargetFilterParameterVariable = entityTargetFilterParameterAvailable ? Domgen::Naming.camelize("#{target_dataset.name}FilterParameter") : nil
+    entityTargetFilterParameterTypedVariable = entityTargetFilterParameterAvailable ? "#{entityTargetFilterParameterVariable}Typed" : nil
+    entityTargetFilterParameterArgument = target_dataset.parameter_filtered? ? (entityTargetFilterParameterAvailable ? entityTargetFilterParameterVariable : 'null') : 'null'
+    rentity = dataset_link.replicant_attribute.attribute.primary_key? ? dataset_link.replicant_attribute.attribute.entity : dataset_link.replicant_attribute.attribute.referenced_entity
+    attribute_getter_path = getter_for(dataset_link.replicant_attribute.attribute)
+    getter_path = dataset_link.replicant_attribute.attribute.reference? ? [attribute_getter_path] : []
+    last_getter_nullable = false
+    if dataset_link.path
+      last_getter_nullable = dataset_link.replicant_attribute.attribute.nullable?
+      dataset_link.path.to_s.split.each do |attribute_name_path_element|
+        other = rentity.attribute_by_name(attribute_name_path_element)
+        last_getter_nullable = other.nullable?
+        getter_path << getter_for(other)
+        rentity = other.referenced_entity
+      end
+    end
+    nullcheck_required = dataset_link.replicant_attribute.attribute.nullable? || last_getter_nullable
+-%>
+<% if source_dataset.instance_dataset? -%>
+<% generate_deriveSourceDatasetRootIds = true -%>
+    for ( final var sourceDatasetRootId : deriveSourceDatasetRootIds( routingKeys, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>_NAME ) )
+    {
+<% if target_dataset.keyed? -%>
+      final var sourceDatasetAddressCandidate = replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId );
+<% if entityTargetFilterParameterAvailable -%>
+      final var <%= entityTargetFilterParameterTypedVariable %> = FILTER_PARAMETER_FACTORY.deriveTargetFilterParameterFrom<%= source_dataset.name %>To<%= target_dataset.name %>( <%= dataset_link.target_filter_parameter_requires_source_entity? ? 'attributeValues' : '' %><%= dataset_link.target_filter_parameter_requires_source_entity? && dataset_link.target_filter_parameter_requires_source_dataset_root_id? ? ', ' : '' %><% if dataset_link.target_filter_parameter_requires_source_dataset_root_id? %>sourceDatasetRootId<% end %> );
+      assert null != <%= entityTargetFilterParameterTypedVariable %>;
+      final var <%= entityTargetFilterParameterVariable %> = <%= target_dataset.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.encode( <%= entityTargetFilterParameterTypedVariable %> );
+<% end -%>
+<% if nullcheck_required -%>
+      final var targetDatasetRootId = <% if getter_path.empty? && dataset_link.replicant_attribute.attribute.nullable? -%>null == entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% end %>null == entity.<%= getter_path.join('.') %> ? null : entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %>;
+      if ( null != targetDatasetRootId )
+      {
+        subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( sourceDatasetAddressCandidate, <%= entity_target_dataset_address_expression(dataset_link, 'targetDatasetRootId', 'sourceDatasetAddressCandidate', 'entity', entityTargetFilterParameterTypedVariable) %>, <%= entityTargetFilterParameterArgument -%> ) );
+      }
+<% else -%>
+      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( sourceDatasetAddressCandidate, <%= entity_target_dataset_address_expression(dataset_link, "entity.#{(getter_path + [getter_for(rentity.primary_key)]).join('.')}", 'sourceDatasetAddressCandidate', 'entity', entityTargetFilterParameterTypedVariable) %>, <%= entityTargetFilterParameterArgument -%> ) );
+<% end -%>
+<% else -%>
+<% if nullcheck_required -%>
+      final var targetDatasetRootId = <% if dataset_link.replicant_attribute.attribute.nullable? -%>null == entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% end %><% if dataset_link.replicant_attribute.attribute.nullable? && last_getter_nullable %>|| <% end %><% if last_getter_nullable %>null == entity.<%= getter_path.join('.') %> <% end -%><% if nullcheck_required -%>? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %>;
+      if ( null != targetDatasetRootId )
+      {
+        subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, targetDatasetRootId )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+      }
+<% else -%>
+      subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.<%= source_dataset.keyed? ? 'DatasetAddressTemplate' : 'DatasetAddress' %>.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %>, sourceDatasetRootId ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+<% end -%>
+<% end -%>
+    }
+<% else -%>
+    subscriptionDependencyCandidates.add( new replicant.server.SubscriptionDependencyCandidate( replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> ), replicant.server.DatasetAddress.of( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %>, <% if dataset_link.replicant_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(dataset_link.replicant_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %><%= target_dataset.keyed? ? ', XXX_IMPLEMENT_DATASET_KEY_XXX' : '' %> )<%= target_dataset.parameter_filtered? ? ', null' : '' %> ) );
+<% end -%>
+<% end -%>
+    return subscriptionDependencyCandidates;
+  }
+<%
+    end
+  end
+-%>
+<% data_module.entities.select { |entity| entity.replicant?  }.each do |entity| -%>
+<% if entity.concrete? -%>
+
+  @javax.annotation.Nonnull
+  private static java.util.Map<java.lang.String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+    final var attributes = new java.util.HashMap<String, java.io.Serializable>();
+    encode<%= entity.name %>( entity, attributes );
+    return attributes;
+  }
+<% end -%>
+
+  private static void encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributes )
+  {
+<% if entity.extends
+   other = data_module.entity_by_name(entity.extends) -%>
+    encode<%= other.name %>( entity, attributes );
+<% end -%>
+<% entity.declared_attributes.select{|attribute| attribute.replicant? && !attribute.abstract? }.each do |attribute|
+    key = "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
+    characteristic_type_key = attribute.replicant.transport_characteristic_type_key
+    requires_var = attribute.nullable? && ([:datetime, :date, :enumeration].include?(characteristic_type_key) || attribute.reference?)
+    accessor = "entity.#{getter_for(attribute)}"
+    varname = "$#{attribute.name}"
+    value = requires_var ? varname : accessor
+    transformed_data =
+        if characteristic_type_key == :datetime
+          "#{value}.getTime()"
+        elsif characteristic_type_key == :date
+          generate_toDateString = true
+          "toDateString( #{value} )"
+        elsif attribute.reference?
+          "#{value}.#{getter_for(attribute.referenced_entity.primary_key)}"
+        elsif characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+          "#{value}.name()"
+        elsif characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+          "#{value}.ordinal()"
+        else
+          value
+        end
+-%>
+<% unless attribute.primary_key? -%>
+<% if requires_var -%>
+    final var <%= varname %> = <%= accessor %>;
+<% end -%>
+    attributes.put( <%= key %>, <%= transformed_data != value && attribute.nullable? ? "null == #{varname} ? null : #{transformed_data}" : transformed_data %> );
+<% end -%>
+<% end -%>
+  }
+<% end -%>
+<%
+# dataset => entity
+routes_to_keep = {}
+data_module.repository.data_modules.select { |dm| dm.replicant? }.each do |dm|
+  dm.entities.select { |entity| entity.replicant? && entity.concrete? }.each do |entity|
+    entity.replicant.datasets.each do |dataset|
+      entity.attributes.select {|a| a.reference? &&
+        a.arez? &&
+        a.inverse.traversable? &&
+        a.referenced_entity.arez? &&
+        dataset.instance_dataset? &&
+        a.referenced_entity.replicant.datasets.include?(dataset) &&
+        a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s}}.
+       each do |a|
+        (routes_to_keep[dataset] ||= []) << a.referenced_entity
+      end
+    end
+  end
+end
+ -%>
+<%
+  data_module.entities.select { |entity| entity.replicant? && entity.concrete? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.traversable? && a.referenced_entity.arez?}
+ -%>
+
+  @javax.annotation.Nonnull
+  private static java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+    final var map = new java.util.HashMap<String, java.io.Serializable>();
+<% entity.replicant.datasets.each do |dataset| -%>
+<% if (routes_to_keep[dataset] ||= []).include?(entity) -%>
+    route<%= entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( map, entity );
+<% else -%>
+<% if !dataset.unfiltered? -%>
+<%
+  dataset.routing_keys.select{|rk| rk.replicant_attribute.attribute.entity.name == entity.name}.each do |routing_key|
+    initial_attr = routing_key.replicant_attribute.attribute
+    if !routing_key.reference?
+-%>
+<% if routing_key.multivalued? -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% elsif routing_key.target_nullsafe?
+    a = initial_attr
+    v = ''
+    path = initial_attr.primary_key? ? ['entity'] : ["entity.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
+      path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
+-%>
+<% if routing_key.multivalued? -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% end -%>
+<% else -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif dataset.instance_dataset? -%>
+<% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
+    {
+      final var v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        <%= outgoing_link.referenced_entity.data_module != data_module ? "#{outgoing_link.referenced_entity.data_module.replicant.qualified_encoder_name}." : '' %>route<%= outgoing_link.referenced_entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( map, v );
+      }
+    }
+<% else -%>
+    <%= outgoing_link.referenced_entity.data_module != data_module ? "#{outgoing_link.referenced_entity.data_module.replicant.qualified_encoder_name}." : '' %>route<%= outgoing_link.referenced_entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( map, entity.<%= getter_for(outgoing_link) %> );
+<% end -%>
+<% end -%>
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+<% end -%>
+<% end -%>
+<% end -%>
+    return map;
+  }
+<% entity.replicant.datasets.select{|dataset| (routes_to_keep[dataset] ||= []).include?(entity)}.each do |dataset| -%>
+
+  public static void route<%= entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+<% if !dataset.unfiltered? -%>
+<%
+  dataset.routing_keys.select{|rk| rk.replicant_attribute.attribute.entity.name == entity.name}.each do |routing_key|
+    initial_attr = routing_key.replicant_attribute.attribute
+    if !routing_key.reference?
+-%>
+<% if routing_key.multivalued? -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% elsif routing_key.target_nullsafe?
+    a = initial_attr
+    v = ''
+    path = initial_attr.primary_key? ? ['entity'] : ["entity.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
+      path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
+-%>
+<% if routing_key.multivalued? -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% end -%>
+<% else -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif dataset.instance_dataset? -%>
+<% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
+    {
+      final var v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        <%= outgoing_link.referenced_entity.data_module != data_module ? "#{outgoing_link.referenced_entity.data_module.replicant.qualified_encoder_name}." : '' %>route<%= outgoing_link.referenced_entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( map, v );
+      }
+    }
+<% else -%>
+    <%= outgoing_link.referenced_entity.data_module != data_module ? "#{outgoing_link.referenced_entity.data_module.replicant.qualified_encoder_name}." : '' %>route<%= outgoing_link.referenced_entity.name %>EntityIn<%= dataset.name %><%= dataset.keyed? ? 'Keyed' : '' %><%= dataset.type_dataset? ? 'Type' : 'Instance' %>Dataset( map, entity.<%= getter_for(outgoing_link) %> );
+<% end -%>
+<% end -%>
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+<% end -%>
+  }
+<% end -%>
+<% end -%>
+<%
+  data_module.repository.replicant.datasets.select{|dataset|!dataset.unfiltered?}.each do |dataset|
+    dataset.routing_keys.each do |routing_key|
+      public_route_method = false
+      unless routing_key.target_nullsafe?
+        index = 0
+        a = routing_key.replicant_attribute.attribute
+        e = a.reference? ? a.referenced_entity : a.entity
+        is_inverse = routing_key.inverse_start?
+        routing_key.path.each do |path_element|
+          next_is_inverse = routing_key.is_inverse_path_element?(path_element)
+          n = routing_key.get_attribute_name_from_path_element?(path_element)
+          next_attribute =
+            next_is_inverse ?
+            a.entity.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == n.to_s}[0] :
+            e.attribute_by_name(n)
+          e = is_inverse ? a.entity : a.referenced_entity
+          if e.data_module == data_module
+-%>
+
+  <%= public_route_method ? 'public' : 'private' %> static void route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= e.jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% if routing_key.is_path_element_recursive?(path_element) -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value );
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
+<% elsif next_is_inverse -%>
+    for( final var v : value.get<%= next_attribute.inverse.multiplicity == :many ? Domgen::Naming.pluralize(next_attribute.inverse.name) : next_attribute.inverse.name %>() )
+     {
+      route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, v );
+    }
+<% else -%>
+    route_<%= dataset.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
+<% end -%>
+<% if a.nullable? -%>
+     }
+ <% end -%>
+  }
+<%
+          else
+            public_route_method = true
+          end
+
+          a = next_attribute
+          e = a.entity
+          is_inverse = next_is_inverse
+          index = index + 1
+        end
+        if e.data_module == data_module
+-%>
+
+  <%= public_route_method ? 'public' : 'private' %> static void route_<%= dataset.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% attr = (is_inverse ? a.entity : a.referenced_entity).attribute_by_name(routing_key.attribute_name) -%>
+<% if routing_key.multivalued? -%>
+<% generate_addDatasetRootRouterKey = true -%>
+    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+<% else -%>
+    map.put( <%= data_module.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+<%
+        end
+      end
+    end
+  end
+-%>
+<% if generate_toDateString -%>
+
+  @javax.annotation.Nonnull
+  private static java.lang.String toDateString( @javax.annotation.Nonnull final java.util.Date value )
+  {
+    return new java.util.Date( value.getTime() ).toInstant().atZone( java.time.ZoneId.systemDefault() ).toLocalDate() .toString();
+  }
+<% end -%>
+<% if generate_decodeIntAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static int decodeIntAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final int value = resultSet.getInt( columnLabel );
+    attributeValues.put( key, value );
+    return value;
+  }
+<% end -%>
+<% if generate_decodeNullableIntAttribute -%>
+
+  @java.lang.SuppressWarnings( { "SameParameterValue", "UnusedReturnValue" } )
+  @javax.annotation.Nullable
+  private static Integer decodeNullableIntAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final var value = (Integer) resultSet.getObject( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
+    }
+    return value;
+  }
+<% end -%>
+<% if generate_decodeTimestampAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeTimestampAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    attributeValues.put( key, resultSet.getTimestamp( columnLabel ).getTime() );
+  }
+<% end -%>
+<% if generate_decodeNullableTimestampAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeNullableTimestampAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final var value = resultSet.getTimestamp( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value.getTime() );
+    }
+  }
+<% end -%>
+<% if generate_decodeDateAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeDateAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    attributeValues.put( key, toDateString( resultSet.getDate( columnLabel ) ) );
+  }
+<% end -%>
+<% if generate_decodeNullableDateAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeNullableDateAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final var value = resultSet.getDate( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, toDateString( value ) );
+    }
+  }
+<% end -%>
+<% if generate_decodeStringAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeStringAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    attributeValues.put( key, resultSet.getString( columnLabel ) );
+  }
+<% end -%>
+<% if generate_decodeNullableStringAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeNullableStringAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final var value = resultSet.getString( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
+    }
+  }
+<% end -%>
+<% if generate_decodeBooleanAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeBooleanAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    attributeValues.put( key, resultSet.getBoolean( columnLabel ) );
+  }
+<% end -%>
+<% if generate_decodeNullableBooleanAttribute -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  private static void decodeNullableBooleanAttribute( @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.String columnLabel )
+    throws java.sql.SQLException
+  {
+    final var value = (Boolean) resultSet.getObject( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
+    }
+  }
+<% end -%>
+<% if generate_deriveSourceDatasetRootIds -%>
+
+  @javax.annotation.Nonnull
+  private static java.util.List<java.lang.Integer> deriveSourceDatasetRootIds( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> routingKeys, @javax.annotation.Nonnull final java.lang.String sourceRoutingKey )
+  {
+    @java.lang.SuppressWarnings( "unchecked" )
+    final var sourceDatasetRootIds = (java.util.List<java.lang.Integer>) routingKeys.get( sourceRoutingKey );
+    return null == sourceDatasetRootIds ? java.util.Collections.emptyList() : sourceDatasetRootIds;
+  }
+<% end -%>
+<% if generate_addDatasetRootRouterKey -%>
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  private static void addDatasetRootRouterKey( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> routerKeys, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
+  {
+    ( (java.util.List<java.lang.Integer>) routerKeys.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
+  }
+<% end -%>
+}

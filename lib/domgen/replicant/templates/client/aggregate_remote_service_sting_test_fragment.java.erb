@@ -1,0 +1,10 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_aggregate_remote_service_sting_test_fragment_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@sting.Fragment( includes = {
+<%= repository.replicant.remote_service_sting_fragments.collect{|dm| "  #{dm.replicant.qualified_remote_service_sting_test_fragment_name}.class"}.sort.join(",\n") %>
+}, localOnly = false )
+public interface <%= repository.replicant.aggregate_remote_service_sting_test_fragment_name %>
+{
+}

@@ -64,7 +64,7 @@ module Domgen
       java_artifact :client_entity_test, :test, :client, :gwt, '#{repository.name}EntityClientTest', :sub_package => 'util'
 
       def generate_sync_callbacks?
-        repository.imit?
+        repository.replicant?
       end
 
       # Includes added to the aggregate test fragment
@@ -247,7 +247,7 @@ CONTENT
     end
 
     facet.enhance(StructField) do
-      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Java::ReplicantJavaCharacteristic
 
       def name
         field.name
@@ -261,7 +261,7 @@ CONTENT
     end
 
     facet.enhance(ExceptionParameter) do
-      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Java::ReplicantJavaCharacteristic
 
       def name
         parameter.name

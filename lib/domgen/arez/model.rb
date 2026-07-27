@@ -69,7 +69,7 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::BaseJavaGenerator
-      include Domgen::Java::ImitJavaPackage
+      include Domgen::Java::ReplicantJavaPackage
 
       attr_writer :short_test_code
 
@@ -139,7 +139,7 @@ module Domgen
     end
 
     facet.enhance(QueryParameter) do
-      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Java::ReplicantJavaCharacteristic
 
       def disable_facet_unless_valid
         disable = false
@@ -224,7 +224,7 @@ module Domgen
         attribute.reference? && (@lazy.nil? ? false : @lazy)
       end
 
-      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Java::ReplicantJavaCharacteristic
 
       def pre_complete
         attribute.disable_facet(:arez) if attribute.reference? && !attribute.referenced_entity.arez?
@@ -254,33 +254,33 @@ module Domgen
       end
 
       def multiplicity
-        return self.inverse.multiplicity if [:many, :zero_or_one].include?(self.inverse.multiplicity) || !self.inverse.imit?
+        return self.inverse.multiplicity if [:many, :zero_or_one].include?(self.inverse.multiplicity) || !self.inverse.replicant?
 
-        # If we get here then it is imit enabled. We check whether the other entity is always
-        # part of the same graphs as this entity and if so then we can return false because
+        # If we get here then it is replicant enabled. We check whether the other entity is always
+        # part of the same datasets as this entity and if so then we can return false because
         # we have a :one multiplicity and they are always together on the client. If we potentially
-        # do not have inverse entity because it is not in the same graph then we mark this as zero_or_one
+        # do not have inverse entity because it is not in the same dataset then we mark this as zero_or_one
 
-        other_graphs = self.inverse.attribute.referenced_entity.imit.replication_graphs
-        self_graphs = self.inverse.attribute.entity.imit.replication_graphs
+        other_datasets = self.inverse.attribute.referenced_entity.replicant.datasets
+        self_datasets = self.inverse.attribute.entity.replicant.datasets
 
-        other_graphs.any?{|g|!self_graphs.include?(g)} ? :zero_or_one : :one
+        other_datasets.any?{|dataset|!self_datasets.include?(dataset)} ? :zero_or_one : :one
       end
 
       def nullable?
         return false if :many == self.inverse.multiplicity
         return true if :zero_or_one == self.inverse.multiplicity
-        return false unless self.inverse.imit?
+        return false unless self.inverse.replicant?
 
-        # If we get here then it is imit enabled. We check whether the other entity is always
-        # part of the same graphs as this entity and if so then we can return false because
+        # If we get here then it is replicant enabled. We check whether the other entity is always
+        # part of the same datasets as this entity and if so then we can return false because
         # we a :one multiplicity and they are always together on the client. If we potentially
-        # do not have inverse entity because it is not in the same graph then we mark this as nullable
+        # do not have inverse entity because it is not in the same dataset then we mark this as nullable
 
-        other_graphs = self.inverse.attribute.referenced_entity.imit.replication_graphs
-        self_graphs = self.inverse.attribute.entity.imit.replication_graphs
+        other_datasets = self.inverse.attribute.referenced_entity.replicant.datasets
+        self_datasets = self.inverse.attribute.entity.replicant.datasets
 
-        other_graphs.any?{|g|!self_graphs.include?(g)}
+        other_datasets.any?{|dataset|!self_datasets.include?(dataset)}
       end
     end
   end

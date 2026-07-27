@@ -1,0 +1,70 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dataset.qualified_react4j_area_of_interest_view_name) %>;
+
+@react4j.annotations.View( exportBuilder = true, type = react4j.annotations.View.Type.NO_RENDER )
+abstract class <%= dataset.react4j_area_of_interest_view_name %>
+  extends replicant.react4j.AreaOfInterestView
+{
+<% if dataset.instance_dataset? -%>
+<% unless dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key.replicant.primitive?(:default, :assume_generated => true) -%>
+  @javax.annotation.Nonnull
+<% end -%>
+  @react4j.annotations.Input
+  abstract <%= dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key.replicant.java_type(:default, :assume_generated => true) %> getId();
+
+<% end -%>
+<% if dataset.keyed? -%>
+  @javax.annotation.Nonnull
+  @react4j.annotations.Input
+  abstract java.lang.String datasetKey();
+
+<% end -%>
+<% if dataset.parameter_filtered? -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
+  protected abstract <%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> getFilterParameter();
+
+<% if dataset.updatable_filter_parameter? -%>
+  @react4j.annotations.OnInputChange
+  @arez.annotations.Action( verifyRequired = false )
+  void onFilterParameterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(dataset.filter_parameter, :gwt, :default) %> filterParameter )
+  {
+    updateAreaOfInterestOnFilterParameterChange( filterParameter );
+  }
+
+<% else -%>
+  @java.lang.Override
+  @arez.annotations.Action
+  protected void updateAreaOfInterest()
+  {
+    final replicant.DatasetAddress datasetAddress = getDatasetAddress();
+    final replicant.AreaOfInterest areaOfInterest = getAreaOfInterest();
+    if ( null == areaOfInterest )
+    {
+      final replicant.AreaOfInterest newAreaOfInterest =
+        replicant.Replicant.context().createOrUpdateAreaOfInterest( datasetAddress, getFilterParameter() );
+      newAreaOfInterest.incRefCount();
+      setAreaOfInterest( newAreaOfInterest );
+    }
+<% if dataset.keyed? -%>
+    else if ( !datasetAddress.equals( areaOfInterest.getDatasetAddress() ) )
+    {
+      areaOfInterest.decRefCount();
+      final replicant.AreaOfInterest newAreaOfInterest =
+        replicant.Replicant.context().createOrUpdateAreaOfInterest( datasetAddress, getFilterParameter() );
+      newAreaOfInterest.incRefCount();
+      setAreaOfInterest( newAreaOfInterest );
+    }
+<% end -%>
+  }
+
+<% end -%>
+<% end -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected replicant.DatasetAddress getDatasetAddress()
+  {
+    return new replicant.DatasetAddress( <%= dataset.application.repository.replicant.qualified_system_constants_name %>.SCHEMA_ID, <%= dataset.application.repository.replicant.qualified_subscription_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %><%= dataset.instance_dataset? ? ', getId()' : dataset.keyed? ? ', null' : '' -%><%= dataset.keyed? ? ', datasetKey()' : '' -%> );
+  }
+}

@@ -1,0 +1,15 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.replicant.qualified_remote_service_sting_test_fragment_name) %>;
+
+@java.lang.SuppressWarnings( { "JavaDoc", "unused" } )
+@sting.Fragment
+public interface <%= data_module.replicant.remote_service_sting_test_fragment_name %>
+{<% data_module.replicant.remote_service_implementations.each do |service| -%>
+
+  @javax.annotation.Nonnull
+  default <%= service.replicant.qualified_service_name %> provide<%= service.name %>()
+  {
+    return new <%= service.replicant.qualified_mock_service_name %>();
+  }
+<% end -%>
+}

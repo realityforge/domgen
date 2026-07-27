@@ -228,7 +228,7 @@ module Domgen
           return service.jms? ||
             service.jaxrs? ||
             service.action? ||
-            service.imit? ||
+            service.replicant? ||
             service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } || method.return_value.reference? }
         else
           return @generate_boundary

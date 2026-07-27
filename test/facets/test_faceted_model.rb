@@ -48,7 +48,7 @@ class Domgen::Facets::TestFacetedModel < Domgen::TestCase
     TestFacetContainer.facet(:jpa)
     TestFacetContainer.facet(:gwt)
     TestFacetContainer.facet(:gwt_rpc => [:gwt])
-    TestFacetContainer.facet(:imit => [:gwt_rpc]) do |f|
+    TestFacetContainer.facet(:replicant => [:gwt_rpc]) do |f|
       f.suggested_facets << :jpa
     end
 
@@ -86,95 +86,95 @@ class Domgen::Facets::TestFacetedModel < Domgen::TestCase
     assert_equal [], attribute1.enabled_facets
     assert_equal [], attribute2.enabled_facets
 
-    repository.enable_facet(:imit)
-    assert_facet_error('Facet imit already enabled.') { repository.enable_facet(:imit) }
+    repository.enable_facet(:replicant)
+    assert_facet_error('Facet replicant already enabled.') { repository.enable_facet(:replicant) }
 
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], repository.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit], entity1.enabled_facets
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], entity2.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit], attribute1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit], attribute2.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], repository.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant], entity1.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], entity2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant], attribute1.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant], attribute2.enabled_facets
 
     entity1.disable_facet(:gwt)
 
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], repository.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], repository.enabled_facets
     assert_equal [:jpa], entity1.enabled_facets
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], entity2.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], entity2.enabled_facets
     assert_equal [:jpa], attribute1.enabled_facets
     assert_equal [:jpa], attribute2.enabled_facets
 
     entity1.enable_facet(:json)
 
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], repository.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], repository.enabled_facets
     assert_equal [:jpa, :json], entity1.enabled_facets
-    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :imit], entity2.enabled_facets
+    assert_equal [:json, :gwt, :gwt_rpc, :jpa, :replicant], entity2.enabled_facets
     assert_equal [:jpa, :json], attribute1.enabled_facets
     assert_equal [:jpa, :json], attribute2.enabled_facets
 
     repository.disable_facet(:json)
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit], repository.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant], repository.enabled_facets
     assert_equal [:jpa], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit], entity2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant], entity2.enabled_facets
     assert_equal [:jpa], attribute1.enabled_facets
     assert_equal [:jpa], attribute2.enabled_facets
 
     repository.enable_facets([:json])
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], repository.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], repository.enabled_facets
     assert_equal [:jpa, :json], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], entity2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], entity2.enabled_facets
     assert_equal [:jpa, :json], attribute1.enabled_facets
     assert_equal [:jpa, :json], attribute2.enabled_facets
 
     # No-op as all enabled
     repository.enable_facets([:json])
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], repository.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], repository.enabled_facets
     assert_equal [:jpa, :json], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], entity2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], entity2.enabled_facets
     assert_equal [:jpa, :json], attribute1.enabled_facets
     assert_equal [:jpa, :json], attribute2.enabled_facets
 
     assert_facet_error('Facet json already enabled.') { repository.enable_facets!([:json]) }
 
     # Try using brackets
-    repository.disable_facets([:json, :imit])
-    repository.enable_facets([:imit, :json])
+    repository.disable_facets([:json, :replicant])
+    repository.enable_facets([:replicant, :json])
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], repository.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], entity2.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute1.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], repository.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], entity1.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], entity2.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute1.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute2.enabled_facets
 
     # Try using raw facet list
-    repository.disable_facets(:json, :imit)
-    repository.enable_facets(:imit, :json)
+    repository.disable_facets(:json, :replicant)
+    repository.enable_facets(:replicant, :json)
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], repository.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], entity2.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute1.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], repository.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], entity1.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], entity2.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute1.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute2.enabled_facets
 
     # Try forcing
-    repository.disable_facets(:json, :imit)
-    repository.enable_facets!(:imit, :json)
+    repository.disable_facets(:json, :replicant)
+    repository.enable_facets!(:replicant, :json)
 
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], repository.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], entity1.enabled_facets
-    assert_equal [:gwt, :gwt_rpc, :jpa, :imit, :json], entity2.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute1.enabled_facets
-    assert_equal [:jpa, :gwt, :gwt_rpc, :imit, :json], attribute2.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], repository.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], entity1.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :jpa, :replicant, :json], entity2.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute1.enabled_facets
+    assert_equal [:jpa, :gwt, :gwt_rpc, :replicant, :json], attribute2.enabled_facets
 
     attribute2.disable_facets_not_in(:json)
 
     assert_equal [:json], attribute2.enabled_facets
 
-    attribute1.disable_facets_not_in([:imit])
+    attribute1.disable_facets_not_in([:replicant])
 
-    assert_equal [:gwt, :gwt_rpc, :imit], attribute1.enabled_facets
+    assert_equal [:gwt, :gwt_rpc, :replicant], attribute1.enabled_facets
 
     entity2.disable_facets_not_in([:gwt_rpc, :jpa])
 

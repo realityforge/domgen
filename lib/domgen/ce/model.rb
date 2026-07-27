@@ -20,7 +20,7 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
-      include Domgen::Java::ImitJavaPackage
+      include Domgen::Java::ReplicantJavaPackage
     end
 
     facet.enhance(EnumerationSet) do

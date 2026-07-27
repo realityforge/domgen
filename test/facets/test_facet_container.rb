@@ -68,12 +68,12 @@ class Domgen::Facets::TestFacetContainer < Domgen::TestCase
   def test_dependent_facets
     TestFacetContainer.facet(:gwt)
     TestFacetContainer.facet(:gwt_rpc => [:gwt])
-    TestFacetContainer.facet(:imit => [:gwt_rpc, :jpa])
+    TestFacetContainer.facet(:replicant => [:gwt_rpc, :jpa])
     TestFacetContainer.facet(:ee)
     TestFacetContainer.facet(:jpa => [:ee])
 
     assert_equal [:gwt], TestFacetContainer.dependent_facets(:gwt)
-    assert_equal [:imit, :jpa, :ee, :gwt_rpc, :gwt].sort, TestFacetContainer.dependent_facets(:imit).sort
+    assert_equal [:replicant, :jpa, :ee, :gwt_rpc, :gwt].sort, TestFacetContainer.dependent_facets(:replicant).sort
     assert_equal [:jpa, :ee].sort, TestFacetContainer.dependent_facets(:jpa).sort
   end
 end

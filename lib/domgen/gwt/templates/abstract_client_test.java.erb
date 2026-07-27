@@ -6,7 +6,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
   @javax.annotation.Nonnull
   private final TestTransport _replicantTransport = new TestTransport();
 <% end -%>
@@ -21,7 +21,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   private final java.util.List<java.lang.String> _observerErrors = new java.util.ArrayList<>();
   private boolean _captureObserverErrors;
 <% end -%>
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
   @javax.annotation.Nullable
   private arez.Disposable _connector;
 <% end -%>
@@ -70,11 +70,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     <%= repository.gwt.qualified_value_util_name %>.setNow( new java.util.Date() );
 <% if repository.arez? -%>
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     zemeckis.ZemeckisTestUtil.resetConfig( false );
 <% end -%>
     arez.ArezTestUtil.resetConfig( false );
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
     _replicantTransport.reset();
 <% end -%>
@@ -89,7 +89,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% if repository.arez? -%>
     arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), _replicantTransport );
     pumpAllAsyncActions();
 <% end -%>
@@ -100,7 +100,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   public void postTest()
   {
 <% if repository.arez? -%>
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
     arez.Disposable.dispose( _connector );
     _connector = null;
     zemeckis.ZemeckisTestUtil.resetConfig( true );
@@ -181,7 +181,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   {
     return <%= repository.gwt.qualified_value_util_name %>.randomString( stringLength );
   }
-<% if repository.imit? -%>
+<% if repository.replicant? -%>
 
   @javax.annotation.Nonnull
   protected final TestTransport replicantTransport()
