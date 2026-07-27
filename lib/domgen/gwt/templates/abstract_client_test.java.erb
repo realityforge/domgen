@@ -231,9 +231,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
       return getTransportContext();
     }
 
-    public void onExecResponseMessage( final int requestId, @javax.annotation.Nonnull final Object response )
+    public void onExecResponseChangeSet( final int requestId, @javax.annotation.Nonnull final Object response )
     {
-      onReplicantMessage( replicant.messages.UpdateMessage.create( requestId, null, null, null, null, response ) );
+      onReplicantMessage( replicant.messages.ChangeSetMessage.create( requestId, null, null, null, null, response ) );
     }
 
     public void onReplicantMessage( @javax.annotation.Nonnull final replicant.messages.ServerToClientMessage message )
