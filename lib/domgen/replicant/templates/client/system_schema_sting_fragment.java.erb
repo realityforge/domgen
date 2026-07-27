@@ -36,7 +36,7 @@ public interface <%= repository.replicant.system_schema_sting_fragment_name %>
     return new replicant.SystemSchema( <%= repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
                                        replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
                                        <%= repository.replicant.datasets.any?{|dataset| dataset.reevaluate_membership_on_replica_update? || (!dataset.unfiltered? && dataset.routing_keys.any?{|routing_key| !routing_key.target_attribute.immutable?})} ? "( replicantContext, replica ) -> #{repository.replicant.qualified_system_schema_filter_tools_name}.onReplicaUpdateAction( hooks, replicantContext, replica )": 'null' %>,
-                                       new replicant.Dataset[]{ <%= repository.replicant.datasets_code_spaced.collect{|dataset| dataset.nil? ? "null" : "dataset#{dataset.name}" }.join(', ') %> },
+                                       new replicant.Dataset[]{ <%= repository.replicant.datasets_id_spaced.collect{|dataset| dataset.nil? ? "null" : "dataset#{dataset.name}" }.join(', ') %> },
                                        new replicant.EntityType[]{ <%= entities.collect{|entity| "entityType#{entity.data_module.name}#{entity.name}"}.join(', ') %> } );
   }
 }

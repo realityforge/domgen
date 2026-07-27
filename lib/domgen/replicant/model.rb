@@ -46,9 +46,9 @@ module Domgen
     end
 
     class Dataset < Domgen.ParentedElement(:application)
-      def initialize(application, code, name, options, &block)
+      def initialize(application, id, name, options, &block)
         @name = name
-        @code = code
+        @id = id
         @candidate_entity_types = []
         @required_type_datasets = []
         @dependent_datasets = []
@@ -80,7 +80,7 @@ module Domgen
         "#{application.repository.qualified_name}.Datasets.#{name}"
       end
 
-      attr_reader :code
+      attr_reader :id
 
       def to_s
         "Dataset[#{qualified_name}]"
@@ -896,22 +896,22 @@ module Domgen
         dataset_map.values
       end
 
-      def datasets_code_spaced
+      def datasets_id_spaced
         datasets = self.datasets
-        max_code = datasets.max_by {|dataset| dataset.code}.code
-        code_to_dataset = {}
+        max_id = datasets.max_by {|dataset| dataset.id}.id
+        id_to_dataset = {}
         datasets.each do |dataset|
-          code_to_dataset[dataset.code] = dataset
+          id_to_dataset[dataset.id] = dataset
         end
         result = []
-        (max_code + 1).times do |i|
-          result << code_to_dataset[i]
+        (max_id + 1).times do |i|
+          result << id_to_dataset[i]
         end
         result
       end
 
       def dataset(name, options = {}, &block)
-        Domgen::Replicant::Dataset.new(self, options.delete(:code) || dataset_map.size, name, options, &block)
+        Domgen::Replicant::Dataset.new(self, options.delete(:id) || dataset_map.size, name, options, &block)
       end
 
       def dataset_by_name(name)
@@ -989,13 +989,13 @@ module Domgen
       end
 
       def pre_verify
-        code_to_dataset_map = {}
+        id_to_dataset_map = {}
         repository.replicant.datasets.each do |dataset|
-          (code_to_dataset_map[dataset.code] ||= []) << dataset
+          (id_to_dataset_map[dataset.id] ||= []) << dataset
         end
-        code_to_dataset_map.each do |code, datasets|
+        id_to_dataset_map.each do |id, datasets|
           if datasets.size > 1
-            Domgen.error("Multiple Datasets map to the same code #{code} : #{datasets.collect{|dataset|dataset.name}.inspect}")
+            Domgen.error("Multiple Datasets map to the same id #{id} : #{datasets.collect{|dataset|dataset.name}.inspect}")
           end
         end
         if repository.gwt?
