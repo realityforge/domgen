@@ -203,12 +203,12 @@ module Domgen
         @outward_dataset_links.values
       end
 
-      # Dataset Links from this Dataset to Parameter-Filtered target Datasets that are followed automatically.
+      # Dataset Links from this Dataset to Parameter-Filtered target Datasets.
       # Multiple Dataset Links between the same source and target Datasets must derive the same filter.
-      def parameter_filtered_outward_automatic_dataset_links
+      def parameter_filtered_outward_dataset_links
         processed = []
         result = []
-        self.outward_dataset_links.select{|dataset_link| dataset_link.auto?}.each do |dataset_link|
+        self.outward_dataset_links.each do |dataset_link|
            target_dataset = self.application.dataset_by_name(dataset_link.target_dataset)
            next unless target_dataset.parameter_filtered?
            key = "#{dataset_link.source_dataset}=>#{dataset_link.target_dataset}"
@@ -326,9 +326,9 @@ module Domgen
           entity.attributes.select { |a| a.reference? && a.replicant? }.each do |a|
             referenced_entity = a.referenced_entity
 
-            agls = a.replicant.automatic_dataset_links
+            dataset_links = a.replicant.dataset_links
 
-            next if agls.any? { |dataset_link| dataset_link.source_dataset.to_s == self.name.to_s }
+            next if dataset_links.any? { |dataset_link| dataset_link.source_dataset.to_s == self.name.to_s }
 
             # Unclear on how to handle this next scenario. Assume a subtype is visible?
             next if referenced_entity.abstract?
@@ -394,8 +394,6 @@ module Domgen
         @name = name
         @source_dataset = source_dataset
         @target_dataset = target_dataset
-        @auto = true
-        @always_follow = source_dataset.to_s != target_dataset.to_s
         default_always_follow = false
         @always_follow = default_always_follow
         @exclude_target = nil
@@ -405,10 +403,6 @@ module Domgen
         configred_exclude_target = options[:exclude_target] || options['exclude_target']
         if configred_exclude_target && !replicant_attribute.attribute.entity.data_module.repository.replicant.dataset_by_name(target_dataset).instance_dataset?
           Domgen.error("Dataset Link from '#{self.source_dataset}' to '#{self.target_dataset}' via '#{self.replicant_attribute.attribute.qualified_name}' marked as exclude_target=true but the target Dataset is a Type Dataset.")
-        end
-        configured_auto = options[:auto] || options['auto']
-        if configured_auto
-          Domgen.error("Dataset Link on #{replicant_attribute.attribute.qualified_name} from #{source_dataset} to #{target_dataset} specified auto=true property but this is now the default")
         end
         configured_always_follow = options[:always_follow] || options['always_follow']
         if !configured_always_follow.nil? && (!!configured_always_follow == default_always_follow)
@@ -430,12 +424,6 @@ module Domgen
 
       attr_accessor :path
 
-      attr_writer :auto
-
-      def auto?
-        !!@auto
-      end
-
       # Set this to true if this Dataset Link may require a different selection of a target Dataset that is already
       # required by the source Dataset. Setting this parameter forces collection of routing data and allows a later
       # stage to filter already present Subscription Dependencies.
@@ -447,11 +435,10 @@ module Domgen
 
       attr_writer :exclude_target
 
-      # Should we exclude the target entity from source dataset? Typically done for automatically
-      # traversing datasets but sometimes you may wish to override this.
+      # Should we exclude the target entity from the source Dataset?
       def exclude_target?
         Domgen.error("Invoked exclude_target? on #{self} which is not an Instance Dataset") unless self.replicant_attribute.attribute.entity.data_module.repository.replicant.dataset_by_name(target_dataset).instance_dataset?
-        @exclude_target.nil? ? self.auto? : !!@exclude_target
+        @exclude_target.nil? ? true : !!@exclude_target
       end
 
       attr_writer :target_filter_parameter_copied_from_source_filter_parameter
@@ -495,7 +482,7 @@ module Domgen
       end
 
       def to_s
-        "DatasetLink[#{source_dataset} => #{target_dataset}](auto=#{auto?}, exclude_target=#{@exclude_target.nil? ? self.auto? : !!@exclude_target}, path=#{path.inspect}, name=#{name})"
+        "DatasetLink[#{source_dataset} => #{target_dataset}](exclude_target=#{@exclude_target.nil? ? true : !!@exclude_target}, path=#{path.inspect}, name=#{name})"
       end
 
       def post_verify
@@ -1436,10 +1423,6 @@ module Domgen
         params = options.dup
         name = params.delete(:name) || attribute.qualified_name.gsub('.', '_')
         routing_keys_map["#{dataset}#{name}"] = Domgen::Replicant::RoutingKey.new(self, name, dataset, params)
-      end
-
-      def automatic_dataset_links
-        dataset_links_map.values.select { |dataset_link| dataset_link.auto? }
       end
 
       def dataset_links

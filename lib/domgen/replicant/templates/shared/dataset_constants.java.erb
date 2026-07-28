@@ -54,34 +54,18 @@ DATA
      data += "   * </ul>\n"
    end
 
-   if dataset.outward_dataset_links.select{|dataset_link| dataset_link.auto?}.size > 0
-     data += "   * <p>It links to the following Instance Datasets automatically:</p>\n"
+   if dataset.outward_dataset_links.size > 0
+     data += "   * <p>It links to the following Instance Datasets:</p>\n"
      data += "   * <ul>\n"
-     dataset.outward_dataset_links.select{|dataset_link| dataset_link.auto?}.each do |dataset_link|
+     dataset.outward_dataset_links.each do |dataset_link|
        data += "   *   <li>#{dataset_link.replicant_attribute.attribute.qualified_name} links to the #{dataset_link.target_dataset} Dataset</li>\n"
      end
      data += "   * </ul>\n"
    end
-   if dataset.outward_dataset_links.select{|dataset_link| !dataset_link.auto?}.size > 0
-     data += "   * <p>It links to the following Instance Datasets via code:</p>\n"
+   if dataset.instance_dataset? && dataset.inward_dataset_links.size > 0
+     data += "   * <p>It is linked from the following Instance Datasets:</p>\n"
      data += "   * <ul>\n"
-     dataset.outward_dataset_links.select{|dataset_link| !dataset_link.auto?}.each do |dataset_link|
-       data += "   *   <li>#{dataset_link.replicant_attribute.attribute.qualified_name} links to the #{dataset_link.target_dataset} Dataset</li>\n"
-     end
-     data += "   * </ul>\n"
-   end
-   if dataset.instance_dataset? && dataset.inward_dataset_links.select{|dataset_link| dataset_link.auto?}.size > 0
-     data += "   * <p>It is linked from the following Instance Datasets automatically:</p>\n"
-     data += "   * <ul>\n"
-     dataset.inward_dataset_links.select{|dataset_link| dataset_link.auto?}.each do |dataset_link|
-       data += "   *   <li>#{dataset_link.replicant_attribute.attribute.qualified_name} links from the #{dataset_link.source_dataset} Dataset</li>\n"
-     end
-     data += "   * </ul>\n"
-   end
-   if dataset.instance_dataset? && dataset.inward_dataset_links.select{|dataset_link| !dataset_link.auto?}.size > 0
-     data += "   * <p>It is linked from the following Instance Datasets via code:</p>\n"
-     data += "   * <ul>\n"
-     dataset.inward_dataset_links.select{|dataset_link| !dataset_link.auto?}.each do |dataset_link|
+     dataset.inward_dataset_links.each do |dataset_link|
        data += "   *   <li>#{dataset_link.replicant_attribute.attribute.qualified_name} links from the #{dataset_link.source_dataset} Dataset</li>\n"
      end
      data += "   * </ul>\n"

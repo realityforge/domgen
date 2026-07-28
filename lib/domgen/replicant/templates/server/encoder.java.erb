@@ -16,14 +16,14 @@ package <%= to_package(data_module.replicant.qualified_encoder_name) %>;
   generate_deriveSourceDatasetRootIds = false
   generate_addDatasetRootRoutingKey = false
 
-# Collect all Dataset Links that we automatically follow that require construction of a target Filter Parameter.
-auto_follow_dataset_links =
+# Collect all Dataset Links that require construction of a target Filter Parameter.
+followed_dataset_links =
   data_module.
     repository.
     replicant.
     datasets.
     select{|g| g.instance_dataset? }.
-    collect{|g| g.inward_dataset_links.select{|dataset_link| dataset_link.auto?} }.
+    collect{|g| g.inward_dataset_links }.
     flatten.
     select{|dataset_link| dataset_link.replicant_attribute.attribute.entity.data_module == data_module}.
     select{|dataset_link| !dataset_link.target_filter_parameter_copied_from_source_filter_parameter?}.
@@ -38,7 +38,7 @@ target_dataset_key_dataset_links =
     replicant.
     datasets.
     select{|g| g.instance_dataset? }.
-    collect{|g| g.inward_dataset_links.select{|dataset_link| dataset_link.auto?} }.
+    collect{|g| g.inward_dataset_links }.
     flatten.
     select{|dataset_link| dataset_link.replicant_attribute.attribute.entity.data_module == data_module}.
     select{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter?}
@@ -51,7 +51,7 @@ target_dataset_key_dataset_links =
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NoSystemCurrentTimeMillis" } )
 public final class <%= data_module.replicant.encoder_name %>
 {
-<% unless auto_follow_dataset_links.empty? -%>
+<% unless followed_dataset_links.empty? -%>
   @javax.annotation.Nonnull
   private static final FilterParameterFactory FILTER_PARAMETER_FACTORY = new <%= data_module.replicant.qualified_encoder_name %>FilterParameterFactoryImpl();
 <% end -%>
@@ -59,18 +59,18 @@ public final class <%= data_module.replicant.encoder_name %>
   @javax.annotation.Nonnull
   private static final DatasetKeyFactory DATASET_KEY_FACTORY = new <%= data_module.replicant.qualified_encoder_name %>DatasetKeyFactoryImpl();
 <% end -%>
-<% unless auto_follow_dataset_links.empty? && target_dataset_key_dataset_links.empty? -%>
+<% unless followed_dataset_links.empty? && target_dataset_key_dataset_links.empty? -%>
 
 <% end -%>
   private <%= data_module.replicant.encoder_name %>()
   {
   }
-<% unless auto_follow_dataset_links.empty? -%>
+<% unless followed_dataset_links.empty? -%>
 
   interface FilterParameterFactory
   {
 <%
-  auto_follow_dataset_links.each do |dataset_link|
+  followed_dataset_links.each do |dataset_link|
     target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
     source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
 -%>
@@ -93,9 +93,9 @@ public final class <%= data_module.replicant.encoder_name %>
 <% end -%>
   }
 <% end -%>
-<% unless auto_follow_dataset_links.empty? -%>
+<% unless followed_dataset_links.empty? -%>
 <%
-  auto_follow_dataset_links.each do |dataset_link|
+  followed_dataset_links.each do |dataset_link|
     target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
     source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
 -%>
@@ -113,7 +113,7 @@ public final class <%= data_module.replicant.encoder_name %>
        next unless data_module == entity.data_module
        in_single_dataset = 1 == entity.replicant.datasets.size
        in_instance_dataset = entity.replicant.datasets.any?{|dataset| dataset.instance_dataset?}
-       dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+       dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten
        has_subscription_dependencies = !dataset_links.empty?
        dataset_links_that_require_source_filter_parameter = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
        unfiltered_source_dataset_links_exist = dataset_links.any?{|dataset_link| !data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
@@ -157,7 +157,7 @@ public final class <%= data_module.replicant.encoder_name %>
     entity_ever_in_keyed_dataset = entity.replicant.datasets.any?{|dataset| dataset.keyed?}
     datasetKeyColumnParameter = dataset.keyed? ? ', @javax.annotation.Nonnull java.lang.String datasetKeyColumnName' : ''
 
-    dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+    dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten
     dataset_links_that_require_source_filter_parameter = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
     unfiltered_source_dataset_links_exist = dataset_links.any?{|dataset_link| !data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
     parameter_filtered_source_dataset_links_exist = dataset_links.any?{|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
@@ -198,7 +198,7 @@ public final class <%= data_module.replicant.encoder_name %>
 <%
   data_module.entities.each do |entity|
     if entity.replicant? && entity.concrete?
-      has_subscription_dependencies = entity.attributes.any?{|a| a.replicant? && !a.replicant.automatic_dataset_links.empty?}
+      has_subscription_dependencies = entity.attributes.any?{|a| a.replicant? && !a.replicant.dataset_links.empty?}
       any_instance_dataset = entity.replicant.datasets.any?{|dataset| dataset.instance_dataset?}
       all_instance_datasets = entity.replicant.datasets.all?{|dataset| dataset.instance_dataset?}
       any_type_dataset = entity.replicant.datasets.any?{|dataset| dataset.type_dataset?}
@@ -208,7 +208,7 @@ public final class <%= data_module.replicant.encoder_name %>
       require_dataset_root_id_column = has_subscription_dependencies || any_instance_dataset
       datasetKeyColumnParameter = any_keyed_dataset ? ", @javax.annotation.#{all_keyed_datasets ? 'Nonnull' : 'Nullable'} java.lang.String datasetKeyColumnName" : ''
       datasetId = in_single_dataset ? "#{data_module.repository.replicant.qualified_dataset_constants_name}.#{Domgen::Naming.uppercase_constantize(entity.replicant.datasets[0].name)}" : 'datasetId'
-      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten
       parameter_filtered_source_dataset_links = dataset_links.select{|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset).parameter_filtered?}
       parameter_filtered_target_dataset_links = dataset_links.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}
       # Pass the source Filter Parameter when a Dataset Link uses it to derive the target Filter Parameter.
@@ -217,7 +217,7 @@ public final class <%= data_module.replicant.encoder_name %>
 
       source_filter_parameter = require_source_filter_parameter ? ", @javax.annotation.#{all_source_datasets_have_filter_parameter ? 'Nonnull' : 'Nullable'} javax.json.JsonObject sourceDatasetFilterParameter" : ''
 
-      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+      dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten
       dataset_links.select {|dataset_link| data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? }.each do |dataset_link|
         target_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.target_dataset)
         source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
@@ -320,7 +320,7 @@ public final class <%= data_module.replicant.encoder_name %>
 <%
 if [:date, :datetime, :text, :integer, :enumeration, :boolean].include?(attribute.replicant.transport_characteristic_type_key)
 -%>
-      <% unless attribute.replicant.automatic_dataset_links.select{|dataset_link| dataset_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(attribute.name) %>_COLUMN_NAME );
+      <% unless attribute.replicant.dataset_links.select{|dataset_link| dataset_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(attribute.name) %>_COLUMN_NAME );
 <%
 else
   Domgen.error("Unable to convert data type #{attribute.replicant.transport_characteristic_type_key} on #{attribute.qualified_name}")
@@ -328,7 +328,7 @@ end -%>
 <% end -%>
 <% end -%>
 <%
-  dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten
+  dataset_links = entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten
 if !dataset_links.empty? && in_single_dataset
   dataset_link = dataset_links[0]
   source_dataset = data_module.repository.replicant.dataset_by_name(dataset_link.source_dataset)
@@ -341,7 +341,7 @@ if !dataset_links.empty? && in_single_dataset
 <% entity.attributes.select{|a| a.replicant?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
 -%>
-<% attribute.replicant.automatic_dataset_links.each do |dataset_link| -%>
+<% attribute.replicant.dataset_links.each do |dataset_link| -%>
 <% unless in_single_dataset -%>
       if ( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset_link.source_dataset) %> == <%= datasetId %> )
       {
@@ -427,7 +427,7 @@ if !dataset_links.empty? && in_single_dataset
   {
    <%
   data_module.entities.each do |entity|
-    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.automatic_dataset_links : [] }.flatten
+    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.dataset_links : [] }.flatten
     if entity.replicant? && entity.concrete?
 -%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isSubscriptionCollection || !isUpdate || !entity.unmodified() )<% end -%> )
     {
@@ -447,7 +447,7 @@ end
   }
 <%
   data_module.entities.each do |entity|
-    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.automatic_dataset_links : [] }.flatten
+    dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.dataset_links : [] }.flatten
     entity_subscription_dependencies_need_attribute_values = dataset_links.any?{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter? && dataset_link.target_filter_parameter_requires_source_entity?}
     if entity.replicant? && entity.concrete? && 0 != dataset_links.size
  -%>

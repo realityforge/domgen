@@ -1,13 +1,13 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.replicant.qualified_abstract_replicant_server_adapter_name) %>;
 <%
-# Collect all Dataset Links that we automatically follow
-automatically_followed_dataset_links =
+# Collect all Dataset Links
+followed_dataset_links =
   repository.
     replicant.
     datasets.
     select{|g| g.instance_dataset? }.
-    collect{|g| g.inward_dataset_links.select{|dataset_link| dataset_link.auto?} }.
+    collect{|g| g.inward_dataset_links }.
     flatten.
     select do |dataset_link|
       target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
@@ -15,7 +15,7 @@ automatically_followed_dataset_links =
     end
 
 target_dataset_key_dataset_links =
-  automatically_followed_dataset_links.select{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter?}
+  followed_dataset_links.select{|dataset_link| dataset_link.target_dataset_key_derived_from_target_filter_parameter?}
 -%>
 
 /**
@@ -39,7 +39,7 @@ public abstract class <%= repository.replicant.abstract_replicant_server_adapter
 {
 <%
 entities =
-  automatically_followed_dataset_links.select{|dataset_link| dataset_link.replicant_attribute.attribute.primary_key?}.collect{|dataset_link|repository.entity_by_name(repository.replicant.dataset_by_name(dataset_link.target_dataset).dataset_root_entity_type)}
+  followed_dataset_links.select{|dataset_link| dataset_link.replicant_attribute.attribute.primary_key?}.collect{|dataset_link|repository.entity_by_name(repository.replicant.dataset_by_name(dataset_link.target_dataset).dataset_root_entity_type)}
 
 entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @javax.inject.Inject
@@ -91,12 +91,12 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @java.lang.Override
   public javax.json.JsonObject deriveTargetFilterParameter( @javax.annotation.Nonnull final replicant.server.EntityChangeCandidate entityChangeCandidate, @javax.annotation.Nonnull final replicant.server.DatasetAddress sourceDatasetAddress, @javax.annotation.Nullable final javax.json.JsonObject sourceFilterParameter, @javax.annotation.Nonnull final replicant.server.DatasetAddressCandidate targetDatasetAddressCandidate )
   {
-<% if !automatically_followed_dataset_links.any? -%>
+<% if !followed_dataset_links.any? -%>
     return super.deriveTargetFilterParameter( entityChangeCandidate, sourceDatasetAddress, sourceFilterParameter, targetDatasetAddressCandidate );
 <% else -%>
 <%
   first = true
-  automatically_followed_dataset_links.each do |dataset_link|
+  followed_dataset_links.each do |dataset_link|
     target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
     source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
 -%>
@@ -280,15 +280,15 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @java.lang.Override
   public boolean shouldFollowDatasetLink( @javax.annotation.Nonnull final replicant.server.DatasetAddress sourceDatasetAddress, @javax.annotation.Nullable final javax.json.JsonObject sourceFilterParameter, @javax.annotation.Nonnull final replicant.server.DatasetAddress targetDatasetAddress, @javax.annotation.Nullable final javax.json.JsonObject targetFilterParameter )
   {
-<% if automatically_followed_dataset_links.any? -%>
+<% if followed_dataset_links.any? -%>
     final var sourceDatasetId = sourceDatasetAddress.datasetId();
     final var targetDatasetId = targetDatasetAddress.datasetId();
-<% automatically_followed_dataset_links.each do |dataset_link|
+<% followed_dataset_links.each do |dataset_link|
          target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
          source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
          target_dataset_root_entity_type = repository.entity_by_name(target_dataset.dataset_root_entity_type)
  -%>
-    <%= automatically_followed_dataset_links[0] == dataset_link ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetId && <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetId )
+    <%= followed_dataset_links[0] == dataset_link ? '' : 'else ' %>if ( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(source_dataset.name) %> == sourceDatasetId && <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(target_dataset.name) %> == targetDatasetId )
     {
 <% if dataset_link.replicant_attribute.attribute.primary_key? -%>
 <% if target_dataset.instance_dataset? -%>
@@ -317,7 +317,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 
 <%
 processed = []
-repository.replicant.datasets.select { |dataset| dataset.instance_dataset? }.collect { |dataset| dataset.inward_dataset_links.select { |dataset_link| dataset_link.auto? } }.flatten.each do |dataset_link|
+repository.replicant.datasets.select { |dataset| dataset.instance_dataset? }.collect { |dataset| dataset.inward_dataset_links }.flatten.each do |dataset_link|
   source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
   target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
   next unless target_dataset.parameter_filtered?
@@ -384,11 +384,11 @@ end
   dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity|
   in_single_dataset = 1 == entity.replicant.datasets.size
   in_instance_dataset = entity.replicant.datasets.any?{|dataset| dataset.instance_dataset?}
-  has_dataset_links = entity.attributes.any?{|a| a.replicant? && !a.replicant.automatic_dataset_links.empty?}
+  has_dataset_links = entity.attributes.any?{|a| a.replicant? && !a.replicant.dataset_links.empty?}
   id_key = entity.name.to_s.gsub(/[a-z]/, '')
   require_dataset_root_id_column = has_dataset_links || in_instance_dataset
   add_default_impl =
-    !entity.attributes.filter{|attribute| attribute.replicant?}.any?{|attribute| !attribute.replicant.automatic_dataset_links.filter{|dataset_link| !dataset_link.path.nil? && repository.replicant.dataset_by_name(dataset_link.target_dataset).instance_dataset? && repository.replicant.dataset_by_name(dataset_link.target_dataset).dataset_root_entity_type != dataset.dataset_root_entity_type}.empty?}
+    !entity.attributes.filter{|attribute| attribute.replicant?}.any?{|attribute| !attribute.replicant.dataset_links.filter{|dataset_link| !dataset_link.path.nil? && repository.replicant.dataset_by_name(dataset_link.target_dataset).instance_dataset? && repository.replicant.dataset_by_name(dataset_link.target_dataset).dataset_root_entity_type != dataset.dataset_root_entity_type}.empty?}
   can_customize = !add_default_impl || !dataset.unfiltered? || dataset.keyed?
   datasetKeyColumnParameter = dataset.keyed? ? ', @javax.annotation.Nonnull java.lang.String datasetKeyColumnName' : ''
 
@@ -476,7 +476,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
 
     dataset_links_to_other_entities = false
     entity.attributes.filter{|attribute| attribute.replicant?}.each do |attribute|
-      attribute.replicant.automatic_dataset_links.each do |dataset_link|
+      attribute.replicant.dataset_links.each do |dataset_link|
         source_dataset = repository.replicant.dataset_by_name(dataset_link.source_dataset)
         target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
         if source_dataset == dataset
@@ -501,7 +501,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
        (is_instance || !dataset_root_entity_type_reference.nil?) &&
        !dataset_links_to_other_entities
 
-    any_dataset_links_that_require_source_filter_parameter = !entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.automatic_dataset_links }.flatten.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}.empty?
+    any_dataset_links_that_require_source_filter_parameter = !entity.attributes.select{|a| a.replicant?}.collect{|attribute| attribute.replicant.dataset_links }.flatten.select{|dataset_link| dataset_link.target_filter_parameter_requires_source_filter_parameter?}.empty?
 
     root_id_ref = is_instance ? "#{dataset_root_entity_type.jpa.qualified_name}.#{Domgen::Naming.uppercase_constantize(dataset_root_entity_type.primary_key.name)}_COLUMN_NAME" :
                   dataset_root_entity_type_reference ? "#{dataset_root_entity_type_reference.entity.jpa.qualified_name}.#{Domgen::Naming.uppercase_constantize(dataset_root_entity_type_reference.name)}_COLUMN_NAME" :
@@ -562,7 +562,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
 <%
   source_and_target_both_keyed =
      dataset.keyed? ||
-     dataset.parameter_filtered_outward_automatic_dataset_links.any?{|dataset_link| repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? && dataset_link.target_filter_parameter_requires_source_filter_parameter?}
+     dataset.parameter_filtered_outward_dataset_links.any?{|dataset_link| repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? && dataset_link.target_filter_parameter_requires_source_filter_parameter?}
 -%>
   <%= source_and_target_both_keyed || !dataset.subscribe_private? ? '' : 'private ' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.DatasetAddress> inputDatasetAddresses<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscription_collection_hook? -%>, final boolean callPostHook<% end -%> )
     throws java.sql.SQLException
@@ -624,7 +624,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
 <%
   source_and_target_both_keyed =
      dataset.keyed? ||
-     dataset.parameter_filtered_outward_automatic_dataset_links.any?{|dataset_link| repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? && dataset_link.target_filter_parameter_requires_source_filter_parameter?}
+     dataset.parameter_filtered_outward_dataset_links.any?{|dataset_link| repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? && dataset_link.target_filter_parameter_requires_source_filter_parameter?}
 -%>
   <%= source_and_target_both_keyed ? '' : 'private ' %>void collectSubscriptionDataFor<%= dataset.name %>FilterParameterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.DatasetAddress> inputDatasetAddresses, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject originalFilterParameter, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter )
     throws java.sql.SQLException
@@ -654,7 +654,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
     final var decodedOriginalFilterParameter = <%= dataset.filter_parameter.referenced_struct.action.qualified_json_encoder_name%>.decode( originalFilterParameter );
 <% end -%>
 <%
-  dataset.parameter_filtered_outward_automatic_dataset_links.each do |dataset_link|
+  dataset.parameter_filtered_outward_dataset_links.each do |dataset_link|
      target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
 -%>
 <% # Encoding of entities that come into scope are already updated by the encoding process -%>
@@ -696,11 +696,11 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
     }
   }
 <% end -%>
-<% if repository.replicant.datasets.any?{|dataset| dataset.updatable_filter_parameter? && !dataset.parameter_filtered_outward_automatic_dataset_links.empty?} -%>
+<% if repository.replicant.datasets.any?{|dataset| dataset.updatable_filter_parameter? && !dataset.parameter_filtered_outward_dataset_links.empty?} -%>
 <% repository.replicant.datasets.select(&:updatable_filter_parameter?).each do |dataset|
   root_type = dataset.instance_dataset? ? Domgen::Java.java_type(repository.entity_by_name(dataset.dataset_root_entity_type).primary_key, :ee, :default) : nil
   processed = []
-  dataset.parameter_filtered_outward_automatic_dataset_links.each do |dataset_link|
+  dataset.parameter_filtered_outward_dataset_links.each do |dataset_link|
      target_dataset = repository.replicant.dataset_by_name(dataset_link.target_dataset)
      source_dataset_root_entity_type = repository.entity_by_name(dataset.dataset_root_entity_type)
      parameters_equiv = target_dataset.filter_parameter.equiv?(dataset.filter_parameter)
@@ -709,7 +709,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
   /**
    * Propagate a Filter Parameter change from the <%= dataset.name %> Dataset to referenced <%= target_dataset.name %> Datasets.
    * If an entity comes into scope that would trigger a Dataset Link to <%= target_dataset.name %>, then the encoding of
-   * the EntityChangeCandidate for that entity will automatically manage the addition of the Subscription Dependency. This method
+   * the EntityChangeCandidate for that entity will manage the addition of the Subscription Dependency. This method
    * should detect entities that go out of scope and remove Subscription Dependencies owned by that Entity if they had any.
    *
    * @param session the associated session.
@@ -726,7 +726,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
   /**
    * Propagate a Filter Parameter change from the <%= dataset.name %> Dataset to referenced <%= target_dataset.name %> Datasets.
    * If an entity comes into scope that would trigger a Dataset Link to <%= target_dataset.name %>, then the encoding of
-   * the EntityChangeCandidate for that entity will automatically manage the addition of the Subscription Dependency. This method
+   * the EntityChangeCandidate for that entity will manage the addition of the Subscription Dependency. This method
    * should detect entities that go out of scope and remove Subscription Dependencies owned by that Entity if they had any.
    *
    * @param session the associated session.
