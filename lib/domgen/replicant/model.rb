@@ -104,12 +104,6 @@ module Domgen
 
       attr_writer :cacheable
 
-      def secure?
-        @secure.nil? ? true : !!@secure
-      end
-
-      attr_writer :secure
-
       def visibility=(visibility)
         valid_values = [:external, :internal, :universal]
         Domgen.error("Invalid visibility set on #{qualified_name}. Value: #{visibility}. Valid_values: #{valid_values}") unless valid_values.include?(visibility)
