@@ -1008,18 +1008,18 @@ module Domgen
           Domgen.error('replicant facet enabled but no datasets defined')
         end
 
-        # It seems reasonable to restrict the set of methods that are annotated with replicate to those that are replication
+        # It seems reasonable to restrict the set of methods that are marked as Replication Invocations to those that are replication
         # enabled. Unfortunately, Rose does not configure this explicitly yet, and we have not had time to fix it. When we
-        # fix rose then only add @Replicate when replicant enabled...
+        # fix rose then only add @ReplicationInvocation when replicant enabled...
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
           data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
             service.methods.each do |method|
               if method.service.ejb?
                 if method.ejb.generate_boundary?
-                  method.ejb.boundary_annotations << 'replicant.server.ee.Replicate'
+                  method.ejb.boundary_annotations << 'replicant.server.ee.ReplicationInvocation'
                 end
                 if method.ejb.internal_boundary_service?
-                  method.ejb.internal_boundary_annotations << 'replicant.server.ee.Replicate'
+                  method.ejb.internal_boundary_annotations << 'replicant.server.ee.ReplicationInvocation'
                 end
               end
             end
