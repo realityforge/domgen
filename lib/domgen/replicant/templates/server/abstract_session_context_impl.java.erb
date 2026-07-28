@@ -234,7 +234,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% if dataset.parameter_filtered? -%>
         assert null != filterParameter;
 <% end -%>
-        collectSubscriptionDataFor<%= dataset.name %>( session, changeSet<% if dataset.instance_dataset? %>, datasetAddresses<% end %><% if dataset.parameter_filtered? -%>, filterParameter<% end %>, mode<% if dataset.post_subscribe_collect_hook? -%>, true<% end %> );
+        collectSubscriptionDataFor<%= dataset.name %>( session, changeSet<% if dataset.instance_dataset? %>, datasetAddresses<% end %><% if dataset.parameter_filtered? -%>, filterParameter<% end %>, mode<% if dataset.post_subscription_collection_hook? -%>, true<% end %> );
       }
 <% end -%>
       else
@@ -349,7 +349,7 @@ end
 <% end -%>
 <% repository.replicant.datasets.select{|dataset|dataset.type_dataset?}.each do |dataset| -%>
   @java.lang.SuppressWarnings( "SameParameterValue" )
-  <%= dataset.subscribe_private? ? 'private ' : '' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end %> )
+  <%= dataset.subscribe_private? ? 'private ' : '' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscription_collection_hook? -%>, final boolean callPostHook<% end %> )
     throws java.sql.SQLException
   {
     final var datasetAddress = replicant.server.DatasetAddress.of( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %> );
@@ -368,14 +368,14 @@ end
 <% dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
     collectSubscriptionDataFor<%= entity.qualified_name.gsub('.','') %>In<%= dataset.name %><%= dataset.unfiltered? ? '' : dataset.implicitly_filtered? ? 'ImplicitlyFiltered' : 'ParameterFiltered' %>TypeDataset( changeSet<% if dataset.parameter_filtered? -%>, decodedFilterParameter<% end %> );
 <% end -%>
-<% if dataset.post_subscribe_collect_hook? -%>
+<% if dataset.post_subscription_collection_hook? -%>
     if ( callPostHook )
     {
         postCollectSubscriptionDataFor<%= dataset.name %>( session, changeSet<% if dataset.parameter_filtered? -%>, filterParameter<% end %>, mode );
     }
 <% end -%>
   }
-<% if dataset.post_subscribe_collect_hook? -%>
+<% if dataset.post_subscription_collection_hook? -%>
 
   abstract void postCollectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(dataset.filter_parameter, :ee, :default) %> filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode )
     throws java.sql.SQLException;
@@ -564,7 +564,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
      dataset.keyed? ||
      dataset.parameter_filtered_outward_automatic_dataset_links.any?{|dataset_link| repository.replicant.dataset_by_name(dataset_link.target_dataset).keyed? && dataset_link.target_filter_parameter_requires_source_filter_parameter?}
 -%>
-  <%= source_and_target_both_keyed || !dataset.subscribe_private? ? '' : 'private ' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.DatasetAddress> inputDatasetAddresses<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscribe_collect_hook? -%>, final boolean callPostHook<% end -%> )
+  <%= source_and_target_both_keyed || !dataset.subscribe_private? ? '' : 'private ' %>void collectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.DatasetAddress> inputDatasetAddresses<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final javax.json.JsonObject filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode<% if dataset.post_subscription_collection_hook? -%>, final boolean callPostHook<% end -%> )
     throws java.sql.SQLException
   {
     final var datasetAddresses = new java.util.ArrayList<>( inputDatasetAddresses );
@@ -607,14 +607,14 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
 <% dataset.included_entity_types.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
     collectSubscriptionDataFor<%= entity.qualified_name.gsub('.','') %>In<%= dataset.name %>Dataset( datasetAddresses, changeSet<% if dataset.parameter_filtered? -%>, decodedFilterParameter<% end %> );
 <% end -%>
-<% if dataset.post_subscribe_collect_hook? -%>
+<% if dataset.post_subscription_collection_hook? -%>
     if ( callPostHook )
     {
       postCollectSubscriptionDataFor<%= dataset.name %>( session, changeSet, datasetAddresses<% if dataset.parameter_filtered? -%>, filterParameter<% end %>, mode );
     }
 <% end -%>
   }
-<% if dataset.post_subscribe_collect_hook? -%>
+<% if dataset.post_subscription_collection_hook? -%>
 
   abstract void postCollectSubscriptionDataFor<%= dataset.name %>( @javax.annotation.Nullable final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.DatasetAddress> datasetAddresses<% if dataset.parameter_filtered? -%>, <%= nullability_annotation(dataset.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(dataset.filter_parameter, :ee, :default) %> filterParameter<% end %>, @javax.annotation.Nonnull final replicant.server.transport.SubscriptionMode mode )
     throws java.sql.SQLException;
@@ -817,10 +817,10 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
   @java.lang.Override
   @java.lang.SuppressWarnings( "RedundantIfStatement" )
   @javax.annotation.Nullable
-  protected replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  protected replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isSubscriptionCollection )
   {
 <% repository.data_modules.select { |data_module| data_module.replicant? && data_module.replicant.replicated_entities? }.each do |data_module| -%>
-    final var <%= Domgen::Naming.camelize(data_module.name) %>EntityChangeCandidate = <%= data_module.replicant.qualified_encoder_name %>.convertToEntityChangeCandidate( object, isUpdate, isInitialLoad );
+    final var <%= Domgen::Naming.camelize(data_module.name) %>EntityChangeCandidate = <%= data_module.replicant.qualified_encoder_name %>.convertToEntityChangeCandidate( object, isUpdate, isSubscriptionCollection );
     if( null != <%= Domgen::Naming.camelize(data_module.name) %>EntityChangeCandidate )
     {
       return <%= Domgen::Naming.camelize(data_module.name) %>EntityChangeCandidate;

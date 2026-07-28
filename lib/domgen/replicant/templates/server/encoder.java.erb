@@ -423,13 +423,13 @@ if !dataset_links.empty? && in_single_dataset
 -%>
 
   @javax.annotation.Nullable
-  public static replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  public static replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isSubscriptionCollection )
   {
    <%
   data_module.entities.each do |entity|
     dataset_links = entity.attributes.collect{|a| a.replicant? ? a.replicant.automatic_dataset_links : [] }.flatten
     if entity.replicant? && entity.concrete?
--%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isInitialLoad || !isUpdate || !entity.unmodified() )<% end -%> )
+-%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isSubscriptionCollection || !isUpdate || !entity.unmodified() )<% end -%> )
     {
 <% if 0 == dataset_links.size -%>
       return new replicant.server.EntityChangeCandidate( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.replicant.qualified_entity_type_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Domgen::Naming.uppercase_constantize(entity.name) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null );

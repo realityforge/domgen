@@ -53,7 +53,7 @@ module Domgen
         @required_type_datasets = []
         @dependent_datasets = []
         @dataset_root_entity_type = nil
-        @post_subscribe_collect_hook = false
+        @post_subscription_collection_hook = false
         @subscribe_private = true
         @outward_dataset_links = {}
         @inward_dataset_links = {}
@@ -86,11 +86,11 @@ module Domgen
         "Dataset[#{qualified_name}]"
       end
 
-      def post_subscribe_collect_hook?
-        !!@post_subscribe_collect_hook
+      def post_subscription_collection_hook?
+        !!@post_subscription_collection_hook
       end
 
-      attr_writer :post_subscribe_collect_hook
+      attr_writer :post_subscription_collection_hook
 
       def subscribe_private?
         !!@subscribe_private
@@ -303,8 +303,8 @@ module Domgen
         if cacheable? && (!unfiltered? || instance_dataset?)
           Domgen.error("Dataset #{self.name} can not be marked as cacheable as cacheable Datasets are not supported for Instance Datasets or filtered Datasets")
         end
-        if cacheable? && post_subscribe_collect_hook?
-          Domgen.error("Dataset #{self.name} can not be marked as cacheable when it has a post-subscribe collect hook because the hook may produce subscriber-specific results")
+        if cacheable? && post_subscription_collection_hook?
+          Domgen.error("Dataset #{self.name} can not be marked as cacheable when it has a post-Subscription Collection hook because the hook may produce subscriber-specific results")
         end
         if self.instance_dataset?
           dataset_root_entity_type = self.application.repository.entity_by_name(self.dataset_root_entity_type)
