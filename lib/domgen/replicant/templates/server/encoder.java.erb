@@ -14,7 +14,7 @@ package <%= to_package(data_module.replicant.qualified_encoder_name) %>;
   generate_decodeBooleanAttribute = false
   generate_decodeNullableBooleanAttribute = false
   generate_deriveSourceDatasetRootIds = false
-  generate_addDatasetRootRouterKey = false
+  generate_addDatasetRootRoutingKey = false
 
 # Collect all Dataset Links that we automatically follow that require construction of a target Filter Parameter.
 auto_follow_dataset_links =
@@ -621,8 +621,8 @@ end
     if !routing_key.reference?
 -%>
 <% if routing_key.multivalued? -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% else -%>
     map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% end -%>
@@ -642,8 +642,8 @@ end
     v = "#{v}#{path.join('.')}"
 -%>
 <% if routing_key.multivalued? -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% else -%>
     map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% end -%>
@@ -653,8 +653,8 @@ end
 <% end -%>
 <% end -%>
 <% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif dataset.instance_dataset? -%>
 <% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -687,8 +687,8 @@ end
     if !routing_key.reference?
 -%>
 <% if routing_key.multivalued? -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% else -%>
     map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
 <% end -%>
@@ -708,8 +708,8 @@ end
     v = "#{v}#{path.join('.')}"
 -%>
 <% if routing_key.multivalued? -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% else -%>
     map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% end -%>
@@ -719,8 +719,8 @@ end
 <% end -%>
 <% end -%>
 <% if dataset.instance_dataset? && dataset.dataset_root_entity_type.to_s == entity.qualified_name.to_s -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif dataset.instance_dataset? -%>
 <% outgoing_links.select{|a| a.referenced_entity.replicant.datasets.include?(dataset) && a.replicant.dataset_links.all?{|g| g.always_follow? || g.source_dataset.to_s != dataset.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -803,8 +803,8 @@ end
 <% end -%>
 <% attr = (is_inverse ? a.entity : a.referenced_entity).attribute_by_name(routing_key.attribute_name) -%>
 <% if routing_key.multivalued? -%>
-<% generate_addDatasetRootRouterKey = true -%>
-    addDatasetRootRouterKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+<% generate_addDatasetRootRoutingKey = true -%>
+    addDatasetRootRoutingKey( map, <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
 <% else -%>
     map.put( <%= data_module.repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
 <% end -%>
@@ -950,12 +950,12 @@ end
     return null == sourceDatasetRootIds ? java.util.Collections.emptyList() : sourceDatasetRootIds;
   }
 <% end -%>
-<% if generate_addDatasetRootRouterKey -%>
+<% if generate_addDatasetRootRoutingKey -%>
 
   @java.lang.SuppressWarnings( "unchecked" )
-  private static void addDatasetRootRouterKey( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> routerKeys, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
+  private static void addDatasetRootRoutingKey( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> routingKeys, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
   {
-    ( (java.util.List<java.lang.Integer>) routerKeys.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
+    ( (java.util.List<java.lang.Integer>) routingKeys.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
   }
 <% end -%>
 }
