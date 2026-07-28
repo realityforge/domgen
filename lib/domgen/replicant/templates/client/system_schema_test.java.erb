@@ -109,8 +109,8 @@ public final class <%= repository.replicant.system_schema_test_name %>
   @javax.annotation.Nonnull
   private replicant.EntityType ensureEntityType( @javax.annotation.Nonnull final replicant.Dataset dataset, final int entityTypeId )
   {
-    final replicant.EntityType entityType = dataset.findEntityTypeById( entityTypeId );
-    org.junit.Assert.assertNotNull( "Expected Entity Type with Id " + entityTypeId + " in dataset " + dataset, entityType );
+    final replicant.EntityType entityType = dataset.findEntityTypeByEntityTypeId( entityTypeId );
+    org.junit.Assert.assertNotNull( "Expected Entity Type with Entity Type ID " + entityTypeId + " in Dataset " + dataset, entityType );
     return entityType;
   }
 
@@ -165,7 +165,7 @@ public final class <%= repository.replicant.system_schema_test_name %>
   private void assertOutwardDatasetLink( final int datasetId, final int entityTypeId, final int targetDatasetId, final boolean automatic, @javax.annotation.Nonnull final java.lang.String... path )
   {
     final replicant.Dataset dataset = getDataset( datasetId );
-    final replicant.EntityType entityType = dataset.findEntityTypeById( entityTypeId );
+    final replicant.EntityType entityType = dataset.findEntityTypeByEntityTypeId( entityTypeId );
     org.junit.Assert.assertNotNull( "Unable to locate entity type with id " + entityTypeId + " in dataset " + dataset, entityType );
     final java.util.List<replicant.DatasetLink> datasetLinks = entityType.getOutwardDatasetLinks( datasetId );
 
