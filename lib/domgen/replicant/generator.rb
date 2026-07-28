@@ -113,8 +113,8 @@ Domgen::Generator.define([:replicant, :jpa],
 
   g.template_set(:replicant_server_service) do |template_set|
     template_set.erb_template(:repository,
-                              'abstract_session_context_impl.java.erb',
-                              'main/java/#{repository.replicant.qualified_abstract_session_context_impl_name.gsub(".","/")}.java')
+                              'abstract_replicant_server_adapter.java.erb',
+                              'main/java/#{repository.replicant.qualified_abstract_replicant_server_adapter_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'system_schema.java.erb',
                               'main/java/#{repository.replicant.qualified_system_schema_name.gsub(".","/")}.java')

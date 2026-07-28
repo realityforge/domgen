@@ -9,7 +9,7 @@ public class <%= repository.replicant.server_net_module_name %>
   protected void configure()
   {
     bindReplicantResources();
-    bindSessionContext();
+    bindReplicantServerAdapter();
     bindSessionManger();
     bindReplicantMessageBroker();
   }
@@ -24,11 +24,11 @@ public class <%= repository.replicant.server_net_module_name %>
     bind( replicant.server.ee.ReplicantResources.class ).in( javax.inject.Singleton.class );
   }
 
-  protected void bindSessionContext()
+  protected void bindReplicantServerAdapter()
   {
-    bind( <%= repository.replicant.qualified_session_context_impl_name %>.class ).in( javax.inject.Singleton.class );
-    bind( replicant.server.transport.ReplicantSessionContext.class ).to( <%= repository.replicant.qualified_session_context_impl_name %>.class );
-    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( <%= repository.replicant.qualified_session_context_impl_name %>.class );
+    bind( <%= repository.replicant.qualified_replicant_server_adapter_name %>.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.transport.ReplicantServerAdapter.class ).to( <%= repository.replicant.qualified_replicant_server_adapter_name %>.class );
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( <%= repository.replicant.qualified_replicant_server_adapter_name %>.class );
   }
 
   protected void bindSessionManger()

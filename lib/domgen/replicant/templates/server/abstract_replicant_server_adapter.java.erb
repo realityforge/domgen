@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.replicant.qualified_abstract_session_context_impl_name) %>;
+package <%= to_package(repository.replicant.qualified_abstract_replicant_server_adapter_name) %>;
 <%
 # Collect all Dataset Links that we automatically follow
 automatically_followed_dataset_links =
@@ -24,18 +24,18 @@ target_dataset_key_dataset_links =
  * <pre>{@code
    @ApplicationScoped
    @Transactional
-   @Typed( replicant.server.transport.ReplicantSessionContext.class )
-   class <%= repository.replicant.session_context_impl_name %>
-     extends <%= repository.replicant.abstract_session_context_impl_name %>
+   @Typed( replicant.server.transport.ReplicantServerAdapter.class )
+   class <%= repository.replicant.replicant_server_adapter_name %>
+     extends <%= repository.replicant.abstract_replicant_server_adapter_name %>
    {
    ...
    }
   }</pre>
  */
 @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "NoSystemCurrentTimeMillis" } )
-public abstract class <%= repository.replicant.abstract_session_context_impl_name %>
-  extends replicant.server.ee.AbstractSessionContextImpl
-  implements replicant.server.transport.ReplicantSessionContext
+public abstract class <%= repository.replicant.abstract_replicant_server_adapter_name %>
+  extends replicant.server.ee.AbstractReplicantServerAdapter
+  implements replicant.server.transport.ReplicantServerAdapter
 {
 <%
 entities =
