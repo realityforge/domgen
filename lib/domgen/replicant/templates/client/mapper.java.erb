@@ -17,32 +17,32 @@ public final class <%= data_module.replicant.mapper_name %>
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Domgen::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
+  public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Domgen::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangePayload payload )
   {
 <% entity.attributes.select{|attribute| attribute.replicant? && !attribute.primary_key?}.each do |attribute|
     key = "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.replicant.transport_characteristic_type_key == :date
-          "#{data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
+          "#{data_module.repository.gwt.qualified_rdate_name}.parse( payload.getStringValue( #{key} ) )"
         elsif attribute.replicant.transport_characteristic_type_key == :datetime
-          "new java.util.Date( new java.math.BigDecimal( data.getStringValue( #{key} ) ).longValueExact() )"
+          "new java.util.Date( new java.math.BigDecimal( payload.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.replicant.transport_characteristic_type_key == :integer
-          "data.getIntegerValue( #{key} )"
+          "payload.getIntegerValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :real
-          "data.getIntegerValue( #{key} )"
+          "payload.getIntegerValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :boolean
-          "data.getBooleanValue( #{key} )"
+          "payload.getBooleanValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :text
-          "data.getStringValue( #{key} )"
+          "payload.getStringValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
-          "#{attribute.replicant.java_type}.valueOf( data.getStringValue( #{key} ) )"
+          "#{attribute.replicant.java_type}.valueOf( payload.getStringValue( #{key} ) )"
         elsif attribute.replicant.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
-          "#{attribute.replicant.java_type}.values()[ data.getIntegerValue( #{key} ) ]"
+          "#{attribute.replicant.java_type}.values()[ payload.getIntegerValue( #{key} ) ]"
         else
           raise "Unable to convert data type #{attribute.replicant.transport_characteristic_type_key} on #{attribute.qualified_name}"
         end
 -%>
-    final <%= attribute.replicant.java_type(attribute.reference? ? :transport : :default, :assume_generated => true) %> <%= Domgen::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( !data.containsKey( #{key} ) || data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
+    final <%= attribute.replicant.java_type(attribute.reference? ? :transport : :default, :assume_generated => true) %> <%= Domgen::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( !payload.containsKey( #{key} ) || payload.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
 <% attributes =  entity.attributes.select{|attribute| attribute.arez? && attribute.immutable? } +  entity.attributes.select{|attribute| attribute.arez? && !attribute.immutable? } -%>
     return repository.create( <%= attributes.collect{|attribute| Domgen::Naming.camelize(attribute.name)}.join(', ') %> );
@@ -50,36 +50,36 @@ public final class <%= data_module.replicant.mapper_name %>
 <% end -%>
 <% if entity.replicant.requires_updater? -%>
 
-  public static void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> replica, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
+  public static void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> replica, @javax.annotation.Nonnull final replicant.messages.EntityChangePayload payload )
   {
 <% if entity.extends
    other = data_module.entity_by_name(entity.extends) -%>
-    update<%= other.name %>( replica, data );
+    update<%= other.name %>( replica, payload );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.replicant? && !attribute.immutable?}.each do |attribute|
     key = "#{data_module.repository.replicant.qualified_entity_type_constants_name}.#{Domgen::Naming.uppercase_constantize(data_module.name.to_s)}_#{Domgen::Naming.uppercase_constantize(entity.name)}_#{Domgen::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.replicant.transport_characteristic_type_key == :date
-          "#{data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
+          "#{data_module.repository.gwt.qualified_rdate_name}.parse( payload.getStringValue( #{key} ) )"
         elsif attribute.replicant.transport_characteristic_type_key == :datetime
-          "new java.util.Date( new java.math.BigDecimal( data.getStringValue( #{key} ) ).longValueExact() )"
+          "new java.util.Date( new java.math.BigDecimal( payload.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.replicant.transport_characteristic_type_key == :integer
-          "data.getIntegerValue( #{key} )"
+          "payload.getIntegerValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :real
-          "data.getIntegerValue( #{key} )"
+          "payload.getIntegerValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :boolean
-          "data.getBooleanValue( #{key} )"
+          "payload.getBooleanValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :text
-          "data.getStringValue( #{key} )"
+          "payload.getStringValue( #{key} )"
         elsif attribute.replicant.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
-          "#{attribute.replicant.java_type}.valueOf( data.getStringValue( #{key} ) )"
+          "#{attribute.replicant.java_type}.valueOf( payload.getStringValue( #{key} ) )"
         elsif attribute.replicant.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
-          "#{attribute.replicant.java_type}.values()[ data.getIntegerValue( #{key} ) ]"
+          "#{attribute.replicant.java_type}.values()[ payload.getIntegerValue( #{key} ) ]"
         else
           raise "Unable to convert data type #{attribute.replicant.transport_characteristic_type_key} on #{attribute.qualified_name}"
         end
 -%>
-    replica.set<%= attribute.replicant.name(:transport) %>( <%= attribute.nullable? ? "( !data.containsKey( #{key} ) || data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
+    replica.set<%= attribute.replicant.name(:transport) %>( <%= attribute.nullable? ? "( !payload.containsKey( #{key} ) || payload.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
 <% end -%>
   }
 <% end -%>
