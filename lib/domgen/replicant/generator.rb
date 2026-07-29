@@ -55,7 +55,7 @@ Domgen::Generator.define([:replicant],
                               'client/gwt/react4j_area_of_interest_view.java.erb',
                               'main/java/#{dataset.qualified_react4j_area_of_interest_view_name.gsub(".","/")}.java',
                               :additional_facets => [:react4j],
-                              :guard => 'dataset.area_of_interest_origin_permitted?')
+                              :guard => 'dataset.generate_react4j_area_of_interest_view?')
   end
 
   g.template_set(:replicant_client_service) do |template_set|

@@ -162,6 +162,14 @@ module Domgen
         [:external, :universal].include?(visibility)
       end
 
+      attr_writer :generate_react4j_area_of_interest_view
+
+      def generate_react4j_area_of_interest_view?
+        @generate_react4j_area_of_interest_view.nil? ?
+          area_of_interest_origin_permitted? :
+          !!@generate_react4j_area_of_interest_view
+      end
+
       # Does the Dataset Visibility permit an origin through a Dataset Link or Required Type Dataset?
       def dataset_link_or_required_type_dataset_origin_permitted?
         [:internal, :universal].include?(visibility)
