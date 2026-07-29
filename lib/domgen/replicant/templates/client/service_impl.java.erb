@@ -108,9 +108,11 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
           return;
         }
 <%- end -%>
-<%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
         final jsinterop.base.JsPropertyMap<Object> $commandResultPropertyMap = jsinterop.base.Js.asPropertyMap( $commandResult );
-<%- end -%>
+        if ( <%= service.data_module.repository.replicant.qualified_remote_service_util_name %>.handleCommandError( $commandResultPropertyMap, errorCallback ) )
+        {
+          return;
+        }
 <%- unless method.return_value.return_type == :void -%>
         if ( $commandResultPropertyMap.has( "data") )
         {

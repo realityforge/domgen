@@ -1,0 +1,23 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_remote_service_util_name) %>;
+
+public final class <%= repository.replicant.remote_service_util_name %>
+{
+  private <%= repository.replicant.remote_service_util_name %>()
+  {
+  }
+
+  public static boolean handleCommandError( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> commandResult,
+                                            @javax.annotation.Nullable final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback )
+  {
+    if ( !commandResult.has( "error" ) )
+    {
+      return false;
+    }
+    if ( null != errorCallback )
+    {
+      errorCallback.onFailure( new java.lang.Throwable( commandResult.getAsAny( "error" ).asString() ) );
+    }
+    return true;
+  }
+}

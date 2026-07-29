@@ -59,6 +59,9 @@ Domgen::Generator.define([:replicant],
   end
 
   g.template_set(:replicant_client_service) do |template_set|
+    template_set.erb_template(:repository,
+                              'client/remote_service_util.java.erb',
+                              'main/java/#{repository.replicant.qualified_remote_service_util_name.gsub(".","/")}.java')
     template_set.erb_template(:exception,
                               'client/exception.java.erb',
                               'main/java/#{exception.replicant.qualified_name.gsub(".","/")}.java')
