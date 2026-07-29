@@ -96,9 +96,9 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
       .sendCommand( <%= service.data_module.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
                     "<%= method.action.code %>",
                     $params,
-                    $response -> {
+                    $commandResult -> {
 <%- if method.return_value.return_type == :void -%>
-        if ( jsinterop.base.Js.isTripleEqual( $response, jsinterop.base.Js.undefined() ) )
+        if ( jsinterop.base.Js.isTripleEqual( $commandResult, jsinterop.base.Js.undefined() ) )
         {
           if ( null == callback )
           {
@@ -109,14 +109,14 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         }
 <%- end -%>
 <%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
-        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = jsinterop.base.Js.asPropertyMap( $response );
+        final jsinterop.base.JsPropertyMap<Object> $commandResultPropertyMap = jsinterop.base.Js.asPropertyMap( $commandResult );
 <%- end -%>
 <%- unless method.return_value.return_type == :void -%>
-        if ( $responsePropertyMap.has( "data") )
+        if ( $commandResultPropertyMap.has( "data") )
         {
-          final jsinterop.base.Any $responseData = $responsePropertyMap.getAsAny( "data" );
+          final jsinterop.base.Any $commandResultData = $commandResultPropertyMap.getAsAny( "data" );
 <%- if method.return_value.nullable? -%>
-          if ( null == $responseData )
+          if ( null == $commandResultData )
           {
             if ( null != callback )
             {
@@ -128,7 +128,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- if method.return_value.return_type != :void -%>
 <%- if method.return_value.collection? -%>
         final <%=method.return_value.replicant.non_primitive_java_type(:boundary) %> $result = new java.util.ArrayList<>();
-        for ( final jsinterop.base.Any $row : $responseData.asArray() )
+        for ( final jsinterop.base.Any $row : $commandResultData.asArray() )
         {
           final <%=method.return_value.replicant.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
   iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
@@ -142,17 +142,17 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         }
 <%- else -%>
           final <%=method.return_value.replicant.non_primitive_java_type(:boundary) %> $result = <%- if method.return_value.date? -%>
- iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $responseData.asString() ) );
+ iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $commandResultData.asString() ) );
 <%- elsif method.return_value.datetime? -%>
- new Date( $responseData.asLong() );
+ new Date( $commandResultData.asLong() );
 <%- elsif method.return_value.struct? -%>
- $responseData.cast();
+ $commandResultData.cast();
 <%- elsif method.return_value.integer? || method.return_value.reference? -%>
- $responseData.asInt();
+ $commandResultData.asInt();
 <%- elsif method.return_value.boolean? -%>
- $responseData.asBoolean();
+ $commandResultData.asBoolean();
 <%- else -%>
- $responseData.asInt();
+ $commandResultData.asInt();
 <%- end -%>
 <%- end -%>
           if ( null != callback )
@@ -167,9 +167,9 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- end -%>
 <% unless method.base_exceptions.empty? -%>
 
-        if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
+        if ( $commandResultPropertyMap.has( "exception" ) && null != errorCallback )
         {
-          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
+          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $commandResultPropertyMap.getAsAny( "exception" ).asPropertyMap();
           //noinspection SwitchStatementWithTooFewBranches
           switch ( $exceptionData.getAsAny( "$type" ).asString() )
           {

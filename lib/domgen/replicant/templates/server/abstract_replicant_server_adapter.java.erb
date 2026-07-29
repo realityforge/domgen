@@ -585,7 +585,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
       session.recordSubscriptions( changeSet, datasetAddresses, <%= dataset.parameter_filtered? ? 'filterParameter' : 'null' -%>, mode );
     }
 <% else -%>
-<% # Required Type Dataset subscriptions already exist so getSubscriptionEntry works. -%>
+<% # Required Type Dataset subscriptions already exist so getSubscription works. -%>
 <% dataset.required_type_datasets.each do |dataset| -%>
     if ( null != session )
     {
