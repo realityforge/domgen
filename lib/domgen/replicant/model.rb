@@ -465,7 +465,7 @@ module Domgen
 
       attr_writer :target_filter_parameter_requires_source_dataset_root_id
 
-      # This indicates that the source Dataset should be an Instance Dataset and the Dataset Root identifier is used
+      # This indicates that the source Dataset should be an Instance Dataset and the Dataset Root ID is used
       # when deriving the target Filter Parameter.
       def target_filter_parameter_requires_source_dataset_root_id?
         !!@target_filter_parameter_requires_source_dataset_root_id

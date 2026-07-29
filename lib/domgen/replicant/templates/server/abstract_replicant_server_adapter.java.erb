@@ -490,7 +490,7 @@ repository.replicant.datasets.select{|dataset| !dataset.unfiltered?}.each do |da
       end
     end
     # Set to an attribute that references the Dataset Root Entity Type. This is the best available derivation of the
-    # Dataset Root identifier, but it may not always work.
+    # Dataset Root ID, but it may not always work.
     dataset_root_entity_type_references =
       entity.attributes.select{|attribute| attribute.replicant? && attribute.reference? && attribute.referenced_entity == dataset_root_entity_type}
     dataset_root_entity_type_reference = dataset_root_entity_type_references.size == 1 ? dataset_root_entity_type_references[0] : nil;
