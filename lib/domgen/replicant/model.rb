@@ -512,7 +512,7 @@ module Domgen
         Domgen.error("#{prefix} targets a Dataset with #{target_dataset.visibility} Dataset Visibility, which does not permit a Dataset Link origin") unless target_dataset.dataset_link_or_required_type_dataset_origin_permitted?
 
         # Need to make sure that the other side is the Dataset Root Entity Type
-        unless target_dataset.dataset_root_entity_type != entity.name
+        if target_dataset.dataset_root_entity_type.to_s != entity.qualified_name.to_s
           Domgen.error("Dataset Link from '#{self.source_dataset}' to '#{self.target_dataset}' via '#{self.replicant_attribute.attribute.qualified_name}' links to an Entity Type that is not the Dataset Root Entity Type")
         end
 
