@@ -231,7 +231,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
       return getTransportContext();
     }
 
-    public void onExecResponseChangeSet( final int requestId, @javax.annotation.Nonnull final Object response )
+    public void onCommandResultChangeSet( final int requestId, @javax.annotation.Nonnull final Object response )
     {
       onReplicantMessage( replicant.messages.ChangeSetMessage.create( requestId, null, null, null, null, response ) );
     }
@@ -244,12 +244,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     }
 
     @javax.annotation.Nonnull
-    public replicant.messages.ExecMessage expectExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
+    public replicant.messages.CommandMessage expectCommandMessage( final int index, @javax.annotation.Nonnull final String commandName, final int requestId )
     {
-      final replicant.messages.ExecMessage execMessage = (replicant.messages.ExecMessage) replicantTransport().expectRemoteMessage( index );
-      org.junit.Assert.assertEquals( "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index, command, execMessage.getCommand() );
-      org.junit.Assert.assertEquals( "Expected request id " + requestId + " but was " + execMessage.getRequestId() + " at index " + index, requestId, execMessage.getRequestId() );
-      return execMessage;
+      final replicant.messages.CommandMessage commandMessage = (replicant.messages.CommandMessage) replicantTransport().expectRemoteMessage( index );
+      org.junit.Assert.assertEquals( "Expected Command name " + commandName + " but was " + commandMessage.getName() + " at index " + index, commandName, commandMessage.getName() );
+      org.junit.Assert.assertEquals( "Expected request ID " + requestId + " but was " + commandMessage.getRequestId() + " at index " + index, requestId, commandMessage.getRequestId() );
+      return commandMessage;
     }
 
     public java.lang.Object expectRemoteMessage( final int index )

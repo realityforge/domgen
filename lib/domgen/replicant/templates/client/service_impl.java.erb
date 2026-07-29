@@ -93,10 +93,10 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
     ') %>
 
     replicant.Replicant.context()
-      .exec( <%= service.data_module.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
-             "<%= method.action.code %>",
-             $params,
-             $response -> {
+      .sendCommand( <%= service.data_module.repository.replicant.qualified_system_schema_constants_name %>.SYSTEM_SCHEMA_ID,
+                    "<%= method.action.code %>",
+                    $params,
+                    $response -> {
 <%- if method.return_value.return_type == :void -%>
         if ( jsinterop.base.Js.isTripleEqual( $response, jsinterop.base.Js.undefined() ) )
         {
