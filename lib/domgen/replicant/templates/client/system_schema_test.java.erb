@@ -141,7 +141,7 @@ public final class <%= repository.replicant.system_schema_test_name %>
         .stream()
         .filter( datasetLink -> datasetLink.getSourceDatasetId() == sourceDatasetId &&
                       java.lang.String.join( ".", datasetLink.getPath() ).equals( java.lang.String.join( ".", path ) ) )
-        .toList();
+        .collect( java.util.stream.Collectors.toList() );
     org.junit.Assert.assertEquals( "Expected to match a Dataset Link from Dataset " + sourceDatasetId + " (path=" + java.util.Arrays.asList( path ) + ")" + " but Entity Type only has the inward Dataset Links " + datasetLinks, 1, matches.size() );
   }
 
@@ -157,7 +157,7 @@ public final class <%= repository.replicant.system_schema_test_name %>
         .stream()
         .filter( datasetLink -> datasetLink.getTargetDatasetId() == targetDatasetId &&
                       java.lang.String.join( ".", datasetLink.getPath() ).equals( java.lang.String.join( ".", path ) ) )
-        .toList();
+        .collect( java.util.stream.Collectors.toList() );
     org.junit.Assert.assertEquals( "Expected to match a Dataset Link to Dataset " + targetDatasetId + " (path=" + java.util.Arrays.asList( path ) + ")" + " but Entity Type only has the outward Dataset Links " + datasetLinks, 1, matches.size() );
   }
 

@@ -13,7 +13,7 @@ final class <%= repository.replicant.client_router_name %>
 <% if routing_key.multivalued? -%>
     ( (java.util.List<Integer>) map.computeIfAbsent( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ) ).add( value );
 <% else -%>
-    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, (java.io.Serializable) value );
 <% end -%>
   }
 
@@ -161,7 +161,7 @@ repository.data_modules.select { |data_module| data_module.replicant? }.each do 
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, Boolean.TRUE );
+    map.put( <%= repository.replicant.qualified_dataset_constants_name %>.<%= Domgen::Naming.uppercase_constantize(dataset.name) %>_NAME, (java.io.Serializable) Boolean.TRUE );
 <% end -%>
   }
 <% end -%>
