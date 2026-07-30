@@ -741,7 +741,7 @@ module Domgen
       attr_writer :module_local
 
       def module_local?
-        @module_local.nil? ? (dao.repository? ? dao.entity.jpa.module_local? : false) : !!@module_local
+        @module_local.nil? ? true : !!@module_local
       end
 
       attr_writer :support_update

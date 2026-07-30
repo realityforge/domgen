@@ -91,7 +91,8 @@ WHERE C.[Code] = 'RPC' AND
 
 IF @@rowcount = 0 AND @@error = 0
   UPDATE AT
-  SET Priority = <%= method.action.priority %>,
+  SET ApplicationEvent = <%= method.action.application_event.nil? ? 'NULL' : "'#{method.action.application_event}'" %>,
+      Priority = <%= method.action.priority %>,
       PreCompletionUserFeedbackPattern = '',
       PostCompletionUserFeedbackPattern = '',
       OnErrorUserFeedbackPattern = '',
