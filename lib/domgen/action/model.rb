@@ -341,12 +341,6 @@ module Domgen
         @store_response_on_success.nil? ? true : @store_response_on_success
       end
 
-      attr_writer :generate_message_on_success
-
-      def generate_message_on_success?
-        @generate_message_on_success.nil? ? true : @generate_message_on_success
-      end
-
       attr_writer :serverside_action_module_local
 
       def serverside_action_module_local?
@@ -359,28 +353,22 @@ module Domgen
         @generate_serverside_action.nil? ? false : @generate_serverside_action
       end
 
-      attr_writer :retain_failed_message_duration
+      attr_writer :success_retention_duration
 
-      def retain_failed_message_duration
-        @retain_failed_message_duration.nil? ? 20160 : @retain_failed_message_duration
+      def success_retention_duration
+        @success_retention_duration
+      end
+
+      attr_writer :failure_retention_duration
+
+      def failure_retention_duration
+        instance_variable_defined?(:@failure_retention_duration) ? @failure_retention_duration : 20160
       end
 
       attr_writer :store_error_message_on_failure
 
       def store_error_message_on_failure?
         @store_error_message_on_failure.nil? ? true : @store_error_message_on_failure
-      end
-
-      attr_writer :persist_on_success
-
-      def persist_on_success?
-        @persist_on_success.nil? ? true : @persist_on_success
-      end
-
-      attr_writer :persist_duration
-
-      def persist_duration
-        @persist_duration.nil? ? nil : @persist_duration
       end
 
       attr_writer :clear_error_on_success
