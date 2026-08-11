@@ -852,6 +852,7 @@ module Domgen
       java_artifact :system_schema_hooks, :comm, :client, :replicant, '#{repository.name}SystemSchemaHooks'
       java_artifact :system_schema_hooks_impl, :comm, :client, :replicant, '#{system_schema_hooks_name}Impl'
       java_artifact :client_router, :comm, :client, :replicant, '#{repository.name}ClientRouter'
+      java_artifact :react4j_area_of_interest_view, :component, :client, :replicant, '#{repository.name}AreaOfInterestView'
       java_artifact :system_schema_constants, :comm, :shared, :replicant, '#{repository.name}SystemSchemaConstants'
       java_artifact :dataset_constants, :comm, :shared, :replicant, '#{repository.name}DatasetConstants'
       java_artifact :entity_type_constants, :comm, :shared, :replicant, '#{repository.name}EntityTypeConstants'

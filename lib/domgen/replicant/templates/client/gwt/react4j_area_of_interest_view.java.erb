@@ -3,7 +3,7 @@ package <%= to_package(dataset.qualified_react4j_area_of_interest_view_name) %>;
 
 @react4j.annotations.View( exportBuilder = true, type = react4j.annotations.View.Type.NO_RENDER )
 abstract class <%= dataset.react4j_area_of_interest_view_name %>
-  extends replicant.react4j.AreaOfInterestView
+  extends <%= dataset.application.repository.replicant.qualified_react4j_area_of_interest_view_name %>
 {
 <% if dataset.instance_dataset? -%>
 <% unless dataset.application.repository.entity_by_name(dataset.dataset_root_entity_type).primary_key.replicant.primitive?(:default, :assume_generated => true) -%>

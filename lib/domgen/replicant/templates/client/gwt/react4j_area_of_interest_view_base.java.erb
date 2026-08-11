@@ -1,0 +1,76 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.replicant.qualified_react4j_area_of_interest_view_name) %>;
+
+/**
+ * An abstract React4j view that acquires and retains an Area of Interest.
+ */
+@java.lang.SuppressWarnings( { "WeakerAccess", "unused" } )
+@arez.annotations.ArezComponentLike
+public abstract class <%= repository.replicant.react4j_area_of_interest_view_name %>
+{
+  // The warning is suppressed as reference is managed on method.
+  // We can not convert this field into abstract observable because of some surgery do to work between
+  // React/Arez component models.
+  @arez.annotations.SuppressArezWarnings( "Arez:UnmanagedComponentReference" )
+  @javax.annotation.Nullable
+  private replicant.AreaOfInterest _areaOfInterest;
+
+  @javax.annotation.Nullable
+  protected java.lang.Object getFilterParameter()
+  {
+    return null;
+  }
+
+  @arez.annotations.ComponentDependency( action = arez.annotations.ComponentDependency.Action.SET_NULL )
+  @arez.annotations.Observable
+  @javax.annotation.Nullable
+  protected replicant.AreaOfInterest getAreaOfInterest()
+  {
+    return _areaOfInterest;
+  }
+
+  protected void setAreaOfInterest( @javax.annotation.Nullable final replicant.AreaOfInterest areaOfInterest )
+  {
+    _areaOfInterest = areaOfInterest;
+  }
+
+  @arez.annotations.PreDispose
+  protected final void preDispose()
+  {
+    if ( null != _areaOfInterest )
+    {
+      _areaOfInterest.decRefCount();
+      _areaOfInterest = null;
+    }
+  }
+
+  @react4j.annotations.PostMountOrUpdate
+  protected final void postMountOrUpdate()
+  {
+    updateAreaOfInterest();
+  }
+
+  protected final void updateAreaOfInterestOnFilterParameterChange( @javax.annotation.Nullable final java.lang.Object newFilterParameter )
+  {
+    if ( null != _areaOfInterest )
+    {
+      replicant.Replicant.context().createOrUpdateAreaOfInterest( _areaOfInterest.getDatasetAddress(), newFilterParameter );
+    }
+  }
+
+  @arez.annotations.Action
+  protected void updateAreaOfInterest()
+  {
+    final replicant.ReplicantContext context = replicant.Replicant.context();
+    final replicant.AreaOfInterest newAreaOfInterest =
+      context.createOrUpdateAreaOfInterest( getDatasetAddress(), getFilterParameter() );
+    if ( null == _areaOfInterest )
+    {
+      newAreaOfInterest.incRefCount();
+      setAreaOfInterest( newAreaOfInterest );
+    }
+  }
+
+  @javax.annotation.Nonnull
+  protected abstract replicant.DatasetAddress getDatasetAddress();
+}
