@@ -47,7 +47,8 @@ Domgen::Generator.define([:ee],
   g.template_set(:ee_messages_qa) do |template_set|
     template_set.erb_template(:repository,
                               'message_module.java.erb',
-                              'test/java/#{repository.ee.qualified_message_module_name.gsub(".","/")}.java')
+                              'test/java/#{repository.ee.qualified_message_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.ee.generate_message_test_module?')
     template_set.erb_template(:message,
                               'message_literal.java.erb',
                               'test/java/#{message.ee.qualified_message_literal_name.gsub(".","/")}.java',

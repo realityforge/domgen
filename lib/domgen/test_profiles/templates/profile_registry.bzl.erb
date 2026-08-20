@@ -1,0 +1,29 @@
+# DO NOT EDIT: File is auto-generated
+
+SERVER_TEST_PROFILES = {
+<% repository.test_profiles.select { |test_profile| test_profile.persistence? || test_profile.server? }.each do |test_profile| -%>
+    "<%= test_profile.name %>": struct(
+<% if test_profile.database_backed? -%>
+        database_jar = "//database:<%= test_profile.path_name %>_database_jar",
+        fingerprint = "//database:<%= test_profile.path_name %>_database_jar_fingerprint",
+        jpa_resources = "//server/src/test/resources:<%= test_profile.path_name %>_jpa_resources",
+        marker = "//server/src/test/resources:<%= test_profile.path_name %>_marker",
+<% else -%>
+        database_jar = None,
+        fingerprint = None,
+        jpa_resources = None,
+        marker = None,
+<% end -%>
+        harness = "//server/src/test/java/iris/rose/server/test/util:<%= test_profile.path_name %>_profile",
+        path_name = "<%= test_profile.path_name %>",
+        realm = "<%= test_profile.realm %>",
+<% if test_profile.server? -%>
+        runtime = "//server:<%= test_profile.path_name %>_server_runtime",
+<% elsif test_profile.persistence? -%>
+        runtime = "//server:<%= test_profile.path_name %>_persistence_runtime",
+<% else -%>
+        runtime = None,
+<% end -%>
+    ),
+<% end -%>
+}

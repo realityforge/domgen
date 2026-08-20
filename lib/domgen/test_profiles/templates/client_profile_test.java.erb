@@ -1,0 +1,292 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.client.test.util.profile;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode", "VisibilityModifier" } )
+public abstract class Abstract<%= test_profile.java_name %>Test<T extends Abstract<%= test_profile.java_name %>TestInjector>
+{
+  @javax.annotation.Nonnull
+  private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
+  @javax.annotation.Nonnull
+  private final TestTransport _replicantTransport = new TestTransport();
+  @javax.annotation.Nonnull
+  private final java.util.List<java.lang.String> _observerErrors = new java.util.ArrayList<>();
+  private boolean _captureObserverErrors;
+  @javax.annotation.Nullable
+  private arez.Disposable _connector;
+  private T _injector;
+<% test_profile.data_modules(:client).select { |data_module| data_module.arez? && data_module.arez.factory_required? }.each do |data_module| -%>
+  @javax.annotation.Nonnull
+  protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected abstract T createInjector();
+
+  @javax.annotation.Nonnull
+  protected final T getInjector()
+  {
+    return _injector;
+  }
+
+  protected final void captureObserverErrors()
+  {
+    _captureObserverErrors = true;
+  }
+
+  protected final void noCaptureObserverErrors()
+  {
+    _captureObserverErrors = false;
+  }
+
+  private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer,
+                                @javax.annotation.Nonnull final arez.ObserverError error,
+                                @javax.annotation.Nullable final java.lang.Throwable throwable )
+  {
+    final var message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
+    _observerErrors.add( message );
+    if ( !_captureObserverErrors )
+    {
+      java.lang.System.out.println( message );
+      if ( null != throwable )
+      {
+        throwable.printStackTrace( java.lang.System.out );
+      }
+    }
+  }
+
+  @org.junit.Before
+  public void preTest()
+    throws Exception
+  {
+    iris.rose.client.test.util.ValueUtil.reset();
+    iris.rose.client.test.util.ValueUtil.setNow( new java.util.Date() );
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
+    zemeckis.ZemeckisTestUtil.resetConfig( false );
+    arez.ArezTestUtil.resetConfig( false );
+    replicant.ReplicantTestUtil.resetConfig( false );
+    _replicantTransport.reset();
+    _captureObserverErrors = false;
+    _observerErrors.clear();
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
+    _injector = createInjector();
+<% test_profile.data_modules(:client).select { |data_module| data_module.arez? && data_module.arez.factory_required? }.each do |data_module| -%>
+    <%= data_module.arez.short_test_code %> = _injector.<%= Domgen::Naming.camelize(data_module.name) %>Factory().get();
+<% end -%>
+    arez.Arez.context().registerLocator( _injector.getLocator() );
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), _replicantTransport );
+    pumpAllAsyncActions();
+    iris.rose.client.util.daterange.DateRange.initializeTracing();
+  }
+
+  @org.junit.After
+  public void postTest()
+  {
+    arez.Disposable.dispose( _connector );
+    _connector = null;
+    zemeckis.ZemeckisTestUtil.resetConfig( true );
+    replicant.ReplicantTestUtil.resetConfig( false );
+    arez.ArezTestUtil.resetConfig( true );
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
+    if ( !_captureObserverErrors && !_observerErrors.isEmpty() )
+    {
+      org.junit.Assert.fail( "Unexpected Observer Errors: " + java.lang.String.join( "\n", _observerErrors ) );
+    }
+  }
+
+  @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
+  protected final <MT> java.lang.Class<iris.rose.client.service.RoseAsyncCallback<MT>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<MT> type )
+  {
+    return (java.lang.Class<iris.rose.client.service.RoseAsyncCallback<MT>>) (Object) iris.rose.client.service.RoseAsyncCallback.class;
+  }
+
+  protected final void assertAsyncActionCount( final int count )
+  {
+    org.junit.Assert.assertEquals( count, _asyncActions.size() );
+  }
+
+  protected final void pumpSingleAsyncAction()
+  {
+    org.junit.Assert.assertTrue( _asyncActions.size() > 1 );
+    _asyncActions.remove( 0 ).run();
+  }
+
+  protected final void pumpAsyncActions( final int count )
+  {
+    assertAsyncActionCount( count );
+    pumpAllAsyncActions();
+  }
+
+  protected final void pumpAllAsyncActions()
+  {
+    while ( !_asyncActions.isEmpty() )
+    {
+      _asyncActions.remove( 0 ).run();
+    }
+  }
+
+  protected final void queueAsyncActions( @javax.annotation.Nonnull final java.lang.Runnable action )
+  {
+    _asyncActions.add( action );
+  }
+
+  protected final int randomInt()
+  {
+    return iris.rose.client.test.util.ValueUtil.randomInt();
+  }
+
+  protected final boolean randomBoolean()
+  {
+    return iris.rose.client.test.util.ValueUtil.randomBoolean();
+  }
+
+  protected final int nextId()
+  {
+    return iris.rose.client.test.util.ValueUtil.nextId();
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.Date now()
+  {
+    return iris.rose.client.test.util.ValueUtil.now();
+  }
+
+  @javax.annotation.Nonnull
+  protected final String randomString()
+  {
+    return iris.rose.client.test.util.ValueUtil.randomString();
+  }
+
+  @javax.annotation.Nonnull
+  protected final String randomString( final int stringLength )
+  {
+    return iris.rose.client.test.util.ValueUtil.randomString( stringLength );
+  }
+
+  @javax.annotation.Nonnull
+  protected final TestTransport replicantTransport()
+  {
+    return _replicantTransport;
+  }
+
+  public final class TestTransport
+    extends replicant.AbstractTransport
+  {
+    @javax.annotation.Nonnull
+    private final java.util.List<java.lang.Object> _remoteMessages = new java.util.ArrayList<>();
+
+    public void reset()
+    {
+      unbind();
+      _asyncActions.clear();
+      resetRemoteMessages();
+    }
+
+    public void resetRemoteMessages()
+    {
+      _remoteMessages.clear();
+    }
+
+    @java.lang.Override
+    protected void doConnect()
+    {
+      queueAsyncActions( () -> onMessageReceived( replicant.messages.SessionCreatedMessage.create( randomString() ) ) );
+    }
+
+    @java.lang.Override
+    protected void sendRemoteMessage( @javax.annotation.Nonnull final Object message )
+    {
+      _remoteMessages.add( message );
+    }
+
+    @java.lang.Override
+    protected void doDisconnect()
+    {
+      queueAsyncActions( this::onDisconnect );
+    }
+
+    @javax.annotation.Nullable
+    public replicant.TransportContext transportContext()
+    {
+      return getTransportContext();
+    }
+
+    public void onCommandResultChangeSet( final int requestId, @javax.annotation.Nonnull final Object response )
+    {
+      onReplicantMessage( replicant.messages.ChangeSetMessage.create( requestId, null, null, null, null, response ) );
+    }
+
+    public void onReplicantMessage( @javax.annotation.Nonnull final replicant.messages.ServerToClientMessage message )
+    {
+      final replicant.TransportContext transportContext = replicantTransport().transportContext();
+      org.junit.Assert.assertNotNull( transportContext );
+      transportContext.onMessageReceived( message );
+    }
+
+    @javax.annotation.Nonnull
+    public replicant.messages.CommandMessage expectCommandMessage( final int index,
+                                                                    @javax.annotation.Nonnull final String commandName,
+                                                                    final int requestId )
+    {
+      final replicant.messages.CommandMessage commandMessage =
+        (replicant.messages.CommandMessage) replicantTransport().expectRemoteMessage( index );
+      org.junit.Assert.assertEquals( "Expected Command name " + commandName + " but was " + commandMessage.getName() + " at index " + index,
+                                     commandName,
+                                     commandMessage.getName() );
+      org.junit.Assert.assertEquals( "Expected request ID " + requestId + " but was " + commandMessage.getRequestId() + " at index " + index,
+                                     requestId,
+                                     commandMessage.getRequestId() );
+      return commandMessage;
+    }
+
+    public java.lang.Object expectRemoteMessage( final int index )
+    {
+      org.junit.Assert.assertTrue( "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages,
+                                   _remoteMessages.size() > index );
+      return _remoteMessages.get( index );
+    }
+
+    public void assertRemoteMessageCount( final int count )
+    {
+      org.junit.Assert.assertEquals( count, _remoteMessages.size() );
+    }
+  }
+
+  @javax.annotation.Nonnull
+  public arez.ArezContext context()
+  {
+    return arez.Arez.context();
+  }
+
+  @javax.annotation.Nonnull
+  public arez.Disposable pauseScheduler()
+  {
+    return context().pauseScheduler();
+  }
+
+  public void observer( @javax.annotation.Nonnull final arez.Procedure procedure )
+  {
+    context().observer( procedure, arez.Observer.Flags.AREZ_OR_NO_DEPENDENCIES );
+  }
+
+  public void action( @javax.annotation.Nonnull final arez.Procedure action )
+    throws Throwable
+  {
+    context().action( action );
+  }
+
+  public <X> X action( @javax.annotation.Nonnull final arez.Function<X> action )
+    throws Throwable
+  {
+    return context().action( action );
+  }
+
+  public void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  {
+    context().safeAction( action );
+  }
+
+  public <X> X safeAction( @javax.annotation.Nonnull final arez.SafeFunction<X> action )
+  {
+    return context().safeAction( action );
+  }
+}

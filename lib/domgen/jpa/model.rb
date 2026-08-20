@@ -366,6 +366,12 @@ module Domgen
         @include_default_unit.nil? ? true : !!@include_default_unit
       end
 
+      attr_writer :generate_legacy_test_harness
+
+      def generate_legacy_test_harness?
+        @generate_legacy_test_harness.nil? ? true : !!@generate_legacy_test_harness
+      end
+
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
       java_artifact :persistent_test_module, :test, :server, :jpa, '#{repository.name}PersistenceTestModule', :sub_package => 'util'
       java_artifact :abstract_entity_test, :test, :server, :jpa, 'Abstract#{repository.name}EntityTest', :sub_package => 'util'
@@ -633,16 +639,18 @@ module Domgen
       end
 
       def pre_verify
-        add_test_module(persistent_test_module_name, qualified_persistent_test_module_name) if repository.jpa.include_default_unit?
-        add_test_module(test_factory_module_name, qualified_test_factory_module_name)
-        add_test_module(dao_module_name, qualified_dao_module_name)
+        if generate_legacy_test_harness?
+          add_test_module(persistent_test_module_name, qualified_persistent_test_module_name) if repository.jpa.include_default_unit?
+          add_test_module(test_factory_module_name, qualified_test_factory_module_name)
+          add_test_module(dao_module_name, qualified_dao_module_name)
+        end
         repository.jpa.persistence_units.select {|persistence_unit| persistence_unit.generate_test_util?}.each do |persistence_unit|
           add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
         repository.data_modules.select {|data_module| data_module.jpa? && data_module.jpa.generate_test_factory?}.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
         end
-        if include_default_unit?
+        if include_default_unit? && generate_legacy_test_harness?
           add_test_class_content(<<-JAVA)
 
   @javax.annotation.Nonnull
@@ -763,6 +771,12 @@ module Domgen
       java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}Impl', :sub_package => 'dao.internal'
       java_artifact :dao_test, :entity, :server, :jpa, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao.internal'
 
+      attr_writer :test_base_class
+
+      def test_base_class
+        @test_base_class || dao.data_module.repository.jpa.qualified_standalone_entity_test_name
+      end
+
       def qualified_concrete_dao_test_name
         "#{qualified_dao_test_name.gsub(/\.Abstract/, '.')}"
       end
@@ -792,6 +806,12 @@ module Domgen
 
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :test_base_class
+
+      def test_base_class
+        @test_base_class || entity.data_module.repository.jpa.qualified_standalone_entity_test_name
+      end
 
       def expect_test?
         self.non_standard_model_constraints? || !self.interfaces.empty?
@@ -859,13 +879,13 @@ module Domgen
       attr_writer :support_create
 
       def support_create?
-        @support_create.nil? ? !self.entity.sql.load_from_fixture? : !!@support_create
+        @support_create.nil? ? :deployment != self.entity.sql.row_source : !!@support_create
       end
 
       attr_writer :support_update
 
       def support_update?
-        @support_update.nil? ? !self.entity.sql.load_from_fixture? : !!@support_update
+        @support_update.nil? ? :deployment != self.entity.sql.row_source : !!@support_update
       end
 
       attr_writer :support_delete
@@ -1071,6 +1091,12 @@ module Domgen
 
     facet.enhance(Attribute) do
       include Domgen::JPA::BaseJpaField
+
+      attr_writer :exclude_from_to_string
+
+      def exclude_from_to_string?
+        @exclude_from_to_string.nil? ? false : !!@exclude_from_to_string
+      end
 
       def default_fetch_type
         attribute.reference? ? :lazy : :eager

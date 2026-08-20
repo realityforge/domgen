@@ -1,0 +1,196 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+public <%= test_profile.server? ? '' : 'final ' %>class <%= test_profile.java_name %>ProfileModule
+  extends <%= test_profile.server? ? 'org.realityforge.guiceyloops.server.FlushingTestModule' : 'com.google.inject.AbstractModule' %>
+{
+<% if test_profile.server? && test_profile.data_modules(:server).any? { |data_module| 'Payments' == data_module.name.to_s } -%>
+  @javax.annotation.Nonnull
+  private final Abstract<%= test_profile.java_name %>Test _test;
+
+<% end -%>
+  @java.lang.Override
+  protected void configure()
+  {
+<% if test_profile.database_backed? -%>
+    install( new <%= test_profile.java_name %>TestModule() );
+<% test_profile.data_modules(:persistence).select { |data_module| data_module.jpa? }.each do |data_module| -%>
+    install( new<%= data_module.name %>PersistenceRepositoryModule() );
+<% if data_module.jpa.generate_test_factory? -%>
+    install( new<%= data_module.name %>PersistenceFactoryModule() );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if test_profile.server? -%>
+    install( newTestProfileServerSupportModule() );
+<%
+  config_modules = {
+    'Action' => 'iris.rose.server.action.ActionConfigTestModule',
+    'Azure' => 'iris.rose.server.azure.AzureConfigTestModule',
+    'Cfs' => 'iris.rose.server.cfs.CfsConfigTestModule',
+    'Config' => 'iris.rose.server.config.RoseConfigTestModule',
+    'Delwp' => 'iris.rose.server.delwp.DelwpConfigTestModule',
+    'Feedback' => 'iris.rose.server.feedback.FeedbackConfigTestModule',
+    'GateKeeper' => 'iris.rose.server.gatekeeper.GateKeeperConfigTestModule',
+    'Mail' => 'iris.rose.server.mail.MailResourcesTestModule',
+    'Messaging' => 'iris.rose.server.messaging.MessagingConfigTestModule',
+    'Monitoring' => 'iris.rose.server.monitoring.MonitoringConfigTestModule',
+    'Notification' => 'iris.rose.server.notification.NotificationConfigTestModule',
+    'PlannedMovements' => 'iris.rose.server.planned_movements.PlannedMovementsConfigTestModule',
+    'Plans' => 'iris.rose.server.plans.PlansConfigTestModule',
+    'Reports' => 'iris.rose.server.reports.ReportsConfigTestModule',
+    'Tas' => 'iris.rose.server.tas.TasConfigTestModule',
+    'WebHook' => 'iris.rose.server.web_hook.WebHookConfigTestModule',
+    'Whispir' => 'iris.rose.server.whispir.WhispirConfigTestModule'
+  }
+  test_profile.data_modules(:server).each do |data_module|
+    config_module = config_modules[data_module.name.to_s]
+-%>
+<% if config_module -%>
+    install( new <%= config_module %>() );
+<% end -%>
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Payments' == data_module.name.to_s } -%>
+    install( new iris.rose.server.payments.PaymentsConfigTestModule( _test.workspaceMaxResourceEntryCount() ) );
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Mail' == data_module.name.to_s } -%>
+    install( new iris.rose.server.test.util.MailTestModule() );
+<% end -%>
+<% test_profile.data_modules(:server).select(&:ee?).each do |data_module| -%>
+<% data_module.messages.select { |message| message.ee? && message.ee.generate_test_literal? }.each do |message| -%>
+    bind( <%= message.ee.qualified_message_literal_name %>.INSTANCE ).toInstance( new org.realityforge.guiceyloops.server.EventStub<>() );
+<% end -%>
+<% end -%>
+    bindTaskSchedulerService();
+<% if test_profile.data_modules(:server).any? { |data_module| 'Rose' == data_module.name.to_s } -%>
+    bindService( "iris.rose.server.core.RoseAuthService", "iris.rose.server.core.TestRoseAuthServiceImpl" );
+<% end -%>
+<% test_profile.data_modules(:server).select(&:ejb?).each do |data_module| -%>
+<% data_module.services.select { |service| service.ejb? && service.ejb.bind_in_tests? }.each do |service| -%>
+    bind<%= data_module.name %><%= service.name %>();
+<% if service.ejb.generate_internal_service? -%>
+    bind<%= data_module.name %><%= service.name %>Internal();
+<% end -%>
+<% if service.ejb.generate_internal_boundary_service? -%>
+    bind<%= data_module.name %><%= service.name %>InternalBoundary();
+<% end -%>
+<% if service.ejb.generate_boundary? -%>
+    bind<%= data_module.name %><%= service.name %>Boundary();
+<% end -%>
+<% end -%>
+<% end -%>
+<% end -%>
+<% if test_profile.database_backed? -%>
+    bind( org.realityforge.timeservice.TimeService.class ).to( TestTimeServiceImpl.class ).in( javax.inject.Singleton.class );
+    bind( javax.transaction.TransactionSynchronizationRegistry.class ).annotatedWith( replicant.server.runtime.ReplicantSystem.class ).to( javax.transaction.TransactionSynchronizationRegistry.class );
+<% if test_profile.server? -%>
+    configureReplicant();
+<% else -%>
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( NoopReplicantChangeRecorder.class ).in( javax.inject.Singleton.class );
+<% end -%>
+<% end -%>
+  }
+<% test_profile.data_modules(:persistence).select { |data_module| data_module.jpa? }.each do |data_module| -%>
+
+  @javax.annotation.Nonnull
+  protected com.google.inject.Module new<%= data_module.name %>PersistenceRepositoryModule()
+  {
+    return new <%= data_module.name %>PersistenceRepositoryModule();
+  }
+<% if data_module.jpa.generate_test_factory? -%>
+
+  @javax.annotation.Nonnull
+  protected com.google.inject.Module new<%= data_module.name %>PersistenceFactoryModule()
+  {
+    return new <%= data_module.name %>PersistenceFactoryModule();
+  }
+<% end -%>
+<% end -%>
+<% if test_profile.server? -%>
+  @javax.annotation.Nonnull
+  protected com.google.inject.Module newTestProfileServerSupportModule()
+  {
+    return new iris.rose.server.test.util.TestProfileServerSupportModule();
+  }
+
+  public <%= test_profile.java_name %>ProfileModule( @javax.annotation.Nonnull final Abstract<%= test_profile.java_name %>Test test )
+  {
+    super( test );
+<% if test_profile.data_modules(:server).any? { |data_module| 'Payments' == data_module.name.to_s } -%>
+    _test = test;
+<% end -%>
+  }
+
+  protected void bindTaskSchedulerService()
+  {
+    bindService( "iris.rose.server.service.TaskSchedulerService", "iris.rose.server.service.TaskSchedulerServiceImpl" );
+  }
+
+  protected void configureReplicant()
+  {
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( NoopReplicantChangeRecorder.class ).in( javax.inject.Singleton.class );
+  }
+<% test_profile.data_modules(:server).select(&:ejb?).each do |data_module| -%>
+<% data_module.services.select { |service| service.ejb? && service.ejb.bind_in_tests? }.each do |service| -%>
+
+  protected void bind<%= data_module.name %><%= service.name %>()
+  {
+<% if 'DataAnalytics' == data_module.name.to_s && 'DataAnalyticsService' == service.name.to_s -%>
+    bindMock( "iris.rose.server.data_analytics.DataAnalyticsService" );
+<% else -%>
+    bindService( "<%= service.ejb.qualified_service_name %>", "<%= service.ejb.qualified_service_implementation_name %>" );
+<% end -%>
+  }
+<% if service.ejb.generate_internal_service? -%>
+
+  protected void bind<%= data_module.name %><%= service.name %>Internal()
+  {
+<% if 'Calendar' == data_module.name.to_s && 'CalendarService' == service.name.to_s -%>
+    bindMock( "iris.rose.server.calendar.CalendarServiceInternal" );
+<% else -%>
+    bindService( "<%= service.ejb.qualified_internal_service_name %>", "<%= service.ejb.qualified_internal_service_implementation_name %>" );
+<% end -%>
+  }
+<% end -%>
+<% if service.ejb.generate_internal_boundary_service? -%>
+
+  protected void bind<%= data_module.name %><%= service.name %>InternalBoundary()
+  {
+    bindService( "<%= service.ejb.qualified_internal_boundary_service_name %>", "<%= service.ejb.qualified_internal_boundary_service_implementation_name %>" );
+  }
+<% end -%>
+<% if service.ejb.generate_boundary? -%>
+
+  protected void bind<%= data_module.name %><%= service.name %>Boundary()
+  {
+    bindService( "<%= service.ejb.qualified_boundary_service_name %>", "<%= service.ejb.qualified_boundary_service_implementation_name %>" );
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+<% end -%>
+<% if test_profile.database_backed? -%>
+
+  public static final class TestTimeServiceImpl
+    implements org.realityforge.timeservice.TimeService
+  {
+    @java.lang.Override
+    public long currentTimeMillis()
+    {
+      return org.realityforge.guiceyloops.shared.ValueUtil.now().getTime();
+    }
+  }
+
+  public static final class NoopReplicantChangeRecorder
+    implements replicant.server.transport.ReplicantChangeRecorder
+  {
+    @javax.annotation.Nullable
+    @java.lang.Override
+    public replicant.server.EntityChangeCandidate convertToEntityChangeCandidate( @javax.annotation.Nonnull final java.lang.Object object,
+                                                                                   final boolean isUpdate )
+    {
+      return null;
+    }
+  }
+<% end -%>
+}

@@ -1,0 +1,29 @@
+# DO NOT EDIT: File is auto-generated
+load("//third_party/java:server_rules.bzl", "java_server_library")
+
+def declare_persistence_profile_resource_targets(name = None):
+<% repository.test_profiles.select(&:database_backed?).each do |test_profile| -%>
+    java_server_library(
+        name = "<%= test_profile.path_name %>_jpa_resources",
+        resources = [
+            "test_profiles/<%= test_profile.path_name %>/META-INF/orm.xml",
+            "test_profiles/<%= test_profile.path_name %>/META-INF/persistence.xml",
+        ],
+        resource_strip_prefix = "server/src/test/resources/test_profiles/<%= test_profile.path_name %>",
+        visibility = ["//visibility:public"],
+    )
+    native.filegroup(
+        name = "<%= test_profile.path_name %>_marker",
+        srcs = ["test_profiles/<%= test_profile.path_name %>/profile.json"],
+        visibility = ["//visibility:public"],
+    )
+    native.filegroup(
+        name = "<%= test_profile.path_name %>_persistence_fingerprint_inputs",
+        srcs = [
+            "test_profiles/<%= test_profile.path_name %>/META-INF/orm.xml",
+            "test_profiles/<%= test_profile.path_name %>/META-INF/persistence.xml",
+            "test_profiles/<%= test_profile.path_name %>/profile.json",
+        ],
+        visibility = ["//visibility:public"],
+    )
+<% end -%>

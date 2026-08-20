@@ -1,0 +1,93 @@
+# DO NOT EDIT: File is auto-generated
+load("//third_party/java:client_rules.bzl", "j2cl_library", "java_client_library")
+
+def declare_client_test_profile_targets():
+<% profiles = repository.test_profiles.select { |test_profile| test_profile.client? && test_profile.data_modules(:client).any?(&:arez?) } -%>
+<% profiles.each do |test_profile| -%>
+<% modules = test_profile.data_modules(:client).select { |data_module| data_module.entities.any? { |entity| entity.arez? && entity.concrete? } } -%>
+<% factories = modules.select { |data_module| data_module.arez.factory_required? } -%>
+    <%= test_profile.path_name %>_native_deps = [
+        ":ValueUtil",
+        "//third_party/java:arez",
+        "//third_party/java:braincheck_core",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:junit",
+        "//third_party/java:replicant_client",
+        "//third_party/java:sting",
+        "//third_party/java:zemeckis_core",
+        "//user-experience/src/main/java/iris/rose/client/ioc:AbstractRoseInjector",
+        "//user-experience/src/main/java/iris/rose/client/service:RoseAsyncCallback",
+        "//user-experience/src/main/java/iris/rose/client/util/daterange:DateRange",
+<% modules.each do |data_module| -%>
+<% package_name = repository.test_profile_registry.module_config(data_module).architecture_packages[:client] -%>
+<% if package_name -%>
+        "//user-experience/src/main/java/<%= package_name.gsub('.', '/') %>:test_profile_data",
+<% end -%>
+<% end -%>
+<% factories.each do |data_module| -%>
+<% factory_name = data_module.arez.qualified_test_factory_name.split('.').last -%>
+<% factory_package = data_module.arez.qualified_test_factory_name.split('.')[0..-2].join('/') -%>
+        "//user-experience/src/test/java/<%= factory_package %>:<%= factory_name %>",
+<% end -%>
+    ]
+    java_client_library(
+        name = "<%= test_profile.path_name %>_client_profile",
+        srcs = [
+            "profile/Abstract<%= test_profile.java_name %>Test.java",
+            "profile/Abstract<%= test_profile.java_name %>TestInjector.java",
+            "profile/<%= test_profile.java_name %>EntityTest.java",
+            "profile/<%= test_profile.java_name %>Fragment.java",
+            "profile/<%= test_profile.java_name %>LocatorFragment.java",
+            "profile/<%= test_profile.java_name %>SystemSchemaFragment.java",
+            "profile/<%= test_profile.java_name %>TestInjector.java",
+        ],
+        testonly = True,
+        visibility = ["//visibility:public"],
+        deps = <%= test_profile.path_name %>_native_deps,
+        exports = <%= test_profile.path_name %>_native_deps,
+    )
+
+    <%= test_profile.path_name %>_j2cl_deps = [
+        ":ValueUtil-j2cl",
+        "//third_party/java:arez_core-j2cl",
+        "//third_party/java:braincheck_core-j2cl",
+        "//third_party/java:javaemul_internal_annotations-j2cl",
+        "//third_party/java:javax_annotation-j2cl",
+        "//third_party/java:replicant_client-j2cl",
+        "//third_party/java:sting_core-j2cl",
+        "//third_party/java:zemeckis_core-j2cl",
+        "//user-experience/src/main/java/iris/rose/client/ioc:AbstractRoseInjector-j2cl",
+        "//user-experience/src/main/java/iris/rose/client/service:RoseAsyncCallback-j2cl",
+        "//user-experience/src/main/java/iris/rose/client/util/daterange:DateRange-j2cl",
+        "@j2cl//:junit",
+<% modules.each do |data_module| -%>
+<% package_name = repository.test_profile_registry.module_config(data_module).architecture_packages[:client] -%>
+<% if package_name -%>
+        "//user-experience/src/main/java/<%= package_name.gsub('.', '/') %>:test_profile_data-j2cl",
+<% end -%>
+<% end -%>
+<% factories.each do |data_module| -%>
+<% factory_name = data_module.arez.qualified_test_factory_name.split('.').last -%>
+<% factory_package = data_module.arez.qualified_test_factory_name.split('.')[0..-2].join('/') -%>
+        "//user-experience/src/test/java/<%= factory_package %>:<%= factory_name %>-j2cl",
+<% end -%>
+    ]
+    j2cl_library(
+        name = "<%= test_profile.path_name %>_client_profile-j2cl",
+        srcs = [
+            "profile/Abstract<%= test_profile.java_name %>Test.java",
+            "profile/Abstract<%= test_profile.java_name %>TestInjector.java",
+            "profile/<%= test_profile.java_name %>EntityTest.java",
+            "profile/<%= test_profile.java_name %>Fragment.java",
+            "profile/<%= test_profile.java_name %>LocatorFragment.java",
+            "profile/<%= test_profile.java_name %>SystemSchemaFragment.java",
+            "profile/<%= test_profile.java_name %>TestInjector.java",
+        ],
+        plugins = ["//third_party/java:sting_processor_plugin"],
+        node_compatible = <%= test_profile.node_compatible? ? 'True' : 'False' %>,
+        testonly = True,
+        visibility = ["//visibility:public"],
+        deps = <%= test_profile.path_name %>_j2cl_deps,
+        exports = <%= test_profile.path_name %>_j2cl_deps,
+    )
+<% end -%>

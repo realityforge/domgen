@@ -1,0 +1,23 @@
+/* DO NOT EDIT: File is auto-generated */
+<%
+analysis = test_profile.repository.sql_analysis
+analysis_data_module = analysis.analysis_data_module
+profile_module_entity = analysis_data_module.entity_by_name(:TestProfileModule)
+-%>
+
+-- Module fragments register all checks they own. Retain only those supported by this profile's persistence closure.
+DELETE CC
+FROM <%= analysis.corruption_check_entity.sql.qualified_table_name %> CC
+WHERE EXISTS (
+  SELECT 1
+  FROM STRING_SPLIT(CC.[RequiredModules], ',') R
+  WHERE NOT EXISTS (
+    SELECT 1 FROM <%= profile_module_entity.sql.qualified_table_name %> PM WHERE PM.[Name] = R.[value]
+  )
+)
+GO
+
+-- Verify that the profile database is free of corruptions before creation completes.
+EXEC <%= analysis_data_module.sql.quoted_schema %>.[spPerformChecks]
+  @Profile = '<%= test_profile.name.gsub("'", "''") %>',
+  @ShowErrors = 0

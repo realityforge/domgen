@@ -495,7 +495,7 @@ JAVA
   {
     return "#{entity.name}[" +
 JAVA
-        s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect do |a|
+        s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent? && !a.jpa.exclude_from_to_string?}.collect do |a|
             "           \"#{a.jpa.name} = \" + #{a.jpa.field_name}"
         end.join(" + \", \" +\n")
         s += <<JAVA

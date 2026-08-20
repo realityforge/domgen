@@ -622,12 +622,13 @@ module Domgen
         entity.data_module.sql.dialect
       end
 
-      def load_from_fixture=(load_from_fixture)
-        @load_from_fixture = load_from_fixture
+      def row_source=(row_source)
+        Domgen.error("row_source #{row_source} on #{entity.qualified_name} is invalid") unless [:import, :deployment].include?(row_source)
+        @row_source = row_source
       end
 
-      def load_from_fixture?
-        @load_from_fixture.nil? ? false : !!@load_from_fixture
+      def row_source
+        @row_source || :import
       end
 
       def sequence_table=(sequence_table)

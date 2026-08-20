@@ -2,7 +2,7 @@
 package <%= to_package(repository.sql_analysis.qualified_abstract_corruption_checks_test_name) %>;
 
 public abstract class <%= repository.sql_analysis.abstract_corruption_checks_test_name %>
-  extends <%= repository.jpa.qualified_standalone_entity_test_name %>
+  extends <%= repository.sql_analysis.corruption_checks_test_base %>
 {
   public final class CorruptionCheckerCallback
   {

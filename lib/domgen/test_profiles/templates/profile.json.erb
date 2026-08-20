@@ -1,0 +1,13 @@
+{
+  "generated_notice": "DO NOT EDIT: File is auto-generated",
+  "name": "<%= test_profile.name %>",
+  "realm": "<%= test_profile.realm %>",
+  "fingerprint": "<%= test_profile.fingerprint %>",
+  "database_property_prefix": "<%= test_profile.path_name %>",
+  "physical_persistence_unit": "<%= test_profile.physical_persistence_unit_name %>",
+  "modules": <%= JSON.generate(test_profile.modules) %>,
+  "cleanup_tables": <%= JSON.generate(test_profile.data_modules(:persistence).flat_map do |data_module|
+    data_module.entities.select { |entity| entity.concrete? && entity.sql? && :deployment != entity.sql.row_source && !entity.sql.sequence_table? }.
+      collect { |entity| entity.sql.qualified_table_name }
+  end.reverse) %>
+}

@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.client.test.util.profile;
+<% repositories = test_profile.data_modules(:client).select(&:arez?).flat_map { |data_module| data_module.entities.select { |entity| entity.arez? && entity.concrete? }.collect { |entity| entity.dao.arez.qualified_repository_name } }.sort_by(&:to_s) -%>
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@sting.Fragment( includes = {
+<%= (repositories + ["#{test_profile.java_name}LocatorFragment", "#{test_profile.java_name}SystemSchemaFragment"]).collect { |name| "  #{name}.class" }.join(",\n") %>
+}, localOnly = false )
+public interface <%= test_profile.java_name %>Fragment
+{
+}

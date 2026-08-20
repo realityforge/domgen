@@ -1,0 +1,1404 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+@java.lang.SuppressWarnings( { "NotNullFieldNotInitialized", "VisibilityModifier" } )
+public abstract class Abstract<%= test_profile.java_name %>ProfileTestSupport
+  extends org.realityforge.guiceyloops.server.AbstractServerTest
+{
+<% database_backed = test_profile.database_backed? -%>
+<% if database_backed -%>
+  private boolean _disableAnalysis;
+<% if test_profile.server? -%>
+  @javax.annotation.Nullable
+  private java.nio.file.Path _tempDirectory;
+<% end -%>
+
+<% end -%>
+<% if test_profile.server? && 'CommonDataAnalysisServer' != test_profile.name.to_s && test_profile.data_modules(:server).any? { |data_module| 'DataAnalytics' == data_module.name.to_s } -%>
+  @javax.annotation.Nonnull
+  protected final java.util.List<java.util.Map<String, Object>> executeAnalysis( @javax.annotation.Nonnull final String triggerEvent,
+                                                                                 @javax.annotation.Nonnull final String applicationEvent )
+  {
+    return executeAnalysis( triggerEvent, java.util.Map.of(), applicationEvent );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<java.util.Map<String, Object>> executeAnalysis( @javax.annotation.Nonnull final String triggerEvent,
+                                                                                 @javax.annotation.Nonnull final String keyPhrase,
+                                                                                 @javax.annotation.Nonnull final Object keyValue,
+                                                                                 @javax.annotation.Nonnull final String applicationEvent )
+  {
+    return executeAnalysis( triggerEvent, java.util.Map.of( keyPhrase, keyValue ), applicationEvent );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<java.util.Map<String, Object>> executeAnalysis( final int analysisTaskId )
+  {
+    return executeAnalysis( analysisTaskId, java.util.Map.of() );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<java.util.Map<String, Object>> executeAnalysis( @javax.annotation.Nonnull final String triggerEvent,
+                                                                                 @javax.annotation.Nonnull final java.util.Map<String, Object> params,
+                                                                                 @javax.annotation.Nonnull final String applicationEvent )
+  {
+    beginTransaction();
+    final var query = em().createQuery(
+      "SELECT O.id FROM DataAnalytics_AnalysisTask O WHERE O.triggerEvent = ?1 AND O.applicationEvent = ?2",
+      Integer.class );
+    query.setParameter( 1, triggerEvent );
+    query.setParameter( 2, applicationEvent );
+    final int analysisTaskId = query.getSingleResult();
+    commitTransaction();
+    return executeAnalysis( analysisTaskId, params );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<java.util.Map<String, Object>> executeAnalysis( final int analysisTaskId,
+                                                                                 @javax.annotation.Nonnull final java.util.Map<String, Object> params )
+  {
+    beginTransaction();
+    final var dao = s( iris.rose.server.data_analytics.AnalysisTaskDAO.class );
+    final var sql = dao.getAnalysisTaskSqlById( analysisTaskId );
+    final var messagePerRow = dao.getAnalysisTaskMessagePerRowById( analysisTaskId );
+    final var resultKey = dao.findAnalysisTaskResultKeyById( analysisTaskId );
+    final var applicationEvent = dao.getAnalysisTaskApplicationEventById( analysisTaskId );
+    final var results = iris.rose.server.data_analytics.AnalysisInvocationUtil.executeQuery( sql, params, em() );
+    final var schemaMapping = a.findActionTypeToRequestSchemaByApplicationEvent( applicationEvent );
+    commitTransaction();
+    convertClobToString( results );
+    validateResultsPayloadMatchesSchema( schemaMapping, resultKey, messagePerRow, results );
+    return results;
+  }
+
+  @java.lang.SuppressWarnings( "EmptyCatch" )
+  private static void convertClobToString( @javax.annotation.Nonnull final java.util.List<java.util.Map<String, Object>> results )
+  {
+    for ( final var result : results )
+    {
+      for ( final var entry : result.entrySet() )
+      {
+        if ( entry.getValue() instanceof final net.sourceforge.jtds.jdbc.ClobImpl value )
+        {
+          final var builder = new StringBuilder();
+          try
+          {
+            try ( var reader = new java.io.BufferedReader( value.getCharacterStream() ) )
+            {
+              String line;
+              while ( null != ( line = reader.readLine() ) )
+              {
+                builder.append( line );
+              }
+            }
+          }
+          catch ( final Exception ignored )
+          {
+          }
+          result.put( entry.getKey(), builder.toString() );
+        }
+      }
+    }
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  protected final <V> V getSingleValue( @javax.annotation.Nonnull final java.util.List<java.util.Map<String, Object>> results,
+                                        @javax.annotation.Nonnull final String key )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( 1, results.size() );
+    final var result = results.get( 0 );
+    org.junit.jupiter.api.Assertions.assertEquals( 1, result.size() );
+    return (V) result.get( key );
+  }
+
+  private static void validateResultsPayloadMatchesSchema( @javax.annotation.Nonnull final java.util.Map<String, String> schemaMapping,
+                                                           @javax.annotation.Nullable final String resultKey,
+                                                           final boolean messagePerRow,
+                                                           @javax.annotation.Nonnull final java.util.List<java.util.Map<String, Object>> results )
+  {
+    for ( final var entry : schemaMapping.entrySet() )
+    {
+      validateResultsIfRequired( entry.getKey(), resultKey, entry.getValue(), messagePerRow, results );
+    }
+  }
+
+  private static void validateResultsIfRequired( @javax.annotation.Nonnull final String actionType,
+                                                 @javax.annotation.Nullable final String resultKey,
+                                                 @javax.annotation.Nonnull final String requestSchema,
+                                                 final boolean messagePerRow,
+                                                 @javax.annotation.Nonnull final java.util.List<java.util.Map<String, Object>> results )
+  {
+    if ( messagePerRow )
+    {
+      for ( final var result : results )
+      {
+        final var payload = iris.rose.server.service.util.JsonUtil.asJson( result, resultKey );
+        org.junit.jupiter.api.Assertions.assertNull( iris.rose.server.util.json.JsonSchemaValidator.validate( requestSchema, payload ),
+                                                    "Payload failed validation. ActionType: " + actionType +
+                                                    " Schema: " + requestSchema + " Payload: " + payload );
+      }
+    }
+    else if ( !results.isEmpty() )
+    {
+      final var payload = iris.rose.server.service.util.JsonUtil.asJson( results, resultKey );
+      org.junit.jupiter.api.Assertions.assertNull( iris.rose.server.util.json.JsonSchemaValidator.validate( requestSchema, payload ),
+                                                  "Payload failed validation. ActionType: " + actionType +
+                                                  " Schema: " + requestSchema + " Payload: " + payload );
+    }
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Rose' == data_module.name.to_s } -%>
+  @javax.annotation.Nonnull
+  protected final java.util.Map<Integer, iris.rose.server.core.AllocationRule> toRuleMap( @javax.annotation.Nonnull final iris.rose.server.core.AllocationRule... rules )
+  {
+    final java.util.Map<Integer, iris.rose.server.core.AllocationRule> map = new java.util.HashMap<>();
+    for ( final var rule : rules )
+    {
+      map.put( rule.getResourceId(), rule );
+    }
+    return map;
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.core.AllocationRule defaultRule( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource )
+  {
+    return defaultRule( resource, null );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.core.AllocationRule defaultRule( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                                   @javax.annotation.Nullable final iris.rose.server.core.Organisation organisation )
+  {
+    return new iris.rose.server.core.AllocationRule( resource.getId(),
+                                                     iris.rose.server.core.AllocationStrategy.ALLOCATE,
+                                                     iris.rose.server.core.AssignmentStrategy.ASSIGN,
+                                                     null == organisation ? null : organisation.getId(),
+                                                     java.util.Collections.emptyList() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Messaging' == data_module.name.to_s } -%>
+  protected final void assertEventBlankMessage( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message,
+                                                @javax.annotation.Nonnull final iris.rose.server.core.Event event )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( event, message.getEvent() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getOrgUnit() );
+    assertBlankMessage( message );
+  }
+
+  protected final void assertOrgUnitBlankMessage( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message,
+                                                  @javax.annotation.Nonnull final iris.rose.server.core.OrgUnit orgUnit )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( orgUnit, message.getOrgUnit() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getEvent() );
+    assertBlankMessage( message );
+  }
+
+  protected final void assertBlankMessage( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( "", message.getDescription() );
+    org.junit.jupiter.api.Assertions.assertEquals( "", message.getContent() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getOverdueAt() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getExpiresAt() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getSentAt() );
+    org.junit.jupiter.api.Assertions.assertNull( message.getArchivedAt() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Operations' == data_module.name.to_s } -%>
+  protected final void assertMovementCountChangedEventCount( final int messageCount )
+  {
+    assertEventCount( iris.rose.server.core.MovementCountChangedTypeLiteral.INSTANCE, messageCount );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.operations.OpAssignment ensureAssignment( @javax.annotation.Nullable final iris.rose.server.operations.OpPosition position,
+                                                                             @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                                             @javax.annotation.Nullable final iris.rose.server.core.Organisation organisation )
+  {
+    org.junit.jupiter.api.Assertions.assertNotNull( position );
+    final var assignment = position.getAssignment();
+    org.junit.jupiter.api.Assertions.assertNotNull( assignment );
+    org.junit.jupiter.api.Assertions.assertEquals( resource, assignment.getResource() );
+    org.junit.jupiter.api.Assertions.assertEquals( position, assignment.getPosition() );
+    org.junit.jupiter.api.Assertions.assertEquals( assignment,
+                                                  s( iris.rose.server.operations.OperationService.class ).getOpAssignment( resource ) );
+    return assignment;
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Payments' == data_module.name.to_s } -%>
+  protected int workspaceMaxResourceEntryCount()
+  {
+    return 100;
+  }
+
+  protected final void assertPaymentsPermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.payments.PaymentsPermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Payments.tblPaymentsPermission", permission.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Plans' == data_module.name.to_s } -%>
+  protected final void assertShiftHashesUpToDate()
+  {
+    final java.util.Set<iris.rose.server.plans.ShiftUnit> unitsToProcess = new java.util.HashSet<>();
+    final java.util.Set<iris.rose.server.plans.ShiftUnit> unitsProcessed = new java.util.HashSet<>();
+    for ( final var position : query( "SELECT O FROM Plans_ShiftPosition O", iris.rose.server.plans.ShiftPosition.class ) )
+    {
+      org.junit.jupiter.api.Assertions.assertEquals( iris.rose.server.plans.HashUtil.recalculateHash( position ),
+                                                    position.getHash(),
+                                                    "ShiftPosition has not recalculated hash correctly: " + position );
+      unitsToProcess.add( position.getUnit() );
+    }
+    while ( !unitsToProcess.isEmpty() )
+    {
+      final var unit = unitsToProcess.iterator().next();
+      unitsToProcess.remove( unit );
+      unitsProcessed.add( unit );
+      org.junit.jupiter.api.Assertions.assertEquals( iris.rose.server.plans.HashUtil.recalculateHash( unit ),
+                                                    unit.getHash(),
+                                                    "ShiftUnit has not recalculated hash correctly: " + unit );
+      final var parentComposition = unit.getParentComposition();
+      if ( null != parentComposition && !unitsProcessed.contains( parentComposition.getParent() ) )
+      {
+        unitsToProcess.add( parentComposition.getParent() );
+      }
+    }
+  }
+
+  protected final void assertUnitNotDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( unit.removed() );
+    assertDoesExist( "Plans.tblShiftUnit", unit.getId() );
+  }
+
+  protected final void assertUnitDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertDoesNotExist( "Plans.tblShiftUnit", unit.getId() );
+  }
+
+  protected final void assertUnitCompositionDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertDoesNotExist( "Plans.tblShiftUnitComposition", composition.getId() );
+  }
+
+  protected final void assertPositionDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertDoesNotExist( "Plans.tblShiftPosition", position.getId() );
+  }
+
+  protected final void assertPositionNotDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( position.removed() );
+    assertDoesExist( "Plans.tblShiftPosition", position.getId() );
+  }
+
+  protected final void assertAssignmentDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftAssignment assignment )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( assignment.removed() );
+    assertDoesNotExist( "Plans.tblShiftAssignment", assignment.getId() );
+  }
+
+  protected final void assertAllocationDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( allocation.removed() );
+    assertDoesNotExist( "Plans.tblShiftAllocation", allocation.getId() );
+  }
+
+  protected final void assertAllocationNotDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( allocation.removed() );
+    assertDoesExist( "Plans.tblShiftAllocation", allocation.getId() );
+  }
+
+  protected final void assertUnsatisfiedRoleRequirementDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.ShiftUnsatisfiedRoleRequirement requirement )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( requirement.removed() );
+    assertDoesNotExist( "Plans.tblShiftUnsatisfiedRoleRequirement", requirement.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'PlannedMovements' == data_module.name.to_s } -%>
+  protected final void assertUnitDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMoUnit", unit.getId() );
+  }
+
+  protected final void assertUnitNotDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( unit.removed() );
+    assertDoesExist( "PlannedMovements.tblPlannedMoUnit", unit.getId() );
+  }
+
+  protected final void assertUnitCompositionDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMoUnitComposition", composition.getId() );
+  }
+
+  protected final void assertPositionNotDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( position.removed() );
+    assertDoesExist( "PlannedMovements.tblPlannedMoPosition", position.getId() );
+  }
+
+<% end -%>
+<% factory_modules = test_profile.data_modules(:persistence).select { |data_module| data_module.jpa? && data_module.jpa.generate_test_factory? } -%>
+<% factory_modules.each do |data_module| -%>
+  @javax.annotation.Nonnull
+  protected <%= data_module.jpa.qualified_test_factory_name %> <%= data_module.jpa.short_test_code %>;
+<% end -%>
+
+<% if database_backed || !factory_modules.empty? -%>
+  @org.junit.jupiter.api.BeforeEach
+  @java.lang.Override
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+<% factory_modules.each do |data_module| -%>
+    <%= data_module.jpa.short_test_code %> = s( <%= data_module.jpa.qualified_test_factory_name %>.class );
+<% end -%>
+<% if database_backed -%>
+    s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationInvocation", "Test" );
+<% end -%>
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryPersistenceUnitName()
+  {
+    return iris.rose.server.entity.RosePersistenceUnit.NAME;
+  }
+
+<% if database_backed -%>
+  @java.lang.Override
+  @java.lang.SuppressWarnings( "unchecked" )
+  protected void verifyTestEnvironment()
+    throws java.io.IOException
+  {
+    if ( java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) )
+    {
+      return;
+    }
+    final var fingerprintFile = java.lang.System.getProperty( "rose.test.persistence_fingerprint_file" );
+    org.junit.jupiter.api.Assertions.assertNotNull( fingerprintFile,
+                                                   "Test Profile " + getTestProfileName() + " must be selected through the Bazel test_profile attribute" );
+    final var expectedFingerprint = java.nio.file.Files.readString( java.nio.file.Path.of( fingerprintFile ) ).trim();
+    final java.util.List<java.lang.Object[]> identities =
+      em().createNativeQuery( "SELECT [Name], [PersistenceFingerprint] FROM [Analysis].[tblTestProfile]" ).getResultList();
+    org.junit.jupiter.api.Assertions.assertEquals( 1, identities.size(), "Database must contain exactly one Test Profile identity" );
+    final var identity = identities.get( 0 );
+    org.junit.jupiter.api.Assertions.assertEquals( getTestProfileName(),
+                                                  identity[ 0 ],
+                                                  "Connected database has the wrong logical Test Profile" );
+    org.junit.jupiter.api.Assertions.assertEquals( expectedFingerprint,
+                                                  identity[ 1 ],
+                                                  "Connected database has a stale persistence fingerprint" );
+  }
+
+  @org.junit.jupiter.api.AfterEach
+  @java.lang.Override
+  public void postTest()
+  {
+    try
+    {
+      if ( hasInjector() && isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+      {
+        _disableAnalysis = false;
+        runSqlAnalysisPerformChecks();
+      }
+    }
+    finally
+    {
+      try
+      {
+<% if test_profile.server? -%>
+        recursivelyDeleteTestSpecificTempDirectory();
+<% end -%>
+        if ( hasInjector() )
+        {
+          getInstance( "java:comp/DefaultManagedExecutorService", javax.enterprise.concurrent.ManagedExecutorService.class ).shutdownNow();
+        }
+      }
+      finally
+      {
+        super.postTest();
+      }
+    }
+  }
+
+  @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "SqlResolve", "unchecked" } )
+  protected void runSqlAnalysisPerformChecks()
+  {
+    em().clear();
+<% profile_modules = ([test_profile.repository.sql_analysis.analysis_data_module] + test_profile.data_modules(:persistence).select { |data_module| data_module.sql? && data_module != test_profile.repository.sql_analysis.analysis_data_module }) -%>
+    if ( java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) )
+    {
+      em().createNativeQuery( "DELETE FROM [Analysis].[tblTestProfileModule];" +
+<% profile_modules.each do |data_module| -%>
+                              "INSERT INTO [Analysis].[tblTestProfileModule]([Name],[SchemaName],[CheckConstraints]) VALUES ('<%= data_module.name.to_s.gsub("'", "''") %>','<%= data_module.sql.schema.to_s.gsub("'", "''") %>',<%= data_module.mssql? && data_module.mssql.generate_check_constraints? ? 1 : 0 %>);" +
+<% end -%>
+                              "DELETE CC FROM [Analysis].[tblCorruptionCheck] CC WHERE EXISTS (SELECT 1 FROM STRING_SPLIT(CC.[RequiredModules], ',') R WHERE NOT EXISTS (SELECT 1 FROM [Analysis].[tblTestProfileModule] PM WHERE PM.[Name] = R.[value]));"
+                            ).executeUpdate();
+    }
+    final var sql =
+      java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) ?
+      "EXEC [Analysis].[spPerformChecks]" :
+      "EXEC [Analysis].[spPerformChecks] @Profile = '" + getTestProfileName().replace( "'", "''" ) + "'";
+    em().createNativeQuery( sql ).getResultList();
+    final java.util.List<java.lang.Object[]> issues =
+      em().createNativeQuery( "SELECT [Category], [Description], [ViewSql] FROM [Analysis].[tblDataIssue]" ).getResultList();
+    if ( !issues.isEmpty() )
+    {
+      final var messages = new java.util.ArrayList<java.lang.String>();
+      for ( final var issue : issues )
+      {
+        final var viewSql = (java.lang.String) issue[ 2 ];
+        messages.add( issue[ 0 ] + ":" + issue[ 1 ] + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" ) );
+      }
+      org.junit.jupiter.api.Assertions.fail( "Database left in inconsistent state:\n  " + java.lang.String.join( "\n  ", messages ) );
+    }
+  }
+
+  protected final void disableCorruptionChecks()
+  {
+    _disableAnalysis = true;
+  }
+
+  private boolean isSqlAnalysisEnabled()
+  {
+    return !_disableAnalysis && "true".equals( java.lang.System.getProperty( "sql_analysis.enabled", "true" ) );
+  }
+
+<% if test_profile.server? -%>
+  @javax.annotation.Nonnull
+  protected final java.nio.file.Path ensureTempDirectory()
+  {
+    if ( null == _tempDirectory )
+    {
+      try
+      {
+        _tempDirectory = java.nio.file.Files.createTempDirectory( getClass().getSimpleName() );
+      }
+      catch ( final java.io.IOException ioe )
+      {
+        throw new java.io.UncheckedIOException( ioe );
+      }
+    }
+    return _tempDirectory;
+  }
+
+  private void recursivelyDeleteTestSpecificTempDirectory()
+  {
+    if ( null != _tempDirectory )
+    {
+      try
+      {
+        try ( var paths = java.nio.file.Files.walk( _tempDirectory ) )
+        {
+          paths.sorted( java.util.Comparator.reverseOrder() ).forEach( path -> {
+            try
+            {
+              java.nio.file.Files.delete( path );
+            }
+            catch ( final java.io.IOException ioe )
+            {
+              throw new java.io.UncheckedIOException( ioe );
+            }
+          } );
+        }
+      }
+      catch ( final java.io.IOException ioe )
+      {
+        throw new java.io.UncheckedIOException( ioe );
+      }
+      _tempDirectory = null;
+    }
+  }
+
+<% end -%>
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Rose' == data_module.name.to_s } -%>
+  @javax.annotation.Nonnull
+  protected iris.rose.server.core.User setupBasicUserAccount()
+  {
+    final var user = r.createUser();
+    setupAccount( user );
+    return user;
+  }
+
+  protected void setupAccount( @javax.annotation.Nonnull final iris.rose.server.core.User user )
+  {
+    setupAccount( user.getId(), user.getUserName() );
+  }
+
+  protected void setupAccount( final int userId, @javax.annotation.Nonnull final java.lang.String username )
+  {
+    toObject( iris.rose.server.core.TestRoseAuthServiceImpl.class,
+              s( iris.rose.server.core.RoseAuthService.class ) ).setupAccount( userId, username );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.core.ResourceAllocationDTO defaultAllocationStrategy( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource )
+  {
+    return new iris.rose.server.core.ResourceAllocationDTO( resource.getId(),
+                                                            iris.rose.server.core.AllocationStrategy.ALLOCATE,
+                                                            null,
+                                                            java.util.Collections.emptyList() );
+  }
+
+  protected void assertSearchResultDTOMatches( @javax.annotation.Nonnull final iris.rose.server.core.SearchResultDTO result,
+                                               @javax.annotation.Nonnull final iris.rose.server.core.Resource... expected )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( expected.length, result.getCount() );
+    for ( final var unit : expected )
+    {
+      var found = false;
+      for ( final var entry : result.getResults() )
+      {
+        if ( unit.getId() == entry.getId() )
+        {
+          org.junit.jupiter.api.Assertions.assertEquals( unit.getName(), entry.getName() );
+          org.junit.jupiter.api.Assertions.assertEquals( unit.getType().getId(), entry.getTypeId() );
+          found = true;
+          break;
+        }
+      }
+      org.junit.jupiter.api.Assertions.assertTrue( found, "Expected to have found unit " + unit );
+    }
+  }
+
+  protected void assertSearchResourceGroupDTOMatches( @javax.annotation.Nonnull final iris.rose.server.core.SearchResourceGroupDTO result,
+                                                      @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroup... expected )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( expected.length, result.getCount() );
+    for ( final var unit : expected )
+    {
+      var found = false;
+      for ( final var entry : result.getResults() )
+      {
+        if ( unit.getId() == entry.getId() )
+        {
+          org.junit.jupiter.api.Assertions.assertEquals( unit.getName(), entry.getName() );
+          found = true;
+          break;
+        }
+      }
+      org.junit.jupiter.api.Assertions.assertTrue( found, "Expected to have found unit " + unit );
+    }
+  }
+
+  protected final void assertResourceNotArchived( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource )
+  {
+    org.junit.jupiter.api.Assertions.assertNull( resource.getEndAt() );
+  }
+
+  protected final void assertResourceArchived( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( resource.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( resource.getEndAt() );
+  }
+
+  protected final void assertEventArchived( @javax.annotation.Nonnull final iris.rose.server.core.Event event )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( event.removed() );
+    org.junit.jupiter.api.Assertions.assertTrue( event.isArchived() );
+    org.junit.jupiter.api.Assertions.assertFalse( event.isActive() );
+    org.junit.jupiter.api.Assertions.assertNotNull( event.getEndAt() );
+  }
+
+  protected final void assertResourceMarkedArchived( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource )
+  {
+    final var attribute =
+      resource.findAttributeByCode( iris.rose.shared.entity.CoreConstants.AT_ARCHIVE_AT,
+                                    org.realityforge.guiceyloops.shared.ValueUtil.now() );
+    org.junit.jupiter.api.Assertions.assertNotNull( attribute );
+    org.junit.jupiter.api.Assertions.assertNotNull( attribute.getValue() );
+  }
+
+  @javax.annotation.Nonnull
+  protected javax.xml.datatype.XMLGregorianCalendar toXmlDate( @javax.annotation.Nonnull final java.util.Date date )
+    throws javax.xml.datatype.DatatypeConfigurationException
+  {
+    final var calendar = new java.util.GregorianCalendar();
+    calendar.setTime( date );
+    return javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar( calendar );
+  }
+
+  @javax.annotation.Nullable
+  public iris.rose.server.core.OrganisationMembership findByOrganisationAndResourceValidAt( @javax.annotation.Nullable final iris.rose.server.core.Organisation organisation,
+                                                                                            @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                                                            @javax.annotation.Nonnull final java.util.Date date )
+  {
+    return null != organisation ?
+           r.organisationMembershipRepository().findByOrganisationAndResourceValidAt( organisation, resource, date ) :
+           null;
+  }
+
+  protected final void assertResourceGroupDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroup resourceGroup )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( resourceGroup.removed() );
+    assertDoesNotExist( "Rose.tblResourceGroup", resourceGroup.getId() );
+  }
+
+  protected final void assertResourceGroupMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblResourceGroupMembership", membership.getId() );
+  }
+
+  protected final void assertResourceGroupAdminDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupAdmin admin )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( admin.removed() );
+    assertDoesNotExist( "Rose.tblResourceGroupAdmin", admin.getId() );
+  }
+
+  protected final void assertResourceGroupAdminNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupAdmin admin )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( admin.removed() );
+    assertDoesExist( "Rose.tblResourceGroupAdmin", admin.getId() );
+  }
+
+  protected final void assertResourceGroupSubscriptionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupSubscription subscription )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( subscription.removed() );
+    assertDoesNotExist( "Rose.tblResourceGroupSubscription", subscription.getId() );
+  }
+
+  protected final void assertResourceGroupSubscriptionNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupSubscription subscription )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( subscription.removed() );
+    assertDoesExist( "Rose.tblResourceGroupSubscription", subscription.getId() );
+  }
+
+  protected final void assertResourceUserDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceUser resourceUser )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( resourceUser.removed() );
+    assertDoesNotExist( "Rose.tblResourceUser", resourceUser.getId() );
+  }
+
+  protected final void assertResourceUserNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceUser resourceUser )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( resourceUser.removed() );
+    assertDoesExist( "Rose.tblResourceUser", resourceUser.getId() );
+  }
+
+  protected final void assertResourceGroupNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroup resourceGroup )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( resourceGroup.removed() );
+    assertDoesExist( "Rose.tblResourceGroup", resourceGroup.getId() );
+  }
+
+  protected final void assertResourceGroupMembershipNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( membership.removed() );
+    assertDoesExist( "Rose.tblResourceGroupMembership", membership.getId() );
+  }
+
+  protected final void assertSecurityGroupDeleted( @javax.annotation.Nonnull final iris.rose.server.core.SecurityGroup securityGroup )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( securityGroup.removed() );
+    assertDoesNotExist( "Rose.tblSecurityGroup", securityGroup.getId() );
+  }
+
+  protected final void assertSecurityGroupMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.SecurityGroupMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblSecurityGroupMembership", membership.getId() );
+  }
+
+  protected final void assertSecurityGroupMembershipNotDeleted( @javax.annotation.Nonnull final iris.rose.server.core.SecurityGroupMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( membership.removed() );
+    assertDoesExist( "Rose.tblSecurityGroupMembership", membership.getId() );
+  }
+
+  protected final void assertPermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.Permission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Rose.tblPermission", permission.getId() );
+  }
+
+  protected final void assertAttributePermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.AttributePermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Rose.tblAttributePermission", permission.getId() );
+  }
+
+  protected final void assertOrgUnitAttributePermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.OrgUnitAttributePermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Rose.tblOrgUnitAttributePermission", permission.getId() );
+  }
+
+  protected final void assertEventAttributePermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.EventAttributePermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Rose.tblEventAttributePermission", permission.getId() );
+  }
+
+  protected final void assertEventTypeAttributePermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.core.EventTypeAttributePermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Rose.tblEventTypeAttributePermission", permission.getId() );
+  }
+
+  protected final void assertOrganisationMembershipArchived( @javax.annotation.Nonnull final iris.rose.server.core.OrganisationMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( membership.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( membership.getEndAt() );
+  }
+
+  protected final void assertOrganisationMembershipAttributeArchived( @javax.annotation.Nonnull final iris.rose.server.core.OrganisationMembershipAttribute attribute )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( attribute.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( attribute.getEndAt() );
+  }
+
+  protected final void assertOrgUnitMembershipArchived( @javax.annotation.Nonnull final iris.rose.server.core.OrgUnitMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( membership.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( membership.getEndAt() );
+  }
+
+  protected final void assertResourceGroupMembershipArchived( @javax.annotation.Nonnull final iris.rose.server.core.ResourceGroupMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblResourceGroupMembership", membership.getId() );
+  }
+
+  protected final void assertAllocationConstraintArchived( @javax.annotation.Nonnull final iris.rose.server.core.AllocationConstraint constraint )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( constraint.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( constraint.getEndAt() );
+  }
+
+  protected final void assertPoolDeleted( @javax.annotation.Nonnull final iris.rose.server.core.Pool pool )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( pool.removed() );
+    assertDoesNotExist( "Rose.tblPool", pool.getId() );
+  }
+
+  protected final void assertOrgUnitPoolMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.OrgUnitPoolMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblOrgUnitPoolMembership", membership.getId() );
+  }
+
+  protected final void assertResourcePoolMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.ResourcePoolMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblResourcePoolMembership", membership.getId() );
+  }
+
+  protected final void assertTemplateOrgUnitPoolMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.TemplateOrgUnitPoolMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblTemplateOrgUnitPoolMembership", membership.getId() );
+  }
+
+  protected final void assertTemplateResourcePoolMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.TemplateResourcePoolMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblTemplateResourcePoolMembership", membership.getId() );
+  }
+
+  protected final void assertTemplateResourceGroupPoolMembershipDeleted( @javax.annotation.Nonnull final iris.rose.server.core.TemplateResourceGroupPoolMembership membership )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( membership.removed() );
+    assertDoesNotExist( "Rose.tblTemplateResourceGroupPoolMembership", membership.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Operations' == data_module.name.to_s } -%>
+  protected final void assertAllocationArchived( @javax.annotation.Nonnull final iris.rose.server.operations.OperationAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( allocation.removed() );
+    assertLogicallyDeleted( "Operations.tblOperationAllocation", allocation.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, allocation::getDeletedAt );
+  }
+
+  protected final void assertOperationArchived( @javax.annotation.Nonnull final iris.rose.server.operations.Operation operation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( operation.removed() );
+    assertLogicallyDeleted( "Operations.tblOperation", operation.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, operation::getDeletedAt );
+  }
+
+  protected final void assertUnitArchived( @javax.annotation.Nonnull final iris.rose.server.operations.OpUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertLogicallyDeleted( "Operations.tblOpUnit", unit.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, unit::getDeletedAt );
+  }
+
+  protected final void assertPositionArchived( @javax.annotation.Nonnull final iris.rose.server.operations.OpPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertLogicallyDeleted( "Operations.tblOpPosition", position.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, position::getDeletedAt );
+  }
+
+  protected final void assertAssignmentArchived( @javax.annotation.Nonnull final iris.rose.server.operations.OpAssignment assignment )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( assignment.removed() );
+    assertLogicallyDeleted( "Operations.tblOpAssignment", assignment.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, assignment::getDeletedAt );
+  }
+
+  protected final void assertUnitCompositionArchived( @javax.annotation.Nonnull final iris.rose.server.operations.OpUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertLogicallyDeleted( "Operations.tblOpUnitComposition", composition.getId() );
+    org.junit.jupiter.api.Assertions.assertThrows( IllegalStateException.class, composition::getDeletedAt );
+  }
+
+  protected final void assertOperationalStatusDeleted( @javax.annotation.Nonnull final iris.rose.server.operations.OperationalStatus status )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( status.removed() );
+  }
+
+  protected void assertOperationAllocationCreatedEvent( final int index,
+                                                        @javax.annotation.Nonnull final iris.rose.server.operations.OperationAllocation operationAllocation,
+                                                        @javax.annotation.Nonnull final iris.rose.server.core.Event event,
+                                                        @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                        @javax.annotation.Nullable final iris.rose.server.core.Organisation organisation )
+  {
+    assertOperationAllocationCreatedEvent( index,
+                                           operationAllocation.getId(),
+                                           event.getId(),
+                                           resource.getId(),
+                                           null == organisation ? null : organisation.getId() );
+  }
+
+  protected final void assertOperationAllocationCreatedEventCount( final int messageCount )
+  {
+    assertEventCount( iris.rose.server.operations.OperationAllocationCreatedTypeLiteral.INSTANCE, messageCount );
+  }
+
+  protected void assertOperationAllocationCreatedEvent( final int index,
+                                                        final int operationAllocationId,
+                                                        final int eventId,
+                                                        final int resourceId,
+                                                        @javax.annotation.Nullable final Integer organisationId )
+  {
+    final var event = getEvent( iris.rose.server.operations.OperationAllocationCreatedTypeLiteral.INSTANCE, index );
+    org.junit.jupiter.api.Assertions.assertEquals( operationAllocationId, event.getOperationAllocationId() );
+    org.junit.jupiter.api.Assertions.assertEquals( eventId, event.getEventId() );
+    org.junit.jupiter.api.Assertions.assertEquals( resourceId, event.getResourceId() );
+    org.junit.jupiter.api.Assertions.assertEquals( organisationId, event.getOrganisationId() );
+  }
+
+  protected final void assertOperationalStatusMatchesEvent( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                            @javax.annotation.Nonnull final iris.rose.server.core.Event event )
+  {
+    final var operationalStatus = o.operationalStatusRepository().findByResource( resource );
+    org.junit.jupiter.api.Assertions.assertNotNull( operationalStatus );
+    org.junit.jupiter.api.Assertions.assertEquals( event, operationalStatus.getCurrentEvent() );
+    org.junit.jupiter.api.Assertions.assertFalse( operationalStatus.isTravelling() );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.operations.OperationAllocation ensureOperationAllocationMatches( @javax.annotation.Nonnull final iris.rose.server.core.Resource resource,
+                                                                                                     @javax.annotation.Nonnull final iris.rose.server.core.Event event,
+                                                                                                     @javax.annotation.Nullable final iris.rose.server.core.Organisation organisation )
+  {
+    final var allocation = o.operationAllocationRepository().findByResource( resource );
+    org.junit.jupiter.api.Assertions.assertNotNull( allocation );
+    org.junit.jupiter.api.Assertions.assertEquals( event, allocation.getEvent() );
+    org.junit.jupiter.api.Assertions.assertEquals( organisation, allocation.getOrganisation() );
+    assertOperationalStatusMatchesEvent( resource, event );
+    return allocation;
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'PlannedMovements' == data_module.name.to_s } -%>
+  protected final void assertAllocationDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMovementAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( allocation.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMovementAllocation", allocation.getId() );
+  }
+
+  protected final void assertAllocationNotDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMovementAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( allocation.removed() );
+    assertDoesExist( "PlannedMovements.tblPlannedMovementAllocation", allocation.getId() );
+  }
+
+  protected final void assertPlannedMovementDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMovement movement )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( movement.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMovement", movement.getId() );
+  }
+
+  protected final void assertPlannedMovementNotDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMovement movement )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( movement.removed() );
+    assertDoesExist( "PlannedMovements.tblPlannedMovement", movement.getId() );
+  }
+
+  protected final void assertPositionDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMoPosition", position.getId() );
+  }
+
+  protected final void assertAssignmentDeleted( @javax.annotation.Nonnull final iris.rose.server.planned_movements.PlannedMoAssignment assignment )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( assignment.removed() );
+    assertDoesNotExist( "PlannedMovements.tblPlannedMoAssignment", assignment.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Movements' == data_module.name.to_s } -%>
+  protected final void assertOpMovementArchived( @javax.annotation.Nonnull final iris.rose.server.movements.OpMovement movement )
+  {
+    org.junit.jupiter.api.Assertions.assertNotNull( movement.getEndAt() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Messaging' == data_module.name.to_s } -%>
+  protected final void assertMessageDeleted( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( message.removed() );
+    assertDoesNotExist( "Messaging.tblMessage", message.getId() );
+  }
+
+  protected final void assertMessageArchived( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( message.removed() );
+    org.junit.jupiter.api.Assertions.assertNotNull( message.getArchivedAt() );
+  }
+
+  protected final void assertMessageNotDeleted( @javax.annotation.Nonnull final iris.rose.server.messaging.Message message )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( message.removed() );
+    assertDoesExist( "Messaging.tblMessage", message.getId() );
+  }
+
+  protected final void assertResourceMessageDeleted( @javax.annotation.Nonnull final iris.rose.server.messaging.ResourceMessage message )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( message.removed() );
+    assertDoesNotExist( "Messaging.tblResourceMessage", message.getId() );
+  }
+
+  protected final void assertResourceMessageNotDeleted( @javax.annotation.Nonnull final iris.rose.server.messaging.ResourceMessage message )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( message.removed() );
+    assertDoesExist( "Messaging.tblResourceMessage", message.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Plans' == data_module.name.to_s } -%>
+  protected final void assertShiftDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.Shift shift )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( shift.removed() );
+    assertDoesNotExist( "Plans.tblShift", shift.getId() );
+  }
+
+  protected final void assertShiftNotDeleted( @javax.annotation.Nonnull final iris.rose.server.plans.Shift shift )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( shift.removed() );
+    assertDoesExist( "Plans.tblShift", shift.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Requests' == data_module.name.to_s } -%>
+  protected final void assertRequestDeleted( @javax.annotation.Nonnull final iris.rose.server.requests.Request request )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( request.removed() );
+    assertDoesNotExist( "Requests.tblRequest", request.getId() );
+  }
+
+  protected final void assertUnitNotDeleted( @javax.annotation.Nonnull final iris.rose.server.requests.ReqUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( unit.removed() );
+    assertDoesExist( "Requests.tblReqUnit", unit.getId() );
+  }
+
+  protected final void assertUnitDeleted( @javax.annotation.Nonnull final iris.rose.server.requests.ReqUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertDoesNotExist( "Requests.tblReqUnit", unit.getId() );
+  }
+
+  protected final void assertPositionDeleted( @javax.annotation.Nonnull final iris.rose.server.requests.ReqPosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertDoesNotExist( "Requests.tblReqPosition", position.getId() );
+  }
+
+  protected final void assertUnitCompositionDeleted( @javax.annotation.Nonnull final iris.rose.server.requests.ReqUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertDoesNotExist( "Requests.tblReqUnitComposition", composition.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Response' == data_module.name.to_s } -%>
+  protected final void assertResponseDeleted( @javax.annotation.Nonnull final iris.rose.server.response.Response response )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( response.removed() );
+    assertDoesNotExist( "Response.tblResponse", response.getId() );
+  }
+
+  protected final void assertResponseNotDeleted( @javax.annotation.Nonnull final iris.rose.server.response.Response response )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( response.removed() );
+    assertDoesExist( "Response.tblResponse", response.getId() );
+  }
+
+  protected final void assertPositionDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponsePosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertDoesNotExist( "Response.tblResponsePosition", position.getId() );
+  }
+
+  protected final void assertAssignmentDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseAssignment assignment )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( assignment.removed() );
+    assertDoesNotExist( "Response.tblResponseAssignment", assignment.getId() );
+  }
+
+  protected final void assertAllocationDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( allocation.removed() );
+    assertDoesNotExist( "Response.tblResponseAllocation", allocation.getId() );
+  }
+
+  protected final void assertAllocationNotDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( allocation.removed() );
+    assertDoesExist( "Response.tblResponseAllocation", allocation.getId() );
+  }
+
+  protected final void assertUnitDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertDoesNotExist( "Response.tblResponseUnit", unit.getId() );
+  }
+
+  protected final void assertUnitNotDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( unit.removed() );
+    assertDoesExist( "Response.tblResponseUnit", unit.getId() );
+  }
+
+  protected final void assertUnitCompositionDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponseUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertDoesNotExist( "Response.tblResponseUnitComposition", composition.getId() );
+  }
+
+  protected final void assertPositionNotDeleted( @javax.annotation.Nonnull final iris.rose.server.response.ResponsePosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( position.removed() );
+    assertDoesExist( "Response.tblResponsePosition", position.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Calendar' == data_module.name.to_s } -%>
+  protected final void assertCalendarPermissionDeleted( @javax.annotation.Nonnull final iris.rose.server.calendar.CalendarPermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( permission.removed() );
+    assertDoesNotExist( "Calendar.tblCalendarPermission", permission.getId() );
+  }
+
+  protected final void assertCalendarPermissionNotDeleted( @javax.annotation.Nonnull final iris.rose.server.calendar.CalendarPermission permission )
+  {
+    org.junit.jupiter.api.Assertions.assertFalse( permission.removed() );
+    assertDoesExist( "Calendar.tblCalendarPermission", permission.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Action' == data_module.name.to_s } -%>
+  protected final void assertServersideActionQueued( @javax.annotation.Nonnull final String actionTypeCode,
+                                                     @javax.annotation.Nonnull final String payload )
+  {
+    assertServersideActionQueued( actionTypeCode, payload, serversideActionsQueuedViaBoundary() );
+  }
+
+  protected final void assertServersideActionQueued( @javax.annotation.Nonnull final String actionTypeCode,
+                                                     @javax.annotation.Nonnull final String payload,
+                                                     final boolean viaBoundary )
+  {
+    if ( viaBoundary )
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternalBoundary.class ) )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.eq( payload ) );
+    }
+    else
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternal.class ) )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.eq( payload ) );
+    }
+  }
+
+  protected final void assertServersideActionNotQueued( @javax.annotation.Nonnull final String actionTypeCode,
+                                                        @javax.annotation.Nonnull final String payload,
+                                                        final boolean viaBoundary )
+  {
+    if ( viaBoundary )
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternalBoundary.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.eq( payload ) );
+    }
+    else
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternal.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.eq( payload ) );
+    }
+  }
+
+  protected final void assertNoServersideActionQueued()
+  {
+    assertNoServersideActionQueued( serversideActionsQueuedViaBoundary() );
+  }
+
+  protected final void assertNoServersideActionQueued( final boolean viaBoundary )
+  {
+    if ( viaBoundary )
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternalBoundary.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any() );
+    }
+    else
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternal.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any() );
+    }
+  }
+
+  protected final void assertNoServersideActionQueued( @javax.annotation.Nonnull final String actionTypeCode )
+  {
+    assertNoServersideActionQueued( actionTypeCode, serversideActionsQueuedViaBoundary() );
+  }
+
+  protected final void assertNoServersideActionQueued( @javax.annotation.Nonnull final String actionTypeCode,
+                                                       final boolean viaBoundary )
+  {
+    if ( viaBoundary )
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternalBoundary.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.any() );
+    }
+    else
+    {
+      org.mockito.Mockito.verify( s( iris.rose.server.action.ActionServiceInternal.class ), org.mockito.Mockito.never() )
+        .queueServersideAction( org.mockito.ArgumentMatchers.eq( actionTypeCode ), org.mockito.ArgumentMatchers.any() );
+    }
+  }
+
+  protected boolean serversideActionsQueuedViaBoundary()
+  {
+    return true;
+  }
+
+<% end -%>
+<% if database_backed -%>
+  @java.lang.SuppressWarnings( "SqlNoDataSourceInspection" )
+  private void assertLogicallyDeleted( @javax.annotation.Nonnull final String qualifiedTable, final int id )
+  {
+    final var deletedAt = (java.util.Date) em()
+      .createNativeQuery( "SELECT [O].[DeletedAt] FROM " + qualifiedTable + " [O] WHERE [O].[Id] = ?" )
+      .setParameter( 1, id )
+      .getResultList()
+      .get( 0 );
+    org.junit.jupiter.api.Assertions.assertNotNull( deletedAt );
+  }
+
+  @java.lang.SuppressWarnings( "SqlNoDataSourceInspection" )
+  public void assertDoesNotExist( @javax.annotation.Nonnull final String qualifiedTable, final int id )
+  {
+    @java.lang.SuppressWarnings( "SqlSourceToSinkFlow" )
+    final java.util.List<?> resultList = em()
+      .createNativeQuery( "SELECT [O].[Id] FROM " + qualifiedTable + " [O] WHERE [O].[Id] = ?" )
+      .setParameter( 1, id )
+      .getResultList();
+    org.junit.jupiter.api.Assertions.assertTrue( resultList.isEmpty() );
+  }
+
+  @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "SqlSourceToSinkFlow" } )
+  public void assertDoesExist( @javax.annotation.Nonnull final String qualifiedTable, final int id )
+  {
+    final java.util.List<?> resultList = em()
+      .createNativeQuery( "SELECT [O].[Id] FROM " + qualifiedTable + " [O] WHERE [O].[Id] = ?" )
+      .setParameter( 1, id )
+      .getResultList();
+    org.junit.jupiter.api.Assertions.assertFalse( resultList.isEmpty() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Templates' == data_module.name.to_s } -%>
+  protected final void assertTeUnitDeleted( @javax.annotation.Nonnull final iris.rose.server.templates.TeUnit unit )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( unit.removed() );
+    assertDoesNotExist( "Templates.tblTeUnit", unit.getId() );
+  }
+
+  protected final void assertTeUnitCompositionDeleted( @javax.annotation.Nonnull final iris.rose.server.templates.TeUnitComposition composition )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( composition.removed() );
+    assertDoesNotExist( "Templates.tblTeUnitComposition", composition.getId() );
+  }
+
+  protected final void assertTePositionDeleted( @javax.annotation.Nonnull final iris.rose.server.templates.TePosition position )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( position.removed() );
+    assertDoesNotExist( "Templates.tblTePosition", position.getId() );
+  }
+
+  protected final void assertTeAssignmentDeleted( @javax.annotation.Nonnull final iris.rose.server.templates.TeAssignment assignment )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( assignment.removed() );
+    assertDoesNotExist( "Templates.tblTeAssignment", assignment.getId() );
+  }
+
+  protected final void assertTemplateAllocationDeleted( @javax.annotation.Nonnull final iris.rose.server.templates.TemplateAllocation allocation )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( allocation.removed() );
+    assertDoesNotExist( "Templates.tblTemplateAllocation", allocation.getId() );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Notification' == data_module.name.to_s } -%>
+  protected final void assertZeroNotifications()
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( 0, n.findAllNotifications().size() );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.rose.server.notification.Notification ensureNotification( final int index, final int notificationCount )
+  {
+    final var notifications = n.findAllNotifications()
+      .stream()
+      .sorted( java.util.Comparator.comparing( iris.rose.server.notification.Notification::getId ) )
+      .toList();
+    org.junit.jupiter.api.Assertions.assertEquals( notificationCount, notifications.size() );
+    return notifications.get( index );
+  }
+
+  protected final void assertErrorNotification( @javax.annotation.Nonnull final iris.rose.server.notification.Notification notification,
+                                                @javax.annotation.Nonnull final String serviceName )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( serviceName + " Error", notification.getTitle() );
+    org.junit.jupiter.api.Assertions.assertTrue( notification.hasTag( "error" ) );
+    org.junit.jupiter.api.Assertions.assertTrue( notification.hasTag( "service=" + serviceName ) );
+  }
+
+  protected void assertErrorNotification( final int index,
+                                          final int notificationCount,
+                                          @javax.annotation.Nonnull final String serviceName,
+                                          @javax.annotation.Nonnull final String groups,
+                                          @javax.annotation.Nonnull final String message )
+  {
+    final var notification = ensureNotification( index, notificationCount );
+    assertErrorNotification( notification, serviceName );
+    org.junit.jupiter.api.Assertions.assertEquals( message, notification.getMessage() );
+    assertGroups( notification, groups );
+  }
+
+  protected void assertErrorNotificationContains( final int index,
+                                                  final int notificationCount,
+                                                  @javax.annotation.Nonnull final String serviceName,
+                                                  @javax.annotation.Nonnull final String groups,
+                                                  @javax.annotation.Nonnull final String... parts )
+  {
+    final var notification = ensureNotification( index, notificationCount );
+    assertErrorNotification( notification, serviceName );
+    final var message = notification.getMessage();
+    for ( final var part : parts )
+    {
+      org.junit.jupiter.api.Assertions.assertTrue( message.contains( part ),
+                                                   "Expected message to contain '" + part + "' but message was:\n" + message );
+    }
+    assertGroups( notification, groups );
+  }
+
+  protected void assertErrorNotification( final int index,
+                                          final int notificationCount,
+                                          @javax.annotation.Nonnull final iris.rose.server.core.Event event,
+                                          @javax.annotation.Nonnull final String serviceName,
+                                          @javax.annotation.Nonnull final String message )
+  {
+    final var notification = ensureNotification( index, notificationCount );
+    assertErrorNotification( notification, serviceName );
+    org.junit.jupiter.api.Assertions.assertEquals( message, notification.getMessage() );
+    assertGroups( notification, event.getNotificationGroupCode() );
+  }
+
+  protected final void assertSuccessNotification( @javax.annotation.Nonnull final iris.rose.server.notification.Notification notification,
+                                                  @javax.annotation.Nonnull final String serviceName )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( serviceName + " Success", notification.getTitle() );
+    org.junit.jupiter.api.Assertions.assertFalse( notification.hasTag( "error" ) );
+    org.junit.jupiter.api.Assertions.assertTrue( notification.hasTag( "service=" + serviceName ) );
+  }
+
+  protected void assertSuccessNotification( final int index,
+                                            final int notificationCount,
+                                            @javax.annotation.Nonnull final iris.rose.server.core.Event event,
+                                            @javax.annotation.Nonnull final String serviceName,
+                                            @javax.annotation.Nonnull final String expected )
+  {
+    final var notification = ensureNotification( index, notificationCount );
+    assertSuccessNotification( notification, serviceName );
+    org.junit.jupiter.api.Assertions.assertEquals( expected, notification.getMessage() );
+    assertGroups( notification, event.getNotificationGroupCode() );
+  }
+
+  protected final void assertGroups( @javax.annotation.Nonnull final iris.rose.server.notification.Notification notification,
+                                     @javax.annotation.Nonnull final String groups )
+  {
+    org.junit.jupiter.api.Assertions.assertEquals( groups,
+                                                   notification.getGroupRecipients()
+                                                     .stream()
+                                                     .map( recipient -> java.util.Objects.requireNonNull( recipient.getGroup().getCode() ) )
+                                                     .sorted()
+                                                     .collect( java.util.stream.Collectors.joining( "|" ) ) );
+  }
+
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Warehouse' == data_module.name.to_s } -%>
+  @java.lang.SuppressWarnings( "SqlNoDataSourceInspection" )
+  protected final void assertEventDispatchCountDeleted( @javax.annotation.Nonnull final iris.rose.server.warehouse.EventDispatchCount eventDispatchCount )
+  {
+    org.junit.jupiter.api.Assertions.assertTrue( eventDispatchCount.removed() );
+    final java.util.List<?> resultList = em()
+      .createNativeQuery( "SELECT * FROM Warehouse.tblEventDispatchCount O WHERE O.Id = ?" )
+      .setParameter( 1, eventDispatchCount.getId() )
+      .getResultList();
+    org.junit.jupiter.api.Assertions.assertTrue( resultList.isEmpty() );
+  }
+
+<% end -%>
+  @javax.annotation.Nonnull
+  protected abstract String getTestProfileName();
+
+  @javax.annotation.Nonnull
+  protected abstract com.google.inject.Module newProfileModule();
+
+  protected void addModules( @javax.annotation.Nonnull final java.util.ArrayList<com.google.inject.Module> modules )
+  {
+  }
+
+  @java.lang.Override
+  protected com.google.inject.Module[] getModules()
+  {
+    final var modules = new java.util.ArrayList<com.google.inject.Module>();
+    java.util.Collections.addAll( modules, super.getModules() );
+    modules.add( newProfileModule() );
+    addModules( modules );
+    return modules.toArray( new com.google.inject.Module[ 0 ] );
+  }
+}

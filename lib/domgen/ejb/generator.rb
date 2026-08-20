@@ -78,20 +78,23 @@ Domgen::Generator.define([:ejb],
       template_set.description = 'Quality Assurance/Test classes shared outside the project'
       template_set.erb_template(:repository,
                                 'services_module.java.erb',
-                                type + '/java/#{repository.ejb.qualified_services_module_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.ejb.qualified_services_module_name.gsub(".","/")}.java',
+                                :guard => 'repository.ejb.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'complete_module.java.erb',
-                                type + '/java/#{repository.ejb.qualified_complete_module_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.ejb.qualified_complete_module_name.gsub(".","/")}.java',
+                                :guard => 'repository.ejb.generate_legacy_test_harness?')
     end
     g.template_set("ejb_#{type}_qa") do |template_set|
       template_set.description = 'Quality Assurance/Test classes shared within the project'
       template_set.erb_template(:repository,
                                 'abstract_service_test.java.erb',
-                                type + '/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java',
+                                :guard => 'repository.ejb.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'base_service_test.java.erb',
                                 type + '/java/#{repository.ejb.qualified_base_service_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.ejb.custom_base_service_test?')
+                                :guard => 'repository.ejb.generate_legacy_test_harness? && !repository.ejb.custom_base_service_test?')
     end
     g.template_set(:"ejb_#{type}_qa_aggregate") do |template_set|
       template_set.erb_template(:data_module,

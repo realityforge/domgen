@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+<%
+repository = test_profile.repository
+analysis = repository.sql_analysis
+analysis_data_module = analysis.analysis_data_module
+profile_entity = analysis_data_module.entity_by_name(:TestProfile)
+profile_module_entity = analysis_data_module.entity_by_name(:TestProfileModule)
+profile_modules = ([analysis_data_module] + test_profile.data_modules(:persistence).select { |data_module| data_module.sql? && data_module != analysis_data_module })
+-%>
+
+DELETE FROM <%= analysis.corruption_check_entity.sql.qualified_table_name %>
+DELETE FROM <%= profile_module_entity.sql.qualified_table_name %>
+DELETE FROM <%= profile_entity.sql.qualified_table_name %>
+GO
+
+INSERT INTO <%= profile_entity.sql.qualified_table_name %>([Name],[PersistenceFingerprint]) VALUES ('<%= test_profile.name.gsub("'", "''") %>','UNPROVISIONED')
+GO
+<% profile_modules.each do |data_module| -%>
+INSERT INTO <%= profile_module_entity.sql.qualified_table_name %>([Name],[SchemaName],[CheckConstraints])
+  VALUES ('<%= data_module.name.to_s.gsub("'", "''") %>','<%= data_module.sql.schema.to_s.gsub("'", "''") %>',<%= data_module.mssql? && data_module.mssql.generate_check_constraints? ? 1 : 0 %>)
+GO
+<% end -%>

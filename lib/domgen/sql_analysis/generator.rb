@@ -24,10 +24,6 @@ Domgen::Generator.define([:sql_analysis],
   end
 
   g.template_set(:sql_analysis_sql) do |template_set|
-    template_set.erb_template(:data_module,
-                              'corruption_checks.erb',
-                              '#{data_module.repository.sql_analysis.analysis_data_module.sql.schema}/finalize/#{data_module.name}_corruption_checks.sql',
-                              :guard => 'data_module.sql_analysis.standard_corruption_checks?')
     template_set.erb_template(:repository,
                               'mssql_check_corruptions.sql.erb',
                               '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spCheckCorruptions.sql',

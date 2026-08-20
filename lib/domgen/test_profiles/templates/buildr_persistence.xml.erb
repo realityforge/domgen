@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DO NOT EDIT: File is auto-generated -->
+<% if repository.jpa.version == '2.1' -%>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<% else -%>
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+<% end -%>
+<% repository.test_profiles.select(&:database_backed?).each do |test_profile| -%>
+  <persistence-unit name="<%= test_profile.physical_persistence_unit_name %>" transaction-type="JTA">
+<% if repository.jpa.provider_class -%>
+    <provider><%= repository.jpa.provider_class %></provider>
+<% end -%>
+    <jta-data-source><%= repository.jpa.resolved_data_source %></jta-data-source>
+
+<% converters = repository.jpa.converters.dup -%>
+<% repository.data_modules.select(&:jpa?).each do |data_module| -%>
+<% data_module.entities.select(&:jpa?).each do |entity| -%>
+    <class><%= entity.jpa.qualified_name %></class>
+<% entity.attributes.select(&:jpa?).each { |attribute| converters << attribute.jpa.converter } -%>
+<% end -%>
+<% end -%>
+<% converters.compact.sort.uniq.each do |converter| -%>
+    <class><%= converter %></class>
+<% end -%>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <validation-mode>AUTO</validation-mode>
+
+    <properties>
+<% repository.jpa.resolved_properties.each_pair do |key, value| -%>
+      <property name="<%= key %>" value="<%= 'eclipselink.session-name' == key ? test_profile.physical_persistence_unit_name : value %>"/>
+<% end -%>
+    </properties>
+  </persistence-unit>
+<% end -%>
+</persistence>

@@ -1,0 +1,11 @@
+# DO NOT EDIT: File is auto-generated
+
+CLIENT_TEST_PROFILES = {
+<% repository.test_profiles.select { |test_profile| test_profile.client? && test_profile.data_modules(:client).any?(&:arez?) }.each do |test_profile| -%>
+    "<%= test_profile.name %>": struct(
+        fingerprint = "<%= test_profile.fingerprint %>",
+        harness = "//user-experience/src/test/java/iris/rose/client/test/util:<%= test_profile.path_name %>_client_profile-j2cl",
+        node_compatible = <%= test_profile.node_compatible? ? 'True' : 'False' %>,
+    ),
+<% end -%>
+}

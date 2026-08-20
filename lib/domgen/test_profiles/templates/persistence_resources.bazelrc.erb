@@ -1,0 +1,8 @@
+# DO NOT EDIT: File is auto-generated
+# Profile-backed catalogs can use the SQL Server concurrently, while each catalog remains single-user for tests.
+test --local_test_jobs=0
+test --noallow_one_action_on_resource_unavailable
+build --local_resources=profile_database_capacity=4
+<% repository.test_profiles.select(&:database_backed?).each do |test_profile| -%>
+build --local_resources=test_database_<%= test_profile.path_name %>=1
+<% end -%>

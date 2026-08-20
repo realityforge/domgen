@@ -119,6 +119,12 @@ module Domgen
       java_artifact :aggregate_data_type_test, :test, :server, :ee, '#{repository.name}AggregateDataTypeTest', :sub_package => 'util'
       java_artifact :jndi_resource_constants, nil, :server, :ee, '#{repository.name}JndiConstants'
       java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'
+
+      attr_writer :generate_message_test_module
+
+      def generate_message_test_module?
+        @generate_message_test_module.nil? ? true : !!@generate_message_test_module
+      end
     end
 
     facet.enhance(DataModule) do

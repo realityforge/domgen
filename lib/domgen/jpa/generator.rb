@@ -38,7 +38,7 @@ Domgen::Generator.define([:jpa],
       template_set.erb_template(:repository,
                                 'persistent_test_module.java.erb',
                                 type + '/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
-                                :guard => 'repository.jpa.include_default_unit?')
+                                :guard => 'repository.jpa.include_default_unit? && repository.jpa.generate_legacy_test_harness?')
       template_set.erb_template('jpa.persistence_unit',
                                 'raw_test_module.java.erb',
                                 type + '/java/#{persistence_unit.qualified_raw_test_module_name.gsub(".","/")}.java',
@@ -53,10 +53,12 @@ Domgen::Generator.define([:jpa],
                                 :guard => 'persistence_unit.generate_test_util?')
       template_set.erb_template(:repository,
                                 'dao_module.java.erb',
-                                type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
+                                :guard => 'repository.jpa.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'test_factory_module.java.erb',
-                                type + '/java/#{repository.jpa.qualified_test_factory_module_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.jpa.qualified_test_factory_module_name.gsub(".","/")}.java',
+                                :guard => 'repository.jpa.generate_legacy_test_harness?')
       template_set.erb_template(:data_module,
                                 'abstract_test_factory.java.erb',
                                 type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java',
@@ -65,14 +67,16 @@ Domgen::Generator.define([:jpa],
     g.template_set(:"jpa_#{type}_qa") do |template_set|
       template_set.erb_template(:repository,
                                 'abstract_entity_test.java.erb',
-                                type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
+                                :guard => 'repository.jpa.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'base_entity_test.java.erb',
                                 type + '/java/#{repository.jpa.qualified_base_entity_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.jpa.custom_base_entity_test?')
+                                :guard => 'repository.jpa.generate_legacy_test_harness? && !repository.jpa.custom_base_entity_test?')
       template_set.erb_template(:repository,
                                 'standalone_entity_test.java.erb',
-                                type + '/java/#{repository.jpa.qualified_standalone_entity_test_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.jpa.qualified_standalone_entity_test_name.gsub(".","/")}.java',
+                                :guard => 'repository.jpa.generate_legacy_test_harness?')
     end
     g.template_set(:"jpa_#{type}_qa_aggregate") do |template_set|
       template_set.erb_template(:data_module,

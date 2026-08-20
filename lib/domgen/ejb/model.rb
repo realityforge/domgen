@@ -77,6 +77,12 @@ module Domgen
         @include_server_test_module.nil? ? true : !!@include_server_test_module
       end
 
+      attr_writer :generate_legacy_test_harness
+
+      def generate_legacy_test_harness?
+        @generate_legacy_test_harness.nil? ? true : !!@generate_legacy_test_harness
+      end
+
       attr_writer :custom_base_service_test
 
       def custom_base_service_test?
@@ -110,11 +116,13 @@ module Domgen
       end
 
       def pre_verify
-        if self.include_server_test_module?
-          add_test_module(self.server_test_module_name, self.qualified_server_test_module_name)
+        if generate_legacy_test_harness?
+          if self.include_server_test_module?
+            add_test_module(self.server_test_module_name, self.qualified_server_test_module_name)
+          end
+          add_test_module(repository.ee.message_module_name, repository.ee.qualified_message_module_name)
+          add_flushable_test_module(self.services_module_name, self.qualified_services_module_name)
         end
-        add_test_module(repository.ee.message_module_name, repository.ee.qualified_message_module_name)
-        add_flushable_test_module(self.services_module_name, self.qualified_services_module_name)
       end
 
       def any_no_web_invoke?

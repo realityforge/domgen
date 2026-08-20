@@ -1,0 +1,12 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.client.test.util.profile;
+
+public interface Abstract<%= test_profile.java_name %>TestInjector
+  extends iris.rose.client.ioc.AbstractRoseInjector
+{
+<% test_profile.data_modules(:client).select { |data_module| data_module.arez? && data_module.arez.factory_required? }.sort_by(&:name).each do |data_module| -%>
+  @javax.annotation.Nonnull
+  java.util.function.Supplier<<%= data_module.arez.qualified_test_factory_name %>> <%= Domgen::Naming.camelize(data_module.name) %>Factory();
+
+<% end -%>
+}

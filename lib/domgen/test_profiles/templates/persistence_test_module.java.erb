@@ -1,0 +1,49 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+public final class <%= test_profile.java_name %>TestModule
+  extends org.realityforge.guiceyloops.server.PersistenceTestModule
+{
+<% tables = test_profile.data_modules(:persistence).flat_map do |data_module|
+     data_module.entities.select { |entity| entity.concrete? && entity.sql? && :deployment != entity.sql.row_source && !entity.sql.sequence_table? }.collect do |entity|
+       "\"#{entity.sql.qualified_table_name.gsub('"', '\\"')}\""
+     end
+   end.reverse.join(', ') -%>
+  @javax.annotation.Nonnull
+  private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
+<% buildr_tables = test_profile.repository.data_modules.flat_map do |data_module|
+     data_module.entities.select { |entity| entity.concrete? && entity.sql? && :deployment != entity.sql.row_source && !entity.sql.sequence_table? }.collect do |entity|
+       "\"#{entity.sql.qualified_table_name.gsub('"', '\\"')}\""
+     end
+   end.reverse.join(', ') -%>
+  @javax.annotation.Nonnull
+  private static final String[] BUILDR_TABLES_TO_CLEAN = new String[] {<%= buildr_tables %>};
+
+  public <%= test_profile.java_name %>TestModule()
+  {
+    this( null );
+  }
+
+  public <%= test_profile.java_name %>TestModule( @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
+    super( iris.rose.server.entity.RosePersistenceUnit.NAME,
+           "<%= test_profile.physical_persistence_unit_name %>",
+           new String[ 0 ],
+           new String[ 0 ],
+           java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) ? BUILDR_TABLES_TO_CLEAN : TABLES_TO_CLEAN,
+           "<%= test_profile.path_name %>",
+           mergeProperties( additionalProperties ) );
+  }
+
+  @javax.annotation.Nonnull
+  private static java.util.Properties mergeProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
+    final var properties = new java.util.Properties();
+    properties.put( "javax.persistence.jdbc.driver", "<%= test_profile.repository.sql.sql_driver %>" );
+    if ( null != additionalProperties )
+    {
+      properties.putAll( additionalProperties );
+    }
+    return properties;
+  }
+}

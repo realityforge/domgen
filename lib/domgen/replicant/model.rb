@@ -862,6 +862,13 @@ module Domgen
       java_artifact :replicant_server_adapter, :comm, :server, :replicant, '#{repository.name}ReplicantServerAdapter'
       java_artifact :abstract_replicant_server_adapter, :comm, :server, :replicant, 'Abstract#{replicant_server_adapter_name}'
       java_artifact :system_schema_test, :comm, :client, :replicant, 'Simple#{repository.name}SystemSchemaTest'
+
+      attr_writer :system_schema_test_base
+
+      def system_schema_test_base
+        @system_schema_test_base || repository.gwt.qualified_client_entity_test_name
+      end
+
       java_artifact :remote_service_util, :service, :client, :replicant, '#{repository.name}RemoteServiceUtil'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :replicant, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :replicant, '#{repository.name}RemoteServicesTestFragment'

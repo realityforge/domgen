@@ -1,0 +1,29 @@
+/* DO NOT EDIT: File is auto-generated */
+<% action_type_codes = test_profile.action_data_modules.flat_map do |data_module|
+     data_module.services.select(&:action?).flat_map do |service|
+       service.methods.select(&:action?).collect { |method| method.action.code }
+     end
+   end.sort.uniq -%>
+
+-- Deactivate any active actions that have not been included in this profile
+UPDATE AT
+SET [Inactive] = 1
+FROM <%= database_prefix %>[Action].[tblActionType] AT
+JOIN <%= database_prefix %>[Action].[tblActionClassification] AC ON AT.[ClassificationId] = AC.[Id]
+<%- if action_type_codes.any? -%>
+WHERE AT.[Code] NOT IN
+(
+<%= action_type_codes.map { |code| "  '#{code}'" }.join(",\n") %>
+) AND AT.[Inactive] = 0
+<%- else -%>
+WHERE AT.[Inactive] = 0
+<%- end -%>
+
+-- Patch any actions that are in flight but whose priority has changed
+UPDATE A
+SET A.Priority = AT.Priority
+FROM <%= database_prefix %>[Action].[tblAction] A
+JOIN <%= database_prefix %>[Action].[tblActionType] AT ON A.[ActionTypeId] = AT.[Id]
+WHERE
+  A.Priority <> AT.Priority AND
+  A.CompleteAt IS NULL

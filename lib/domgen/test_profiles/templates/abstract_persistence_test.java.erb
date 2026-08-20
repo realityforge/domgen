@@ -1,0 +1,137 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+@java.lang.SuppressWarnings( { "NotNullFieldNotInitialized", "VisibilityModifier" } )
+public abstract class Abstract<%= test_profile.java_name %>Test
+  extends org.realityforge.guiceyloops.server.AbstractServerTest
+{
+  private boolean _disableAnalysis;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getTestDatabasePrefix()
+  {
+    return "<%= test_profile.path_name %>";
+  }
+
+<% factory_modules = test_profile.data_modules(:persistence).select { |data_module| data_module.jpa? && data_module.jpa.generate_test_factory? } -%>
+<% factory_modules.each do |data_module| -%>
+  @javax.annotation.Nonnull
+  protected <%= data_module.jpa.qualified_test_factory_name %> <%= data_module.jpa.short_test_code %>;
+<% end -%>
+
+<% unless factory_modules.empty? -%>
+  @org.junit.jupiter.api.BeforeEach
+  @java.lang.Override
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+<% factory_modules.each do |data_module| -%>
+    <%= data_module.jpa.short_test_code %> = s( <%= data_module.jpa.qualified_test_factory_name %>.class );
+<% end -%>
+  }
+<% end -%>
+
+  @java.lang.Override
+  @java.lang.SuppressWarnings( "unchecked" )
+  protected void verifyTestEnvironment()
+    throws java.io.IOException
+  {
+    if ( java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) )
+    {
+      return;
+    }
+    final var fingerprintFile = java.lang.System.getProperty( "rose.test.persistence_fingerprint_file" );
+    org.junit.jupiter.api.Assertions.assertNotNull( fingerprintFile,
+                                                   "Test Profile <%= test_profile.name %> must be selected through the Bazel test_profile attribute" );
+    final var expectedFingerprint = java.nio.file.Files.readString( java.nio.file.Path.of( fingerprintFile ) ).trim();
+    final java.util.List<java.lang.Object[]> identities =
+      em().createNativeQuery( "SELECT [Name], [PersistenceFingerprint] FROM [Analysis].[tblTestProfile]" ).getResultList();
+    org.junit.jupiter.api.Assertions.assertEquals( 1, identities.size(), "Database must contain exactly one Test Profile identity" );
+    final var identity = identities.get( 0 );
+    org.junit.jupiter.api.Assertions.assertEquals( "<%= test_profile.name.gsub("'", "''") %>",
+                                                  identity[ 0 ],
+                                                  "Connected database has the wrong logical Test Profile" );
+    org.junit.jupiter.api.Assertions.assertEquals( expectedFingerprint,
+                                                  identity[ 1 ],
+                                                  "Connected database has a stale persistence fingerprint" );
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryPersistenceUnitName()
+  {
+    return iris.rose.server.entity.RosePersistenceUnit.NAME;
+  }
+
+  @org.junit.jupiter.api.AfterEach
+  @java.lang.Override
+  public void postTest()
+  {
+    try
+    {
+      if ( hasInjector() && isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+      {
+        _disableAnalysis = false;
+        runSqlAnalysisPerformChecks();
+      }
+    }
+    finally
+    {
+      super.postTest();
+    }
+  }
+
+  @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "SqlResolve", "unchecked" } )
+  protected void runSqlAnalysisPerformChecks()
+  {
+    em().clear();
+<% profile_modules = ([test_profile.repository.sql_analysis.analysis_data_module] + test_profile.data_modules(:persistence).select { |data_module| data_module.sql? && data_module != test_profile.repository.sql_analysis.analysis_data_module }) -%>
+    if ( java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) )
+    {
+      em().createNativeQuery( "DELETE FROM [Analysis].[tblTestProfileModule];" +
+<% profile_modules.each do |data_module| -%>
+                              "INSERT INTO [Analysis].[tblTestProfileModule]([Name],[SchemaName],[CheckConstraints]) VALUES ('<%= data_module.name.to_s.gsub("'", "''") %>','<%= data_module.sql.schema.to_s.gsub("'", "''") %>',<%= data_module.mssql? && data_module.mssql.generate_check_constraints? ? 1 : 0 %>);" +
+<% end -%>
+                              "DELETE CC FROM [Analysis].[tblCorruptionCheck] CC WHERE EXISTS (SELECT 1 FROM STRING_SPLIT(CC.[RequiredModules], ',') R WHERE NOT EXISTS (SELECT 1 FROM [Analysis].[tblTestProfileModule] PM WHERE PM.[Name] = R.[value]));"
+                            ).executeUpdate();
+    }
+    final var sql =
+      java.lang.Boolean.getBoolean( "rose.test.buildr_coarse" ) ?
+      "EXEC [Analysis].[spPerformChecks]" :
+      "EXEC [Analysis].[spPerformChecks] @Profile = '<%= test_profile.name.gsub("'", "''") %>'";
+    em().createNativeQuery( sql ).getResultList();
+    final java.util.List<java.lang.Object[]> issues =
+      em().createNativeQuery( "SELECT [Category], [Description], [ViewSql] FROM [Analysis].[tblDataIssue]" ).getResultList();
+    if ( !issues.isEmpty() )
+    {
+      final var messages = new java.util.ArrayList<java.lang.String>();
+      for ( final var issue : issues )
+      {
+        final var viewSql = (java.lang.String) issue[ 2 ];
+        messages.add( issue[ 0 ] + ":" + issue[ 1 ] + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" ) );
+      }
+      org.junit.jupiter.api.Assertions.fail( "Database left in inconsistent state:\n  " + java.lang.String.join( "\n  ", messages ) );
+    }
+  }
+
+  protected final void disableCorruptionChecks()
+  {
+    _disableAnalysis = true;
+  }
+
+  private boolean isSqlAnalysisEnabled()
+  {
+    return !_disableAnalysis && "true".equals( java.lang.System.getProperty( "sql_analysis.enabled", "true" ) );
+  }
+
+  @java.lang.Override
+  protected com.google.inject.Module[] getModules()
+  {
+    final var modules = new java.util.ArrayList<com.google.inject.Module>();
+    java.util.Collections.addAll( modules, super.getModules() );
+    modules.add( new <%= test_profile.java_name %>ProfileModule() );
+    return modules.toArray( new com.google.inject.Module[ 0 ] );
+  }
+}

@@ -2,16 +2,27 @@
 <%
 data_issue_entity = repository.sql_analysis.data_issue_entity
 analysis_data_module = repository.sql_analysis.analysis_data_module
+profile_entity = analysis_data_module.entity_by_name(:TestProfile)
+profile_module_entity = analysis_data_module.entity_by_name(:TestProfileModule)
 -%>
 
 CREATE PROCEDURE <%= analysis_data_module.sql.quoted_schema %>.[spPerformChecks]
 (
+  @Profile VARCHAR(100) = NULL,
   @ShowErrors INT = 1,
   @PrintProgress INT = 0,
   @ReadUncommitted INT = 1
 )
 AS
   SET NOCOUNT ON
+
+  DECLARE @StoredProfile VARCHAR(100)
+  IF (SELECT COUNT(*) FROM <%= profile_entity.sql.qualified_table_name %>) <> 1
+    THROW 51000, 'The database must contain exactly one Test Profile identity', 1
+  SELECT @StoredProfile = [Name] FROM <%= profile_entity.sql.qualified_table_name %>
+  IF @Profile IS NULL SET @Profile = @StoredProfile
+  IF @Profile <> @StoredProfile
+    THROW 51001, 'The requested Test Profile does not match the database identity', 1
 
   -- This stops the checks from clashing with the rest of server, but note that this procedure resets the isolation
   -- to READ COMMITTED at the end as that's the best guess and not necessarily right
@@ -23,7 +34,7 @@ AS
   EXEC <%= analysis_data_module.sql.quoted_schema %>.[spCheckCorruptions] @PrintProgress = @PrintProgress
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Corruption Checks Completed'
 
-  DECLARE @ConstraintViolations TABLE (
+  CREATE TABLE #ConstraintViolations (
     SchemaName VARCHAR(500),
     TableName VARCHAR(500),
     ConstraintName VARCHAR(500),
@@ -31,14 +42,30 @@ AS
   );
 
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Performing Constraint Checks'
-<% repository.data_modules.select{|data_module| data_module.mssql? && data_module.mssql.generate_check_constraints?}.each do |data_module| -%>
-  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraints in <%= data_module.sql.quoted_schema %>'
-  INSERT INTO @ConstraintViolations(SchemaName, TableName, ConstraintName, ViewSql) EXEC <%= data_module.sql.quoted_schema %>.[spCheckConstraints] @ShowErrors = @ShowErrors, @PrintProgress = @PrintProgress
-<% end -%>
+  DECLARE @SchemaName VARCHAR(100)
+  DECLARE @ConstraintSql NVARCHAR(MAX)
+  DECLARE constraintCursor CURSOR LOCAL FORWARD_ONLY READ_ONLY FOR
+    SELECT [SchemaName] FROM <%= profile_module_entity.sql.qualified_table_name %> WHERE [CheckConstraints] = 1 ORDER BY [Name]
+  OPEN constraintCursor
+  FETCH NEXT FROM constraintCursor INTO @SchemaName
+  WHILE @@FETCH_STATUS = 0
+  BEGIN
+    IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraints in ' + @SchemaName
+    SET @ConstraintSql =
+      N'INSERT INTO #ConstraintViolations(SchemaName, TableName, ConstraintName, ViewSql) EXEC ' +
+      QUOTENAME(@SchemaName) +
+      N'.[spCheckConstraints] @ShowErrors = @ShowErrors, @PrintProgress = @PrintProgress'
+    EXEC sp_executesql @ConstraintSql, N'@ShowErrors INT, @PrintProgress INT', @ShowErrors, @PrintProgress
+    FETCH NEXT FROM constraintCursor INTO @SchemaName
+  END
+  CLOSE constraintCursor
+  DEALLOCATE constraintCursor
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Constraint Checks Completed'
 
   INSERT INTO <%= data_issue_entity.sql.qualified_table_name %>([Category], [Description], [ViewSql])
-    SELECT 'Constraints', COALESCE(SchemaName,'') + '.' + COALESCE(TableName,'') + '.' + COALESCE(ConstraintName,''), ViewSql FROM @ConstraintViolations
+    SELECT 'Constraints', COALESCE(SchemaName,'') + '.' + COALESCE(TableName,'') + '.' + COALESCE(ConstraintName,''), ViewSql FROM #ConstraintViolations
+
+  DROP TABLE #ConstraintViolations
 
   IF @ShowErrors = 1 SELECT * FROM <%= data_issue_entity.sql.qualified_table_name %>
 

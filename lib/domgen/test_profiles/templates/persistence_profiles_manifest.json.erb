@@ -1,0 +1,15 @@
+{
+  "generated_notice": "DO NOT EDIT: File is auto-generated",
+  "profiles": [
+<% profiles = repository.test_profiles.select(&:database_backed?) -%>
+<% profiles.each_with_index do |test_profile, index| -%>
+    {
+      "name": "<%= test_profile.name %>",
+      "path_name": "<%= test_profile.path_name %>",
+      "database_jar": "//database:<%= test_profile.path_name %>_database_jar",
+      "fingerprint": "//database:<%= test_profile.path_name %>_database_jar_fingerprint",
+      "post_create_dirs": <%= JSON.generate(test_profile.database_post_create_dirs) %>
+    }<%= index == profiles.length - 1 ? '' : ',' %>
+<% end -%>
+  ]
+}

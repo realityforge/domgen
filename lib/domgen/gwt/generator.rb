@@ -30,23 +30,26 @@ Domgen::Generator.define([:gwt],
       template_set.erb_template(:repository,
                                 'client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_client_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.gwt.custom_base_client_test?')
+                                :guard => 'repository.gwt.generate_legacy_test_harness? && !repository.gwt.custom_base_client_test?')
       template_set.erb_template(:repository,
                                 'abstract_client_test.java.erb',
-                                type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java',
+                                :guard => 'repository.gwt.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'abstract_test_sting_injector.java.erb',
-                                type + '/java/#{repository.gwt.qualified_abstract_test_sting_injector_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_abstract_test_sting_injector_name.gsub(".","/")}.java',
+                                :guard => 'repository.gwt.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'test_fragment.java.erb',
-                                type + '/java/#{repository.gwt.qualified_test_fragment_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_test_fragment_name.gsub(".","/")}.java',
+                                :guard => 'repository.gwt.generate_legacy_test_harness?')
       template_set.erb_template(:repository,
                                 'value_util.java.erb',
                                 type + '/java/#{repository.gwt.qualified_value_util_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
                                 'default_test_injector.java.erb',
                                 type + '/java/#{repository.gwt.qualified_default_test_injector_name.gsub(".","/")}.java',
-                                :guard => '!repository.gwt.custom_default_test_injector?')
+                                :guard => 'repository.gwt.generate_legacy_test_harness? && !repository.gwt.custom_default_test_injector?')
     end
   end
 

@@ -93,6 +93,12 @@ module Domgen
         @custom_default_test_injector.nil? ? false : !!@custom_default_test_injector
       end
 
+      attr_writer :generate_legacy_test_harness
+
+      def generate_legacy_test_harness?
+        @generate_legacy_test_harness.nil? ? true : !!@generate_legacy_test_harness
+      end
+
       def test_class_contents
         test_class_content_list.dup
       end

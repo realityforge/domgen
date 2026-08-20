@@ -1,0 +1,38 @@
+# DO NOT EDIT: File is auto-generated
+load("//database:database_jar.bzl", "profile_database_jar")
+
+def declare_persistence_profile_database_targets(name = None):
+<% repository.test_profiles.select(&:database_backed?).each do |test_profile| -%>
+    profile_database_jar(
+        name = "<%= test_profile.path_name %>_database_jar",
+        fingerprint_srcs = ["//server/src/test/resources:<%= test_profile.path_name %>_persistence_fingerprint_inputs"],
+        project_file = "test-profiles/<%= test_profile.path_name %>/jdbt.yml",
+        srcs = [
+            "test-profiles/<%= test_profile.path_name %>/jdbt.yml",
+            "test-profiles/<%= test_profile.path_name %>/repository.yml",
+            "test-profiles/<%= test_profile.path_name %>/setup/profile.sql",
+            "test-profiles/<%= test_profile.path_name %>/verify/integrity.sql",
+<% if test_profile.data_modules(:persistence).any? { |data_module| :Action == data_module.name } -%>
+            "test-profiles/<%= test_profile.path_name %>/post/action_types.sql",
+<% end -%>
+<% test_profile.action_data_modules.each do |data_module| -%>
+            "test-profile-modules/<%= Domgen::Naming.underscore(data_module.name) %>/post/action_types.sql",
+<% end -%>
+<% test_profile.corruption_check_data_modules.each do |data_module| -%>
+            "test-profile-modules/<%= Domgen::Naming.underscore(data_module.name) %>/integrity/corruption_checks.sql",
+<% end -%>
+<% if 'CommonDataAnalysisServer' == test_profile.name -%>
+            "test-profiles/<%= test_profile.path_name %>/post/common_data_analysis.sql",
+<% end -%>
+<% if test_profile.server? && %w(Delwp Tas).include?(test_profile.root.to_s) -%>
+            "test-profiles/<%= test_profile.path_name %>/post/owned_post_hooks.sql",
+<% end -%>
+            "//database/db-hooks:pre_database_files",
+            "//database/Analysis:profile_database_files",
+<% test_profile.data_modules(:persistence).select { |data_module| data_module.sql? && data_module != repository.sql_analysis.analysis_data_module }.each do |data_module| -%>
+            "//database/<%= data_module.name %>:database_files",
+<% end -%>
+        ],
+        visibility = ["//visibility:public"],
+    )
+<% end -%>

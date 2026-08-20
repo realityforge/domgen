@@ -1,0 +1,13 @@
+<%
+patterns = {
+  'Delwp' => ['delwp_analysis_task_*.sql', 'delwp_check_archive_at_for_all_resources.sql'],
+  'Tas' => ['tas_analysis_task_*.sql']
+}
+files = patterns.fetch(test_profile.root.to_s).
+  flat_map { |pattern| Dir["database/db-hooks/post/#{pattern}"] }.
+  sort
+-%>
+-- DO NOT EDIT: File is auto-generated
+<% files.each do |filename| -%>
+<%= File.read(filename) -%>
+<% end -%>

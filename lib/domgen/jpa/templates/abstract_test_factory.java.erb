@@ -143,6 +143,11 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
     return _injector.getInstance( type );
   }
 
+  protected final boolean hasBinding( @javax.annotation.Nonnull final Class<?> type )
+  {
+    return null != _injector.getExistingBinding( com.google.inject.Key.get( type ) );
+  }
+
   @javax.annotation.Nonnull
   protected <T> T s( @javax.annotation.Nonnull final String name, @javax.annotation.Nonnull final Class<T> type )
   {

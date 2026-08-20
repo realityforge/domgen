@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-DECLARE @dbName VARCHAR(100)
+DECLARE @dbName sysname
 SET @dbName=db_name()
 EXEC('ALTER DATABASE [' + @dbName + '] COLLATE SQL_Latin1_General_CP1_CS_AS')
 EXEC('ALTER DATABASE [' + @dbName + '] SET CURSOR_DEFAULT LOCAL')

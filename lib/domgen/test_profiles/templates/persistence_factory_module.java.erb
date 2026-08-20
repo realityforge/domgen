@@ -1,0 +1,12 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+public final class <%= data_module.name %>PersistenceFactoryModule
+  extends com.google.inject.AbstractModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+    bind( <%= data_module.jpa.qualified_test_factory_name %>.class ).in( javax.inject.Singleton.class );
+  }
+}

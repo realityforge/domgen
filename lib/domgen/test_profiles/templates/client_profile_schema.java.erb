@@ -1,0 +1,60 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.client.test.util.profile;
+<% repository = test_profile.repository -%>
+<% modules = test_profile.data_modules(:client).select(&:replicant?) -%>
+<% entities = modules.flat_map { |data_module| data_module.entities.select { |entity| entity.replicant? && entity.concrete? } } -%>
+<% entity_names = entities.collect { |entity| entity.qualified_name.to_s } -%>
+<% datasets = repository.replicant.datasets.select do |dataset|
+     included = dataset.included_entity_types.select { |name| entity_names.include?(name.to_s) }
+     root_selected = !dataset.instance_dataset? || entity_names.include?(dataset.dataset_root_entity_type.to_s)
+     !included.empty? && root_selected
+   end -%>
+<% dataset_names = datasets.collect { |dataset| dataset.name.to_s } -%>
+
+@sting.Fragment
+public interface <%= test_profile.java_name %>SystemSchemaFragment
+{
+  @javax.annotation.Nonnull
+  @sting.Named( "<%= repository.name %>" )
+  default replicant.SystemSchema provideSystemSchema( <%= entities.collect { |entity| "@javax.annotation.Nonnull final #{entity.dao.arez.qualified_repository_name} #{Domgen::Naming.camelize(entity.qualified_name.gsub('.',''))}Repository" }.join(', ') %> )
+  {
+<% entities.each do |entity| -%>
+<% dataset_links = entity.attributes.select(&:replicant?).flat_map do |attribute|
+     attribute.replicant.dataset_links.select do |link|
+       dataset_names.include?(link.source_dataset.to_s) && dataset_names.include?(link.target_dataset.to_s)
+     end.collect { |link| [attribute, link] }
+   end -%>
+    final replicant.EntityType entityType<%= entity.data_module.name %><%= entity.name %> =
+      new replicant.EntityType( <%= entity.replicant.transport_id %>,
+                                replicant.Replicant.areNamesEnabled() ? "<%= entity.qualified_name %>" : null,
+                                <%= entity.arez.qualified_name %>.class,
+                                ( entityId, payload ) -> <%= entity.data_module.replicant.qualified_mapper_name %>.create<%= entity.name %>( <%= Domgen::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, entityId, payload ),
+                                <%= entity.replicant.requires_updater? ? "#{entity.data_module.replicant.qualified_mapper_name}::update#{entity.name}" : 'null' %>,
+                                new replicant.DatasetLink[]{ <%= dataset_links.collect do |attribute, link|
+                                  path = ([attribute.name] + [link.path]).flatten.compact.collect { |part| %Q{"#{part}"} }.join(', ')
+                                  "new replicant.DatasetLink( #{repository.replicant.dataset_by_name(link.source_dataset).id}, #{repository.replicant.dataset_by_name(link.target_dataset).id}, new java.lang.String[]{ #{path} } )"
+                                end.join(', ') %> } );
+<% end -%>
+<% datasets.each do |dataset| -%>
+<% included = dataset.included_entity_types.collect { |name| repository.entity_by_name(name) }.select { |entity| entities.include?(entity) }.sort_by { |entity| entity.qualified_name.to_s } -%>
+    final replicant.Dataset dataset<%= dataset.name %> =
+      new replicant.Dataset( <%= dataset.id %>,
+                             replicant.Replicant.areNamesEnabled() ? "<%= dataset.name %>" : null,
+                             <%= dataset.instance_dataset? ? "#{repository.entity_by_name(dataset.dataset_root_entity_type).arez.qualified_name}.class" : 'null' %>,
+                             replicant.Dataset.FilterMode.<%= dataset.filter_mode.to_s.upcase %>,
+                             <%= dataset.parameter_filtered? ? "replicant.Dataset.FilterParameterMode.#{dataset.filter_parameter.mode.to_s.upcase}" : 'null' %>,
+                             <%= dataset.keyed? %>,
+                             <%= dataset.updatable_filter_parameter? ? '( filterParameter, replicaEntry ) -> true' : 'null' %>,
+                             <%= dataset.cacheable? %>,
+                             replicant.Dataset.Visibility.<%= dataset.visibility.to_s.upcase %>,
+                             java.util.Arrays.asList( <%= included.collect { |entity| "entityType#{entity.data_module.name}#{entity.name}" }.join(', ') %> ) );
+<% end -%>
+<% all_entities = repository.data_modules.select(&:replicant?).flat_map { |data_module| data_module.entities.select { |entity| entity.replicant? && entity.concrete? } }.sort_by { |entity| entity.replicant.transport_id } -%>
+<% selected_by_id = entities.to_h { |entity| [entity.replicant.transport_id, entity] } -%>
+<% selected_datasets_by_id = datasets.to_h { |dataset| [dataset.id, dataset] } -%>
+    return new replicant.SystemSchema( <%= repository.replicant.system_schema_id %>,
+                                       replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>:<%= test_profile.name %>" : null,
+                                       new replicant.Dataset[]{ <%= repository.replicant.datasets_id_spaced.collect { |dataset| dataset && selected_datasets_by_id[dataset.id] ? "dataset#{dataset.name}" : 'null' }.join(', ') %> },
+                                       new replicant.EntityType[]{ <%= all_entities.collect { |entity| selected_by_id[entity.replicant.transport_id] ? "entityType#{entity.data_module.name}#{entity.name}" : 'null' }.join(', ') %> } );
+  }
+}

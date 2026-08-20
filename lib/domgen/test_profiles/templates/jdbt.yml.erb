@@ -1,0 +1,22 @@
+# DO NOT EDIT: File is auto-generated
+version: "17"
+forceDrop: true
+resourceRoot: ../..
+preCreateDirs:
+  - db-hooks/pre
+postCreateDirs:
+<% test_profile.database_post_create_dirs.each do |directory| -%>
+  - <%= directory %>
+<% end -%>
+datasets: []
+filterProperties:
+  environment:
+    pattern: "__ENVIRONMENT__"
+    default: "development"
+  customer:
+    pattern: "__CUSTOMER__"
+    default: ""
+  customerEnv:
+    pattern: "__CUSTOMER_ENV__"
+    default: ""
+imports: {}

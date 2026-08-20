@@ -1998,6 +1998,7 @@ module Domgen
 
       if default_model_checks?
         Domgen::ModelChecks.name_check(self)
+        Domgen::ModelChecks.service_exception_check(self)
       end
 
       Domgen.info 'Model Checking started.'

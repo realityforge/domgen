@@ -3,7 +3,7 @@ package <%= to_package(dao.jpa.qualified_dao_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "RedundantThrows" } )
 abstract class <%= dao.jpa.dao_test_name %>
-  extends <%= dao.data_module.repository.jpa.qualified_standalone_entity_test_name %>
+  extends <%= dao.jpa.test_base_class %>
 {
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
   @org.junit.jupiter.api.Test

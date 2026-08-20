@@ -1,0 +1,51 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.client.test.util.profile;
+<% repository = test_profile.repository -%>
+<% modules = test_profile.data_modules(:client).select(&:arez?) -%>
+<% entities = modules.flat_map { |data_module| data_module.entities.select { |entity| entity.arez? && entity.concrete? } } -%>
+<% daos = entities.collect(&:dao).sort_by { |dao| dao.qualified_name.to_s } -%>
+
+@sting.Fragment
+public interface <%= test_profile.java_name %>LocatorFragment
+{
+  @sting.Named( "<%= repository.name %>" )
+  @javax.annotation.Nonnull
+  default arez.Locator createLocator( <%= daos.collect { |dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Domgen::Naming.camelize(dao.qualified_name.gsub('.',''))}" }.join(', ') %> )
+  {
+    final arez.component.TypeBasedLocator locator = new arez.component.TypeBasedLocator();
+<% modules.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.arez? && entity.final? }.each do |entity| -%>
+    locator.registerLookup( <%= entity.arez.qualified_name %>.class,
+                            id -> <%= Domgen::Naming.camelize(entity.dao.qualified_name.gsub('.','')) %>.findBy<%= entity.primary_key.name %>( (<%= entity.primary_key.arez.java_type(:default, :assume_generated => true) %>) id ) );
+<% end -%>
+<% data_module.entities.select { |entity| entity.arez? && !entity.final? }.each do |entity| -%>
+<% compatible = entity.compatible_concrete_types.select { |candidate| entities.include?(candidate) } -%>
+<% unless compatible.empty? -%>
+    locator.registerLookup( <%= entity.arez.qualified_name %>.class,
+                            id -> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( <%= compatible.collect { |candidate| Domgen::Naming.camelize(candidate.dao.qualified_name.gsub('.','')) }.join(', ') %>, (<%= entity.primary_key.arez.java_type(:default, :assume_generated => true) %>) id ) );
+<% end -%>
+<% end -%>
+<% end -%>
+    return locator;
+  }
+<% modules.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.arez? && !entity.final? }.each do |entity| -%>
+<% compatible = entity.compatible_concrete_types.select { |candidate| entities.include?(candidate) } -%>
+<% unless compatible.empty? -%>
+
+  @javax.annotation.Nullable
+  private static <%= entity.arez.qualified_name %> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( <%= compatible.collect { |candidate| "@javax.annotation.Nonnull final #{candidate.dao.arez.qualified_repository_name} #{Domgen::Naming.camelize(candidate.dao.qualified_name.gsub('.',''))}" }.join(', ') %>, final <%= entity.primary_key.arez.java_type(:default, :assume_generated => true) %> id )
+  {
+<% compatible.each do |candidate| -%>
+    final <%= entity.arez.qualified_name %> <%= Domgen::Naming.camelize(candidate.name) %> = <%= Domgen::Naming.camelize(candidate.dao.qualified_name.gsub('.','')) %>.findBy<%= candidate.primary_key.name %>( id );
+    if ( null != <%= Domgen::Naming.camelize(candidate.name) %> )
+    {
+      return <%= Domgen::Naming.camelize(candidate.name) %>;
+    }
+<% end -%>
+    return null;
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+}

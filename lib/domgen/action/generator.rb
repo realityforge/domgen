@@ -38,6 +38,12 @@ Domgen::Generator.define([:action],
   g.template_set(:action_types_mssql) do |template_set|
     template_set.erb_template(:repository,
                               'action_type_populator.sql.erb',
-                              'db-hooks/post/#{repository.name}_ActionTypesPopulator.sql')
+                              'db-hooks/post/#{repository.name}_ActionTypesPopulator.sql',
+                              :extra_data => { :database_prefix => '' })
+    template_set.erb_template(:repository,
+                              'action_type_populator.sql.erb',
+                              'import-hooks/post/#{repository.name}_ActionTypesPopulator.sql',
+                              :name => 'action_types_mssql:import_action_type_populator.sql',
+                              :extra_data => { :database_prefix => '__TARGET__.' })
   end
 end

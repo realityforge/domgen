@@ -1,0 +1,43 @@
+<% manifest = repository.test_profile_registry.manifest -%>
+<% realm_name = realm.to_s -%>
+<% mapped_modules = manifest['modules'].select { |m| m['architecture_packages'][realm_name] } -%>
+<% mapped_names = mapped_modules.collect { |m| m['name'] } -%>
+// DO NOT EDIT: File is auto-generated.
+package <%= package_name %>;
+
+import java.util.Map;
+import java.util.Set;
+
+final class <%= class_name %>
+{
+  static final Map<String, String> PACKAGES =
+    Map.ofEntries(
+<%= mapped_modules.collect { |m| "      Map.entry( \"#{m['name']}\", \"#{m['architecture_packages'][realm_name]}\" )" }.join(",\n") %>
+    );
+
+  static final Map<String, Set<String>> INTENDED_IMPORTS =
+    Map.ofEntries(
+<%= mapped_modules.collect do |m|
+      targets = manifest['imports'].select { |i| i['source'] == m['name'] && i['capabilities'].include?(realm_name) && mapped_names.include?(i['target']) }.collect { |i| i['target'] }.sort
+      "      Map.entry( \"#{m['name']}\", Set.of( #{targets.collect { |target| "\"#{target}\"" }.join(', ')} ) )"
+    end.join(",\n") %>
+    );
+
+  static final Set<ClassDependency> TEMPORARY_DEPENDENCIES =
+    Set.of(
+<% debt_kind = :server == realm ? 'server_code' : 'client_code' -%>
+<% debts = manifest['debt'].select { |d| d['kind'] == debt_kind } -%>
+<%= debts.collect do |d|
+      origin, target = d['path'].split(' -> ', 2)
+      "      new ClassDependency( \"#{origin}\", \"#{target}\", \"#{d['issue']}\" )"
+    end.join(",\n") %>
+    );
+
+  private <%= class_name %>()
+  {
+  }
+
+  record ClassDependency( String origin, String target, String issue )
+  {
+  }
+}

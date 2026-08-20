@@ -1,0 +1,201 @@
+# DO NOT EDIT: File is auto-generated
+load("//third_party/java:server_rules.bzl", "java_server_test_library")
+
+def declare_persistence_profile_java_targets():
+<% persistent_modules = repository.data_modules.select do |data_module|
+     data_module.jpa? && repository.test_profile_registry.module_config(data_module).supported_realms.include?(:persistence)
+   end -%>
+<% persistent_modules.each do |data_module| -%>
+<% factory_name = data_module.jpa.generate_test_factory? ? data_module.jpa.qualified_test_factory_name.split('.').last : nil -%>
+<% factory_package = data_module.jpa.generate_test_factory? ? data_module.jpa.qualified_test_factory_name.split('.')[0..-2].join('/') : nil -%>
+    java_server_test_library(
+        name = "<%= Domgen::Naming.underscore(data_module.name) %>_persistence_fragments",
+        srcs = [
+            "profile/<%= data_module.name %>PersistenceRepositoryModule.java",
+<% if data_module.jpa.generate_test_factory? -%>
+            "profile/<%= data_module.name %>PersistenceFactoryModule.java",
+<% end -%>
+        ],
+        deps = [
+            "//server/src/test/java/org/realityforge/guiceyloops/server:implementation",
+            "//third_party/java:guice",
+            "//third_party/java:jakarta_inject",
+<% if data_module.jpa.generate_test_factory? -%>
+            "//server/src/test/java/<%= factory_package %>:<%= factory_name %>",
+<% end -%>
+        ],
+    )
+<% end -%>
+
+<% server_modules = repository.data_modules.select do |data_module|
+     data_module.ejb? && repository.test_profile_registry.module_config(data_module).supported_realms.include?(:server)
+   end -%>
+<% server_modules.each do |data_module| -%>
+    java_server_test_library(
+        name = "<%= Domgen::Naming.underscore(data_module.name) %>_server_service_fragment",
+        srcs = ["profile/<%= data_module.name %>ServerServiceModule.java"],
+        deps = [
+            "//server/src/test/java/org/realityforge/guiceyloops/server:implementation",
+            "//third_party/java:javax_annotation",
+        ],
+    )
+<% end -%>
+
+<% repository.test_profiles.select { |test_profile| test_profile.persistence? || test_profile.server? }.each do |test_profile| -%>
+    java_server_test_library(
+        name = "<%= test_profile.path_name %>_profile",
+        srcs = [
+            "profile/<%= test_profile.java_name %>ProfileModule.java",
+<% if test_profile.database_backed? -%>
+            "profile/<%= test_profile.java_name %>TestModule.java",
+<% end -%>
+            "profile/Abstract<%= test_profile.java_name %>Test.java",
+<% if test_profile.server? && test_profile.server_support_profile? -%>
+            "profile/Abstract<%= test_profile.java_name %>ProfileTestSupport.java",
+<% end -%>
+        ],
+        visibility = ["//visibility:public"],
+        deps = [
+<% if test_profile.server? && !test_profile.server_support_profile? -%>
+            ":<%= test_profile.server_support_profile.path_name %>_profile",
+<% end -%>
+            "//server/src/main/java/iris/rose/server/entity:RosePersistenceUnit",
+            "//server/src/test/java/org/realityforge/guiceyloops/server:implementation",
+            "//third_party/java:guice",
+            "//third_party/java:jakarta_inject",
+            "//third_party/java:jakarta_transaction_api",
+            "//third_party/java:javax_annotation",
+            "//third_party/java:replicant_server",
+<% if test_profile.database_backed? -%>
+            "//server/src/main/java/org/realityforge/timeservice:timeservice",
+            "//server/src/test/java/org/realityforge/guiceyloops/shared:ValueUtil",
+<% end -%>
+<% test_profile.data_modules(:persistence).select { |data_module| data_module.jpa? }.each do |data_module| -%>
+            ":<%= Domgen::Naming.underscore(data_module.name) %>_persistence_fragments",
+<% if data_module.jpa.generate_test_factory? -%>
+<% factory_name = data_module.jpa.qualified_test_factory_name.split('.').last -%>
+<% factory_package = data_module.jpa.qualified_test_factory_name.split('.')[0..-2].join('/') -%>
+            "//server/src/test/java/<%= factory_package %>:<%= factory_name %>",
+<% end -%>
+<% end -%>
+<% if test_profile.server? -%>
+            ":TestProfileServerSupportModule",
+            "//third_party/java:enterprise_concurrent_api",
+<% if test_profile.data_modules(:server).any? { |data_module| 'Mail' == data_module.name.to_s } -%>
+            ":MailTestModule",
+<% end -%>
+<% test_profile.data_modules(:server).select(&:ejb?).each do |data_module| -%>
+            ":<%= Domgen::Naming.underscore(data_module.name) %>_server_service_fragment",
+<% end -%>
+<%
+  config_module_targets = {
+    'Action' => '//server/src/test/java/iris/rose/server/action:ActionConfigTestModule',
+    'Azure' => '//server/src/test/java/iris/rose/server/azure:AzureConfigTestModule',
+    'Cfs' => '//server/src/test/java/iris/rose/server/cfs:CfsConfigTestModule',
+    'Config' => '//server/src/test/java/iris/rose/server/config:RoseConfigTestModule',
+    'Delwp' => '//server/src/test/java/iris/rose/server/delwp:DelwpConfigTestModule',
+    'Feedback' => '//server/src/test/java/iris/rose/server/feedback:FeedbackConfigTestModule',
+    'GateKeeper' => '//server/src/test/java/iris/rose/server/gatekeeper:GateKeeperConfigTestModule',
+    'Mail' => '//server/src/test/java/iris/rose/server/mail:MailResourcesTestModule',
+    'Messaging' => '//server/src/test/java/iris/rose/server/messaging:MessagingConfigTestModule',
+    'Monitoring' => '//server/src/test/java/iris/rose/server/monitoring:MonitoringConfigTestModule',
+    'Notification' => '//server/src/test/java/iris/rose/server/notification:NotificationConfigTestModule',
+    'Payments' => '//server/src/test/java/iris/rose/server/payments:PaymentsConfigTestModule',
+    'PlannedMovements' => '//server/src/test/java/iris/rose/server/planned_movements:PlannedMovementsConfigTestModule',
+    'Plans' => '//server/src/test/java/iris/rose/server/plans:PlansConfigTestModule',
+    'Reports' => '//server/src/test/java/iris/rose/server/reports:ReportsConfigTestModule',
+    'Tas' => '//server/src/test/java/iris/rose/server/tas:TasConfigTestModule',
+    'WebHook' => '//server/src/test/java/iris/rose/server/web_hook:WebHookConfigTestModule',
+    'Whispir' => '//server/src/test/java/iris/rose/server/whispir:WhispirConfigTestModule'
+  }
+  test_profile.data_modules(:server).each do |data_module|
+    config_module_target = config_module_targets[data_module.name.to_s]
+-%>
+<% if config_module_target -%>
+            "<%= config_module_target %>",
+<% end -%>
+<% end -%>
+<% test_profile.data_modules(:server).select do |data_module|
+     data_module.ee? && data_module.messages.any? { |message| message.ee? && message.ee.generate_test_literal? }
+   end.each do |data_module| -%>
+<% event_package = data_module.messages.find { |message| message.ee? && message.ee.generate_test_literal? }.ee.qualified_message_literal_name.split('.')[0..-2].join('/') -%>
+            "//server/src/test/java/<%= event_package %>:events",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Rose' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/core:AttributePermission",
+            "//server/src/main/java/iris/rose/server/core:Event",
+            "//server/src/main/java/iris/rose/server/core:EventAttributePermission",
+            "//server/src/main/java/iris/rose/server/core:EventTypeAttributePermission",
+            "//server/src/main/java/iris/rose/server/core:Organisation",
+            "//server/src/main/java/iris/rose/server/core:OrgUnit",
+            "//server/src/main/java/iris/rose/server/core:OrgUnitMembership",
+            "//server/src/main/java/iris/rose/server/core:OrgUnitAttributePermission",
+            "//server/src/main/java/iris/rose/server/core:Permission",
+            "//server/src/main/java/iris/rose/server/core:Pool",
+            "//server/src/main/java/iris/rose/server/core:RoseAuthService",
+            "//server/src/main/java/iris/rose/server/core:Resource",
+            "//server/src/main/java/iris/rose/server/core:ResourceGroup",
+            "//server/src/main/java/iris/rose/server/core:ResourceGroupSubscription",
+            "//server/src/main/java/iris/rose/server/core:ResourceUser",
+            "//server/src/main/java/iris/rose/server/core:SecurityGroup",
+            "//server/src/main/java/iris/rose/server/core:SecurityGroupMembership",
+            "//server/src/main/java/iris/rose/server/core:TemplatePool",
+            "//server/src/main/java/iris/rose/server/core:User",
+            "//server/src/main/java/iris/rose/server/core:data_types",
+            "//server/src/test/java/iris/rose/server/core:TestRoseAuthServiceImpl",
+            "//shared/src/main/java/iris/rose/shared/entity:CoreConstants",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Action' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/action:ActionServiceInternal",
+            "//server/src/main/java/iris/rose/server/action:ActionServiceInternalBoundary",
+            "//third_party/java:mockito_core",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'DataAnalytics' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/data_analytics:AnalysisTaskDAO",
+            "//server/src/main/java/iris/rose/server/data_analytics:util",
+            "//server/src/main/java/iris/rose/server/util/json:JsonSchemaValidator",
+            "//server/src/main/java/iris/rose/server/service/util:JsonUtil",
+            "//third_party/java:jtds",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Calendar' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/calendar:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Operations' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/operations:entities",
+            "//server/src/main/java/iris/rose/server/operations:services",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'PlannedMovements' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/planned_movements:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Movements' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/movements:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Messaging' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/messaging:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Plans' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/plans:entities",
+            "//server/src/main/java/iris/rose/server/plans:HashUtil",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Payments' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/payments:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Requests' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/requests:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Response' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/response:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Templates' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/templates:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Notification' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/notification:entities",
+<% end -%>
+<% if test_profile.data_modules(:server).any? { |data_module| 'Warehouse' == data_module.name.to_s } -%>
+            "//server/src/main/java/iris/rose/server/warehouse:entities",
+<% end -%>
+<% end -%>
+        ],
+    )
+<% end -%>

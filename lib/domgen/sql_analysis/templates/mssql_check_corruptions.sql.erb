@@ -3,6 +3,7 @@
 corruption_check_entity = repository.sql_analysis.corruption_check_entity
 data_issue_entity = repository.sql_analysis.data_issue_entity
 analysis_data_module = repository.sql_analysis.analysis_data_module
+profile_module_entity = analysis_data_module.entity_by_name(:TestProfileModule)
 -%>
 
 CREATE PROCEDURE <%= analysis_data_module.sql.quoted_schema %>.[spCheckCorruptions]
@@ -19,6 +20,16 @@ AS
   DECLARE @QueryOption VARCHAR(MAX)
   DECLARE @FullSql VARCHAR(MAX)
   DECLARE @Description VARCHAR(MAX)
+
+  IF EXISTS (
+    SELECT 1
+    FROM <%= corruption_check_entity.sql.qualified_table_name %> CC
+    CROSS APPLY STRING_SPLIT(CC.[RequiredModules], ',') R
+    WHERE NOT EXISTS (
+      SELECT 1 FROM <%= profile_module_entity.sql.qualified_table_name %> PM WHERE PM.[Name] = R.[value]
+    )
+  )
+    THROW 51002, 'An integrity check requires a module outside the active Test Profile', 1
 
   SELECT @IssueCount = COUNT(*) FROM <%= data_issue_entity.sql.qualified_table_name %>
 

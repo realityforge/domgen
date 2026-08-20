@@ -1,0 +1,29 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+public abstract class Abstract<%= test_profile.java_name %>Test
+  extends Abstract<%= test_profile.server_support_profile.java_name %>ProfileTestSupport
+{
+<% if test_profile.database_backed? -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getTestDatabasePrefix()
+  {
+    return "<%= test_profile.path_name %>";
+  }
+
+<% end -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected final String getTestProfileName()
+  {
+    return "<%= test_profile.name %>";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected com.google.inject.Module newProfileModule()
+  {
+    return new <%= test_profile.java_name %>ProfileModule( this );
+  }
+}

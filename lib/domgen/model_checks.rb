@@ -99,6 +99,25 @@ module Domgen #nodoc
         end
       end
 
+      def service_exception_check(repository)
+        repository.model_check(:ServiceExceptions) do |mc|
+          mc.check = Proc.new do |r|
+            r.data_modules.each do |data_module|
+              data_module.services.each do |service|
+                service.methods.each do |method|
+                  method.exceptions.each do |exception|
+                    if exception.abstract? || !exception.subtypes.empty?
+                      exception_name = "#{exception.data_module.name}.#{exception.name}"
+                      Domgen.error("Service method '#{method.qualified_name}' exposes non-leaf exception '#{exception_name}'")
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
       private
 
       def check_no_dto_suffix(type, element)

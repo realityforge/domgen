@@ -4,7 +4,7 @@ package <%= to_package(repository.replicant.qualified_system_schema_test_name) %
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "NonJREEmulationClassesInClientCode", "SameParameterValue" } )
 @org.junit.runner.RunWith( org.junit.runners.JUnit4.class )
 public final class <%= repository.replicant.system_schema_test_name %>
-  extends <%= repository.gwt.qualified_client_entity_test_name %>
+  extends <%= repository.replicant.system_schema_test_base %>
 {<% repository.replicant.datasets.each do |dataset| -%>
 
   @org.junit.Test

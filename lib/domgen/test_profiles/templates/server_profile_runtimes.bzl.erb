@@ -1,0 +1,32 @@
+# DO NOT EDIT: File is auto-generated
+load("//third_party/java:server_rules.bzl", "java_server_library")
+
+def declare_server_test_profile_runtime_targets():
+<% repository.test_profiles.select(&:persistence?).each do |test_profile| -%>
+    java_server_library(
+        name = "<%= test_profile.path_name %>_persistence_runtime",
+        visibility = ["//visibility:public"],
+        exports = [
+<% test_profile.data_modules(:persistence).each do |data_module| -%>
+<% repository.test_profile_registry.module_config(data_module).persistence_runtime_targets.each do |target| -%>
+            "<%= target %>",
+<% end -%>
+<% end -%>
+        ],
+    )
+<% end -%>
+
+<% repository.test_profiles.select(&:server?).each do |test_profile| -%>
+    java_server_library(
+        name = "<%= test_profile.path_name %>_server_runtime",
+        visibility = ["//visibility:public"],
+        exports = [
+<% test_profile.data_modules(:server).each do |data_module| -%>
+<% package_name = repository.test_profile_registry.module_config(data_module).architecture_packages[:server] -%>
+<% if package_name -%>
+            "//server/src/main/java/<%= package_name.gsub('.', '/') %>:implementation",
+<% end -%>
+<% end -%>
+        ],
+    )
+<% end -%>

@@ -1,0 +1,29 @@
+/* DO NOT EDIT: File is auto-generated */
+package iris.rose.server.test.util.profile;
+
+@java.lang.SuppressWarnings( { "rawtypes", "unchecked" } )
+public final class <%= data_module.name %>PersistenceRepositoryModule
+  extends org.realityforge.guiceyloops.server.BindingTestModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+<% data_module.daos.select { |dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?) }.sort_by { |dao| dao.qualified_name.to_s }.each do |dao| -%>
+    bindRepository( "<%= dao.jpa.qualified_dao_service_name %>", "<%= dao.jpa.qualified_dao_name %>" );
+<% end -%>
+  }
+
+  private void bindRepository( final String interfaceName, final String implementationName )
+  {
+    try
+    {
+      final java.lang.Class iface = java.lang.Class.forName( interfaceName );
+      final java.lang.Class impl = java.lang.Class.forName( implementationName );
+      bind( iface ).to( impl ).in( javax.inject.Singleton.class );
+    }
+    catch ( final java.lang.ClassNotFoundException e )
+    {
+      throw new java.lang.IllegalStateException( "Persistence profile is missing repository " + implementationName, e );
+    }
+  }
+}

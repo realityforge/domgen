@@ -1,10 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
+<% action_data_modules = defined?(module_action_fragment) ? [data_module] : repository.data_modules -%>
 
-INSERT INTO [Action].[tblActionClassification]([Code])
+INSERT INTO <%= database_prefix %>[Action].[tblActionClassification]([Code])
   SELECT 'RPC'
-  WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'RPC' )
+  WHERE 0 = ( SELECT COUNT(*) FROM <%= database_prefix %>[Action].[tblActionClassification] WHERE [Code] = 'RPC' )
 <%-
-  categories = repository.data_modules.flat_map do |data_module|
+  categories = action_data_modules.flat_map do |data_module|
     data_module.services.flat_map do |service|
       next [] unless service.action?
 
@@ -22,26 +23,24 @@ INSERT INTO [Action].[tblActionClassification]([Code])
     end
   end.flatten.compact.sort.uniq
 %> <%- if categories.any? %>
-INSERT INTO [Action].[tblActionTypeCategory]([Code])
+INSERT INTO <%= database_prefix %>[Action].[tblActionTypeCategory]([Code])
 <%= categories.map { |c| "  SELECT '#{c}'
-  WHERE 0 = (SELECT COUNT(*) FROM [Action].[tblActionTypeCategory] WHERE [Code] = '#{c}' )" }.join("\nUNION\n")
+  WHERE 0 = (SELECT COUNT(*) FROM #{database_prefix}[Action].[tblActionTypeCategory] WHERE [Code] = '#{c}' )" }.join("\nUNION\n")
 %>;<%- end %>
 
-DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
-
 <%
-  repository.data_modules.each do |data_module|
+  action_type_codes = []
+  action_data_modules.each do |data_module|
     data_module.services.select {|s| s.action?}.each do |service|
       service.methods.select {|m| m.action? }.each do |method|
         method_key = method.qualified_name.gsub('#', '.')
         code = method.action.code
+        action_type_codes << code
         categories = method.action.categories
         incompatible_categories = method.action.incompatible_categories
 -%>
-INSERT INTO @Ids([Id]) SELECT '<%= code %>'
-
 -- Method: <%= method_key %>
-INSERT INTO [Action].[tblActionType](ClassificationId,
+INSERT INTO <%= database_prefix %>[Action].[tblActionType](ClassificationId,
                                      UserKey,
                                      ApplicationEvent,
                                      Code,
@@ -71,9 +70,9 @@ SELECT C.Id AS ClassificationId,
        <%= method.action.store_error_message_on_failure? ? '1' : '0' %> AS StoreErrorMessageOnFailure,
        <%= method.action.clear_error_on_success? ? '1' : '0' %> AS ClearErrorOnSuccess,
        0 AS Inactive
-FROM [Action].[tblActionClassification] C
+FROM <%= database_prefix %>[Action].[tblActionClassification] C
 WHERE C.[Code] = 'RPC' AND
-      0 = ( SELECT COUNT(*) FROM [Action].[tblActionType] WHERE [Code] = '<%= code %>' )
+      0 = ( SELECT COUNT(*) FROM <%= database_prefix %>[Action].[tblActionType] WHERE [Code] = '<%= code %>' )
 
 IF @@rowcount = 0 AND @@error = 0
   UPDATE AT
@@ -86,48 +85,48 @@ IF @@rowcount = 0 AND @@error = 0
       FailureRetentionDuration = <%= method.action.failure_retention_duration.nil? ? 'NULL' : method.action.failure_retention_duration %>,
       StoreErrorMessageOnFailure = <%= method.action.store_error_message_on_failure? ? '1' : '0' %>,
       ClearErrorOnSuccess = <%= method.action.clear_error_on_success? ? '1' : '0' %>
-  FROM [Action].[tblActionType] AT
-  JOIN [Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
+  FROM <%= database_prefix %>[Action].[tblActionType] AT
+  JOIN <%= database_prefix %>[Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
   WHERE AT.[Code] = '<%= code %>'
 
 <%- categories.each do |category| -%>
-INSERT INTO Action.tblActionTypeCategoryMembership(ActionTypeId, CategoryId)
+INSERT INTO <%= database_prefix %>Action.tblActionTypeCategoryMembership(ActionTypeId, CategoryId)
 SELECT AT.Id, ATC.Id
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
-LEFT JOIN Action.tblActionTypeCategoryMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
+LEFT JOIN <%= database_prefix %>Action.tblActionTypeCategoryMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
 WHERE ATCM.ActionTypeId IS NULL
 <% end -%>
 <%- if categories.any? -%>
 DELETE ATCIM
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
-JOIN Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= categories.map { |c| "'#{c}'" }.join(', ') %>)
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+JOIN <%= database_prefix %>Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= categories.map { |c| "'#{c}'" }.join(', ') %>)
 WHERE AT.Code = '<%= code %>'
 <%- else -%>
 DELETE ATCIM
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
 WHERE AT.Code = '<%= code %>'
 <%- end -%>
 <%- incompatible_categories.each do |category| -%>
-INSERT INTO Action.tblActionTypeCategoryIncompatibilityMembership(ActionTypeId, CategoryId)
+INSERT INTO <%= database_prefix %>Action.tblActionTypeCategoryIncompatibilityMembership(ActionTypeId, CategoryId)
 SELECT AT.Id, ATC.Id
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
-LEFT JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
+LEFT JOIN <%= database_prefix %>Action.tblActionTypeCategoryIncompatibilityMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
 WHERE ATCM.ActionTypeId IS NULL
 <% end -%>
 <%- if incompatible_categories.any? -%>
 DELETE ATCIM
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
-JOIN Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= incompatible_categories.map { |c| "'#{c}'" }.join(', ') %>)
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+JOIN <%= database_prefix %>Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= incompatible_categories.map { |c| "'#{c}'" }.join(', ') %>)
 WHERE AT.Code = '<%= code %>'
 <%- else -%>
 DELETE ATCIM
-FROM Action.tblActionType AT
-JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+FROM <%= database_prefix %>Action.tblActionType AT
+JOIN <%= database_prefix %>Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
 WHERE AT.Code = '<%= code %>'
 <%- end -%>
 
@@ -136,18 +135,30 @@ WHERE AT.Code = '<%= code %>'
     end
   end
 -%>
+<% if defined?(module_action_fragment) -%>
+-- End <%= data_module.name %> Action registrations
+<% end -%>
+<%- unless defined?(module_action_fragment) -%>
 -- Deactivate any active actions that have not been included in this set
 UPDATE AT
 SET [Inactive] = 1
-FROM [Action].[tblActionType] AT
-JOIN [Action].[tblActionClassification] AC ON AT.[ClassificationId] = AC.[Id]
-WHERE AT.[Code] NOT IN (SELECT [Id] FROM @Ids) AND AT.[Inactive] = 0
+FROM <%= database_prefix %>[Action].[tblActionType] AT
+JOIN <%= database_prefix %>[Action].[tblActionClassification] AC ON AT.[ClassificationId] = AC.[Id]
+<%- if action_type_codes.any? -%>
+WHERE AT.[Code] NOT IN
+(
+<%= action_type_codes.map { |code| "  '#{code}'" }.join(",\n") %>
+) AND AT.[Inactive] = 0
+<%- else -%>
+WHERE AT.[Inactive] = 0
+<%- end -%>
 
 -- Patch any actions that are in flight but whose priority has changed
 UPDATE A
 SET A.Priority = AT.Priority
-FROM [Action].[tblAction] A
-JOIN [Action].[tblActionType] AT ON A.[ActionTypeId] = AT.[Id]
+FROM <%= database_prefix %>[Action].[tblAction] A
+JOIN <%= database_prefix %>[Action].[tblActionType] AT ON A.[ActionTypeId] = AT.[Id]
 WHERE
   A.Priority <> AT.Priority AND
   A.CompleteAt IS NULL
+<%- end -%>
